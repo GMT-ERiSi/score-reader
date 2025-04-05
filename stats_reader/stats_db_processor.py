@@ -330,7 +330,7 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
 
 def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=None):
     """Process stats for a single player"""
-     cursor = conn.cursor()
+    cursor = conn.cursor()
     
     # Handle different possible formats of player data
     if isinstance(player_data, dict):
