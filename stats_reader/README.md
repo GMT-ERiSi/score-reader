@@ -18,14 +18,35 @@ This module processes Star Wars Squadrons match data into a SQLite database and 
 
 The recommended workflow is:
 
-1. Extract match data from screenshots
-2. Clean the extracted data to fix any AI recognition errors
-3. Process the cleaned data into the database
-4. View the generated stats reports
+1. Set up a reference database of teams and players (optional but recommended)
+2. Extract match data from screenshots
+3. Clean the extracted data to fix any AI recognition errors
+4. Process the cleaned data into the database
+5. Generate an ELO ladder and stats reports
+6. View the generated reports
+
+### Reference Database Management
+
+The reference database ensures consistent team and player names across all matches:
+
+```bash
+python -m stats_reader reference
+```
+
+This interactive tool allows you to:
+1. Add and manage canonical team names
+2. Add and manage canonical player names and their team affiliations
+3. Add aliases for teams and players to help match variations
+4. Import/export the reference data to JSON files
+
+When processing matches, the system will automatically:
+- Match detected player names to their canonical forms
+- Suggest team names based on recognized players
+- Maintain consistent identities even with spelling variations
 
 ### Data Cleaning
 
-Before processing the data, it's recommended to verify and clean it using the data cleaner:
+Before processing the data, verify and clean it using the data cleaner:
 
 ```bash
 python -m stats_reader clean --input Screenshots/all_seasons_data.json --output Screenshots/all_seasons_data_cleaned.json
@@ -41,20 +62,34 @@ This interactive tool will:
 After cleaning, process the data into the database:
 
 ```bash
-python -m stats_reader process --input Screenshots/all_seasons_data_cleaned.json
+python -m stats_reader process --input Screenshots/all_seasons_data_cleaned.json --reference-db squadrons_reference.db
 ```
 
 This will:
 1. Read the cleaned data file
-2. Create a SQLite database (`squadrons_stats.db`)
-3. Prompt you for team names for each match
-4. Generate statistics reports in the `stats_reports` directory
+2. Use the reference database to ensure consistent team/player identification
+3. Create a SQLite database (`squadrons_stats.db`)
+4. Prompt you for team names for each match (with suggestions based on recognized players)
+5. Generate statistics reports in the `stats_reports` directory
 
-For backward compatibility, you can also run:
+### Generating an ELO Ladder
+
+After processing the match data, you can generate an ELO rating ladder for teams:
 
 ```bash
-python -m stats_reader --input Screenshots/all_seasons_data_cleaned.json
+python -m stats_reader elo
 ```
+
+This will:
+1. Process all matches in chronological order
+2. Calculate ELO ratings for each team based on match results
+3. Generate an ELO ladder ranking teams by skill
+4. Create reports with the ladder and full ELO history
+
+Options:
+- `--starting-elo 1000`: Set the starting ELO rating (default: 1000)
+- `--k-factor 32`: Set the K-factor for calculating rating changes (default: 32)
+- `--output custom_dir`: Custom output directory for ELO reports
 
 ### Finding the Data File
 
@@ -78,10 +113,14 @@ python -m stats_reader process --generate-only --db path/to/database.db
 The SQLite database contains the following tables:
 
 - `seasons`: League/season information
-- `teams`: Team names with win/loss records
+- `teams`: Team names with win/loss records and reference IDs
 - `matches`: Individual match records with winner information
-- `players`: Player identification with consistent hashing
+- `players`: Player identification with consistent hashing and reference IDs
 - `player_stats`: Detailed per-match player statistics
+
+The reference database contains:
+- `ref_teams`: Canonical team information with aliases
+- `ref_players`: Canonical player information with team affiliations and aliases
 
 ## Reports Generated
 
@@ -92,22 +131,62 @@ The module generates the following JSON reports:
 3. `faction_win_rates.json`: Win percentages for IMPERIAL vs REBEL
 4. `season_summary.json`: Match counts by season
 5. `player_teams.json`: History of which players played for which teams
+6. `elo_ladder.json`: Team rankings based on ELO ratings
+7. `elo_history.json`: Full history of ELO changes for each match
+
+## Understanding ELO Ratings
+
+The ELO rating system provides a way to rank teams based on their relative skill:
+
+- All teams start with 1000 points
+- After each match, points are transferred from the loser to the winner
+- The amount transferred depends on the expected outcome:
+  - When a high-rated team beats a low-rated team, few points are transferred
+  - When a low-rated team beats a high-rated team, many points are transferred
+- The K-factor (default: 32) determines the maximum possible points transferred
+
+This produces a ranking system that accounts for the quality of opponents faced.
+
+## Reference Database Features
+
+The reference database ensures consistent player and team identification by:
+
+1. **Canonical Names**: Establishing official names for teams and players
+2. **Alias Matching**: Handling variations in spelling or formatting
+3. **Fuzzy Matching**: Finding the closest match when exact matches aren't found
+4. **Team Affiliations**: Tracking which players belong to which teams
+5. **Auto-suggestions**: Recommending team names based on recognized players
+
+This system helps maintain consistent statistics even when:
+- Player names have typos or variations
+- Teams use different abbreviations or formats
+- Players move between teams over time
 
 ## Example Complete Workflow
 
-1. Extract match data from screenshots:
+1. Set up a reference database (one-time setup):
+   ```bash
+   python -m stats_reader reference
+   ```
+
+2. Extract match data from screenshots:
    ```bash
    python -m score_extractor.season_processor
    ```
 
-2. Clean the extracted data:
+3. Clean the extracted data:
    ```bash
    python -m stats_reader clean --input Screenshots/all_seasons_data.json --output Screenshots/all_seasons_data_cleaned.json
    ```
 
-3. Process the cleaned data into the database:
+4. Process the cleaned data using the reference database:
    ```bash
-   python -m stats_reader process --input Screenshots/all_seasons_data_cleaned.json
+   python -m stats_reader process --input Screenshots/all_seasons_data_cleaned.json --reference-db squadrons_reference.db
    ```
 
-4. View the generated reports in the `stats_reports` directory
+5. Generate an ELO ladder:
+   ```bash
+   python -m stats_reader elo
+   ```
+
+6. View the generated reports in the `stats_reports` directory
