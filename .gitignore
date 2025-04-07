@@ -49,3 +49,6 @@ Screenshots/extraction_results.json
 
 # Screenshots themselves only to be kept locally
 Screenshots/**
+
+# Ignore db files
+*.db
