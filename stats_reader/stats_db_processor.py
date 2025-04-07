@@ -211,6 +211,23 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
         winner = "REBEL"
     else:
         winner = "UNKNOWN"
+        
+    # Try to extract date from filename
+    import re
+    match_date = None
+    
+    # Try pattern like "YYYY.MM.DD" or "YYYY-MM-DD"
+    date_pattern = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})', filename)
+    if date_pattern:
+        year, month, day = date_pattern.groups()
+        match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
+    
+    # Also try pattern like "DD.MM.YYYY" common in screenshots
+    if not match_date:
+        date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
+        if date_pattern:
+            day, month, year = date_pattern.groups()
+            match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
     
     # Get teams data - handle different possible structures in the JSON
     teams_data = match_data.get("teams", {})
@@ -236,6 +253,10 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
     # Ask user for team names
     print(f"\nProcessing match: {filename}")
     print(f"Match result: {match_result}")
+    print(f"Match date (YYYY-MM-DD HH:MM:SS): {match_date or 'Not detected from filename'}")
+    user_date = input("Enter match date or press Enter to accept/use current time: ").strip()
+    if user_date:
+        match_date = user_date
     
     # Display imperial players
     print("\nIMPERIAL players:")
@@ -309,11 +330,17 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
         cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (rebel_team_id,))
         cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (imperial_team_id,))
     
-    # Insert match record
-    cursor.execute("""
-    INSERT INTO matches (season_id, imperial_team_id, rebel_team_id, winner, filename)
-    VALUES (?, ?, ?, ?, ?)
-    """, (season_id, imperial_team_id, rebel_team_id, winner, filename))
+    # Insert match record with date if provided
+    if match_date:
+        cursor.execute("""
+        INSERT INTO matches (season_id, imperial_team_id, rebel_team_id, winner, filename, match_date)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, (season_id, imperial_team_id, rebel_team_id, winner, filename, match_date))
+    else:
+        cursor.execute("""
+        INSERT INTO matches (season_id, imperial_team_id, rebel_team_id, winner, filename)
+        VALUES (?, ?, ?, ?, ?)
+        """, (season_id, imperial_team_id, rebel_team_id, winner, filename))
     
     match_id = cursor.lastrowid
     

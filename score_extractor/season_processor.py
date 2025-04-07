@@ -149,9 +149,10 @@ def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_siz
 
 def find_screenshots_dir():
     """Find the Screenshots directory used by test_extraction"""
-    # Default Screenshots folder logic from test_extraction.py
+    # Default Screenshots folder at same level as project root
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    parent_dir = os.path.dirname(project_root)
     default_screenshots_folder = os.path.join(parent_dir, "Screenshots")
     
     if os.path.isdir(default_screenshots_folder):

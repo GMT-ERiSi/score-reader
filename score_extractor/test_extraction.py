@@ -78,8 +78,10 @@ if __name__ == "__main__":
         print("Or make sure your .env file contains: ANTHROPIC_API_KEY=your-api-key-here")
         sys.exit(1)
     
-    # Default Screenshots folder in project root
-    default_screenshots_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Screenshots")
+    # Default Screenshots folder at same level as project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    parent_dir = os.path.dirname(project_root)
+    default_screenshots_folder = os.path.join(parent_dir, "Screenshots")
     
     # Simple command line interface
     if len(sys.argv) < 2:
