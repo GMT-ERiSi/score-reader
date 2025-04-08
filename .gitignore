@@ -56,3 +56,6 @@ Screenshots/**
 # Ignore stats_reports
 stats_reports/**
 !stats_reports/.gitkeep
+
+# Ignore todo
+todo.txt
