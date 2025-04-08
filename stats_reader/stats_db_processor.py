@@ -139,49 +139,161 @@ def get_or_create_team(conn, team_name, ref_db=None):
         conn.commit()
         return cursor.lastrowid
 
-def get_or_create_player(conn, player_name, ref_db=None):
+# Cache to store resolutions for player names during a single run
+player_resolution_cache = {}
+
+def get_or_create_player(conn, player_name, ref_db=None, cache=None):
     """
     Get a player ID from the database or create it if it doesn't exist.
-    If reference database is provided, try to match player to canonical name.
+    Handles exact matching, fuzzy matching prompting, and caching results.
+    Returns (player_id, canonical_name, player_hash) or (None, original_name, None) if skipped.
     """
+    global player_resolution_cache
+    if cache is None: # Use global cache if none provided
+        cache = player_resolution_cache
+
+    if player_name in cache:
+        print(f"Using cached resolution for '{player_name}': {cache[player_name][1]}")
+        return cache[player_name]
+
     cursor = conn.cursor()
     
-    # Try to find canonical player if reference DB is available
     ref_id = None
     canonical_name = player_name
-    
+    resolved = False
+
     if ref_db:
-        ref_player = ref_db.get_player(player_name, fuzzy_match=True)
+        # 1. Try exact match first (name or alias)
+        ref_player = ref_db.get_player(player_name)
         if ref_player:
+            print(f"Found exact match for '{player_name}': {ref_player['name']} (ID: {ref_player['id']})")
             ref_id = ref_player['id']
             canonical_name = ref_player['name']
-            # If we found a reference match, check if we've already added this player
-            cursor.execute("SELECT id FROM players WHERE reference_id = ?", (ref_id,))
-            result = cursor.fetchone()
-            if result:
-                # Get the hash for the canonical name
-                player_hash = generate_player_hash(canonical_name)
-                return result[0], canonical_name, player_hash
+            resolved = True
+        else:
+            # 2. No exact match, try fuzzy matching and prompt user
+            print(f"\nNo exact match found for player: '{player_name}'")
+            fuzzy_matches = ref_db.find_fuzzy_player_matches(player_name)
+            
+            options = {}
+            if fuzzy_matches:
+                print("Potential matches found:")
+                for i, match in enumerate(fuzzy_matches):
+                    options[str(i+1)] = match
+                    team_info = f" (Team: {match['team_name']})" if match['team_name'] else ""
+                    print(f"  {i+1}. {match['name']}{team_info} (Score: {match['match_score']:.2f}, Matched on: {match['matched_on']})")
+            else:
+                print("No potential fuzzy matches found.")
+
+            while not resolved:
+                print("\nPlease choose an action:")
+                if fuzzy_matches:
+                    print("  [Number] - Select the corresponding match above.")
+                    print("  A[Number] - Add '{player_name}' as an alias to the selected match.")
+                print("  C - Create a new player entry for '{player_name}'.")
+                # print("  U - Use '{player_name}' as Unknown/Temporary (no reference link).") # Option removed for simplicity, use Create New
+                print("  S - Skip this player for this match.")
+                
+                choice = input("Your choice: ").strip().upper()
+
+                if choice.isdigit() and choice in options:
+                    selected_match = options[choice]
+                    ref_id = selected_match['id']
+                    canonical_name = selected_match['name']
+                    print(f"Selected existing player: {canonical_name}")
+                    resolved = True
+                elif choice.startswith('A') and choice[1:].isdigit() and choice[1:] in options:
+                    selected_match = options[choice[1:]]
+                    if ref_db.add_player_alias(selected_match['id'], player_name):
+                         print(f"Added '{player_name}' as alias for {selected_match['name']}.")
+                         ref_id = selected_match['id']
+                         canonical_name = selected_match['name']
+                         resolved = True
+                    else:
+                         print(f"Failed to add alias. Please try again.")
+                elif choice == 'C':
+                    # Create new player in reference DB (optional: ask for team)
+                    # For now, create without team association in ref_db
+                    new_ref_id = ref_db.add_player(player_name, primary_team_id=None, alias=None)
+                    if new_ref_id:
+                        ref_id = new_ref_id
+                        canonical_name = player_name
+                        print(f"Created new reference player: {canonical_name} (ID: {ref_id})")
+                        resolved = True
+                    else:
+                         print("Failed to create new player in reference DB. It might already exist.")
+                         # Re-try exact match in case it was just created concurrently or failed previously
+                         ref_player = ref_db.get_player(player_name)
+                         if ref_player:
+                             ref_id = ref_player['id']
+                             canonical_name = ref_player['name']
+                             resolved = True
+                         else:
+                             print("Still cannot find the player. Please choose another option.")
+
+                # elif choice == 'U':
+                #     ref_id = None # No reference link
+                #     canonical_name = player_name # Use the name as is
+                #     print(f"Using '{player_name}' as temporary name.")
+                #     resolved = True
+                elif choice == 'S':
+                    print(f"Skipping player '{player_name}' for this match.")
+                    cache[player_name] = (None, player_name, None)
+                    return None, player_name, None # Indicate skipped
+                else:
+                    print("Invalid choice. Please try again.")
+
+    # 3. Now check/create the player in the main stats DB (players table)
+    # If we resolved to a reference player, check by reference_id first
+    if ref_id is not None:
+        cursor.execute("SELECT id, name, player_hash FROM players WHERE reference_id = ?", (ref_id,))
+        result = cursor.fetchone()
+        if result:
+            player_id, db_name, player_hash = result
+            # Ensure hash matches the canonical name (in case canonical name was updated)
+            expected_hash = generate_player_hash(canonical_name)
+            if player_hash != expected_hash:
+                 print(f"Updating hash for player {canonical_name} (ID: {player_id})")
+                 cursor.execute("UPDATE players SET player_hash = ? WHERE id = ?", (expected_hash, player_id))
+                 conn.commit()
+                 player_hash = expected_hash
+            # Update name if it differs from canonical, keeping the original ID
+            if db_name != canonical_name:
+                 print(f"Updating name for player ID {player_id} from '{db_name}' to '{canonical_name}'")
+                 cursor.execute("UPDATE players SET name = ? WHERE id = ?", (canonical_name, player_id))
+                 conn.commit()
+
+            cache[player_name] = (player_id, canonical_name, player_hash)
+            return player_id, canonical_name, player_hash
     
-    # Generate player hash from canonical name
+    # If no reference match or not found by ref_id, check by canonical_name hash
     player_hash = generate_player_hash(canonical_name)
-    
-    # Check if player exists by hash
     cursor.execute("SELECT id, name FROM players WHERE player_hash = ?", (player_hash,))
     result = cursor.fetchone()
-    
+
     if result:
-        # If we found a reference ID but the existing player doesn't have it, update the record
-        if ref_id:
-            cursor.execute("UPDATE players SET reference_id = ? WHERE id = ?", (ref_id, result[0]))
+        player_id, db_name = result
+        # If we resolved a reference ID earlier but this record doesn't have it, update it
+        if ref_id is not None:
+            cursor.execute("UPDATE players SET reference_id = ? WHERE id = ?", (ref_id, player_id))
             conn.commit()
-        return result[0], result[1], player_hash
+        # Update name if it differs from canonical
+        if db_name != canonical_name:
+             print(f"Updating name for player ID {player_id} from '{db_name}' to '{canonical_name}' based on hash match.")
+             cursor.execute("UPDATE players SET name = ? WHERE id = ?", (canonical_name, player_id))
+             conn.commit()
+        
+        cache[player_name] = (player_id, canonical_name, player_hash)
+        return player_id, canonical_name, player_hash
     else:
-        # Create new player
-        cursor.execute("INSERT INTO players (name, reference_id, player_hash) VALUES (?, ?, ?)", 
+        # Player not found by ref_id or hash, create new player in stats DB
+        print(f"Creating new player record in stats DB for: {canonical_name} (Ref ID: {ref_id})")
+        cursor.execute("INSERT INTO players (name, reference_id, player_hash) VALUES (?, ?, ?)",
                       (canonical_name, ref_id, player_hash))
         conn.commit()
-        return cursor.lastrowid, canonical_name, player_hash
+        player_id = cursor.lastrowid
+        cache[player_name] = (player_id, canonical_name, player_hash)
+        return player_id, canonical_name, player_hash
 
 def get_or_create_season(conn, season_name):
     """Get a season ID from the database or create it if it doesn't exist"""
@@ -281,7 +393,7 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
     if ref_db and imperial_players:
         # Try to suggest team based on first player's primary team
         first_player_name = imperial_players[0].get('player', imperial_players[0]) if isinstance(imperial_players[0], dict) else imperial_players[0]
-        ref_player = ref_db.get_player(first_player_name, fuzzy_match=True)
+        ref_player = ref_db.get_player(first_player_name) # Exact match only for suggestion
         if ref_player and ref_player.get('team_name'):
             imperial_team_suggestion = f" (Suggested: {ref_player['team_name']})"
     
@@ -311,7 +423,7 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
     if ref_db and rebel_players:
         # Try to suggest team based on first player's primary team
         first_player_name = rebel_players[0].get('player', rebel_players[0]) if isinstance(rebel_players[0], dict) else rebel_players[0]
-        ref_player = ref_db.get_player(first_player_name, fuzzy_match=True)
+        ref_player = ref_db.get_player(first_player_name) # Exact match only for suggestion
         if ref_player and ref_player.get('team_name'):
             rebel_team_suggestion = f" (Suggested: {ref_player['team_name']})"
     
@@ -351,16 +463,16 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
     
     # Process imperial players
     for player_data in imperial_players:
-        process_player_stats(conn, match_id, imperial_team_id, "IMPERIAL", player_data, ref_db)
+        process_player_stats(conn, match_id, imperial_team_id, "IMPERIAL", player_data, ref_db, player_resolution_cache)
     
     # Process rebel players
     for player_data in rebel_players:
-        process_player_stats(conn, match_id, rebel_team_id, "REBEL", player_data, ref_db)
+        process_player_stats(conn, match_id, rebel_team_id, "REBEL", player_data, ref_db, player_resolution_cache)
     
     conn.commit()
     print(f"Match data processed successfully. Match ID: {match_id}")
 
-def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=None):
+def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=None, cache=None):
     """Process stats for a single player"""
     cursor = conn.cursor()
     
@@ -385,7 +497,11 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
         ai_kills = 0
         cap_ship_damage = 0
     
-    player_id, canonical_name, player_hash = get_or_create_player(conn, player_name, ref_db)
+    player_id, canonical_name, player_hash = get_or_create_player(conn, player_name, ref_db, cache)
+
+    # If player was skipped during resolution
+    if player_id is None:
+        return # Don't record stats for skipped players
     
     # If the canonical name is different from the player name in the data, show what was matched
     if canonical_name != player_name:
@@ -395,7 +511,8 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     is_subbing = False
     if ref_db:
         # Get player's primary team
-        ref_player = ref_db.get_player(canonical_name)
+        # Use the resolved canonical name for checking primary team
+        ref_player = ref_db.get_player(canonical_name) # Should be an exact match now
         if ref_player and ref_player.get('team_id'):
             # If player has a primary team and it's different from current team
             cursor.execute("SELECT name FROM teams WHERE id = ?", (team_id,))
@@ -418,6 +535,8 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     ))
 
 def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
+    global player_resolution_cache # Access the global cache
+    player_resolution_cache = {} # Reset cache for each run
     """Process all seasons data from the JSON file"""
     if not os.path.exists(seasons_data_path):
         print(f"Error: Seasons data file not found: {seasons_data_path}")
@@ -459,6 +578,7 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
 
             for filename, match_data in season_matches.items():
                 # Pass ref_db object (which might be None)
+                # Pass the ref_db object and the cache
                 process_match_data(conn, season_name, filename, match_data, ref_db)
 
     except Exception as e:

@@ -127,8 +127,8 @@ class ReferenceDatabase:
         
         return None
     
-    def get_player(self, name, fuzzy_match=False, match_threshold=0.85):
-        """Get a player from the reference database"""
+    def get_player(self, name):
+        """Get a player from the reference database by exact match on name or alias."""
         cursor = self.conn.cursor()
         
         # Try exact match first
@@ -149,62 +149,104 @@ class ReferenceDatabase:
                 "alias": result[4]
             }
         
-        if not fuzzy_match:
-            return None
-        
-        # Try aliases
+        # Try exact match on alias (comma-separated)
+        # This query checks if the name exists within the comma-separated alias string
         cursor.execute("""
-            SELECT p.id, p.name, p.primary_team_id, t.name, p.alias 
+            SELECT p.id, p.name, p.primary_team_id, t.name, p.alias
             FROM ref_players p
             LEFT JOIN ref_teams t ON p.primary_team_id = t.id
-            WHERE p.alias LIKE ?
-        """, (f"%{name}%",))
+            WHERE ',' || p.alias || ',' LIKE ?
+        """, (f"%,{name},%",)) # Pad with commas for exact match within the list
         result = cursor.fetchone()
-        
+
         if result:
-            return {
-                "id": result[0], 
-                "name": result[1], 
-                "team_id": result[2], 
-                "team_name": result[3], 
-                "alias": result[4]
-            }
-        
-        # Try fuzzy matching
+             return {
+                 "id": result[0],
+                 "name": result[1],
+                 "team_id": result[2],
+                 "team_name": result[3],
+                 "alias": result[4]
+             }
+
+        return None # No exact match found on name or alias
+    
+    def find_fuzzy_player_matches(self, name, match_threshold=0.85):
+        """Find potential player matches using fuzzy matching on name and aliases."""
+        cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT p.id, p.name, p.primary_team_id, t.name, p.alias 
+            SELECT p.id, p.name, p.primary_team_id, t.name as team_name, p.alias
             FROM ref_players p
             LEFT JOIN ref_teams t ON p.primary_team_id = t.id
         """)
         all_players = cursor.fetchall()
-        best_match = None
-        best_score = 0
         
-        for player in all_players:
-            score = difflib.SequenceMatcher(None, name.lower(), player[1].lower()).ratio()
-            if score > best_score and score >= match_threshold:
-                best_score = score
-                best_match = player
-            
-            # Also check aliases
-            if player[4]:  # If aliases exist
-                for alias in player[4].split(','):
-                    alias_score = difflib.SequenceMatcher(None, name.lower(), alias.lower()).ratio()
-                    if alias_score > best_score and alias_score >= match_threshold:
+        potential_matches = []
+        
+        for player_row in all_players:
+            player_id, player_name, team_id, team_name, alias_str = player_row
+            best_score = 0
+            matched_on = None
+
+            # Check primary name
+            name_score = difflib.SequenceMatcher(None, name.lower(), player_name.lower()).ratio()
+            if name_score >= match_threshold and name_score > best_score:
+                best_score = name_score
+                matched_on = "name"
+
+            # Check aliases
+            if alias_str:
+                aliases = alias_str.split(',')
+                for alias in aliases:
+                    alias_score = difflib.SequenceMatcher(None, name.lower(), alias.strip().lower()).ratio()
+                    if alias_score >= match_threshold and alias_score > best_score:
                         best_score = alias_score
-                        best_match = player
+                        matched_on = f"alias ({alias.strip()})"
+
+            if best_score > 0: # If any score was above threshold
+                 potential_matches.append({
+                    "id": player_id,
+                    "name": player_name,
+                    "team_id": team_id,
+                    "team_name": team_name,
+                    "alias": alias_str,
+                    "match_score": best_score,
+                    "matched_on": matched_on
+                })
+
+        # Sort by score descending
+        potential_matches.sort(key=lambda x: x['match_score'], reverse=True)
         
-        if best_match:
-            return {
-                "id": best_match[0], 
-                "name": best_match[1], 
-                "team_id": best_match[2], 
-                "team_name": best_match[3], 
-                "alias": best_match[4],
-                "match_score": best_score
-            }
+        return potential_matches
+
+    def add_player_alias(self, player_id, new_alias):
+        """Adds a new alias to an existing player."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT alias FROM ref_players WHERE id = ?", (player_id,))
+        result = cursor.fetchone()
         
-        return None
+        if result is None:
+            print(f"Error: Player with ID {player_id} not found.")
+            return False
+
+        current_alias_str = result[0]
+        aliases = []
+        if current_alias_str:
+            aliases = [a.strip() for a in current_alias_str.split(',')]
+        
+        new_alias_stripped = new_alias.strip()
+        if new_alias_stripped and new_alias_stripped not in aliases:
+            aliases.append(new_alias_stripped)
+            updated_alias_str = ",".join(aliases)
+            
+            cursor.execute("UPDATE ref_players SET alias = ? WHERE id = ?", (updated_alias_str, player_id))
+            self.conn.commit()
+            return cursor.rowcount > 0
+        elif new_alias_stripped in aliases:
+             print(f"Alias '{new_alias_stripped}' already exists for player ID {player_id}.")
+             return True # Alias already exists, consider it a success
+        else:
+            print("Error: New alias cannot be empty.")
+            return False
     
     def update_team(self, team_id, name=None, alias=None):
         """Update a team in the reference database"""
@@ -586,7 +628,22 @@ def interactive_player_management(ref_db):
         elif choice == "5":
             # Search for a player
             search_term = input("Enter player name to search: ").strip()
-            player = ref_db.get_player(search_term, fuzzy_match=True)
+            player = ref_db.get_player(search_term) # Exact match search first
+            
+            if not player:
+                print("\nNo exact match found. Searching for fuzzy matches...")
+                fuzzy_matches = ref_db.find_fuzzy_player_matches(search_term)
+                if fuzzy_matches:
+                    print(f"Found {len(fuzzy_matches)} potential matches:")
+                    for match in fuzzy_matches:
+                         team_name = match['team_name'] or 'No team'
+                         aliases = match['alias'] or 'None'
+                         print(f"  ID: {match['id']}, Name: {match['name']}, Team: {team_name}, Aliases: {aliases}, Score: {match['match_score']:.2f} (Matched on: {match['matched_on']})")
+                else:
+                     print("No fuzzy matches found either.")
+                # In interactive mode, we just display results, no action needed here.
+                continue # Skip the display logic below if no exact match
+
             
             if player:
                 match_score = player.get('match_score', 'Exact match')

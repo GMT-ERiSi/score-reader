@@ -67,10 +67,14 @@ python -m stats_reader process --input Screenshots/all_seasons_data_cleaned.json
 
 This will:
 1. Read the cleaned data file
-2. Use the reference database to ensure consistent team/player identification
-3. Create a SQLite database (`squadrons_stats.db`)
-4. Prompt you for team names for each match (with suggestions based on recognized players)
-5. Generate statistics reports in the `stats_reports` directory
+2. Use the reference database (if provided) to ensure consistent team/player identification.
+3. Create a SQLite database (`squadrons_stats.db`).
+4. Prompt you for team names for each match (with suggestions based on recognized players).
+5. **Interactive Player Matching**: If a player name from the data doesn't exactly match a name or alias in the reference database, it will:
+    - Display potential fuzzy matches.
+    - Prompt you to select a match, add the name as an alias, create a new player, or skip.
+    - Cache your decisions during the run to avoid repeated prompts for the same name.
+6. Generate statistics reports in the `stats_reports` directory.
 
 ### Generating an ELO Ladder
 
@@ -151,11 +155,11 @@ This produces a ranking system that accounts for the quality of opponents faced.
 
 The reference database ensures consistent player and team identification by:
 
-1. **Canonical Names**: Establishing official names for teams and players
-2. **Alias Matching**: Handling variations in spelling or formatting
-3. **Fuzzy Matching**: Finding the closest match when exact matches aren't found
-4. **Team Affiliations**: Tracking which players belong to which teams
-5. **Auto-suggestions**: Recommending team names based on recognized players
+1. **Canonical Names**: Establishing official names for teams and players.
+2. **Alias Matching**: Handling variations in spelling or formatting via exact alias matching.
+3. **Interactive Fuzzy Matching**: When an exact match (name or alias) isn't found during processing, it interactively prompts the user with potential fuzzy matches and options to resolve the ambiguity (select match, add alias, create new, skip).
+4. **Team Affiliations**: Tracking which players belong to which teams.
+5. **Auto-suggestions**: Recommending team names based on recognized players during processing.
 
 This system helps maintain consistent statistics even when:
 - Player names have typos or variations
