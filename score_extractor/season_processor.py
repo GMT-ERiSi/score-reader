@@ -28,7 +28,17 @@ def extract_scores_from_multiple_images(image_paths):
             filename = os.path.basename(image_path)
             print(f"Processing image: {filename}")
             
+            # Try to extract date from filename
+            match_date = extract_date_from_filename(filename)
+            if match_date:
+                print(f"Extracted date from filename: {match_date}")
+            
             result = extract_scores_from_image(image_path)
+            
+            # Add the date to the result if found
+            if match_date:
+                result['match_date'] = match_date
+                
             results[filename] = result
             
             print(f"Successfully processed {filename}")
@@ -38,7 +48,57 @@ def extract_scores_from_multiple_images(image_paths):
     
     return results
 
-def process_season_folder(season_folder, batch_size=None):
+def extract_date_from_filename(filename):
+    """
+    Extract a date from a filename using various patterns
+    
+    Args:
+        filename (str): The filename to parse
+        
+    Returns:
+        str or None: Extracted date in YYYY-MM-DD HH:MM:SS format, or None if not found
+    """
+    import re
+    from datetime import datetime
+    
+    # Try to find a date pattern in the filename
+    
+    # Pattern: YYYY.MM.DD or YYYY-MM-DD
+    date_pattern = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})', filename)
+    if date_pattern:
+        year, month, day = date_pattern.groups()
+        # Try to find a time pattern too
+        time_pattern = re.search(r'(\d{2})\.(\d{2})\.(\d{2})', filename)
+        if time_pattern and len(time_pattern.groups()) == 3:
+            hour, minute, second = time_pattern.groups()
+            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        else:
+            # Default to noon if no time found
+            return f"{year}-{month}-{day} 12:00:00"
+    
+    # Pattern: DD.MM.YYYY or DD-MM-YYYY
+    date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
+    if date_pattern:
+        day, month, year = date_pattern.groups()
+        # Try to find a time pattern too
+        time_pattern = re.search(r'(\d{2})\.(\d{2})\.(\d{2})', filename)
+        if time_pattern and len(time_pattern.groups()) == 3:
+            hour, minute, second = time_pattern.groups()
+            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        else:
+            # Default to noon if no time found
+            return f"{year}-{month}-{day} 12:00:00"
+    
+    # Try to extract timestamps from Star Wars Squadrons screenshot format
+    # Example: Star Wars Squadrons Screenshot 2022.09.24 - 00.17.55.76.png
+    sw_pattern = re.search(r'Star Wars\s+Squadrons\s+Screenshot\s+(\d{4})\.(\d{2})\.(\d{2})\s+-\s+(\d{2})\.(\d{2})\.(\d{2})', filename, re.IGNORECASE)
+    if sw_pattern:
+        year, month, day, hour, minute, second = sw_pattern.groups()
+        return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+    
+    return None
+
+def process_season_folder(season_folder, batch_size=None, output_dir=None):
     """
     Process all images in a season folder
     
@@ -83,7 +143,7 @@ def process_season_folder(season_folder, batch_size=None):
             season_results.update(batch_results)
             
             # Save intermediate results
-            save_season_results(season_folder, season_name, season_results)
+            save_season_results(season_folder, season_name, season_results, output_dir)
             
             # Small delay between batches to avoid API rate limits
             if i + batch_size < len(image_paths):
@@ -92,20 +152,34 @@ def process_season_folder(season_folder, batch_size=None):
     else:
         # Process all images at once
         season_results = extract_scores_from_multiple_images(image_paths)
-        save_season_results(season_folder, season_name, season_results)
+        save_season_results(season_folder, season_name, season_results, output_dir)
     
     return {season_name: season_results}
 
-def save_season_results(folder_path, season_name, results):
+def save_season_results(folder_path, season_name, results, output_dir=None):
     """Save the results for a season to a JSON file"""
-    # Save results to a JSON file in the season folder
-    output_path = os.path.join(folder_path, f"{season_name}_results.json")
+    # Determine output path - either in output_dir or in the season folder
+    if output_dir:
+        # Make sure the output directory exists
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        # Create a season subdirectory within the output directory
+        season_output_dir = os.path.join(output_dir, season_name)
+        if not os.path.exists(season_output_dir):
+            os.makedirs(season_output_dir)
+            
+        output_path = os.path.join(season_output_dir, f"{season_name}_results.json")
+    else:
+        # Save in the original season folder
+        output_path = os.path.join(folder_path, f"{season_name}_results.json")
+    
     with open(output_path, "w") as f:
         json.dump({season_name: results}, f, indent=2)
     
     print(f"Season results saved to: {output_path}")
 
-def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_size=None):
+def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_size=None, output_dir=None):
     """
     Process all season folders within the base directory
     
@@ -136,11 +210,19 @@ def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_siz
     # Process each season folder
     all_results = {}
     for season_folder in season_folders:
-        season_results = process_season_folder(season_folder, batch_size)
+        season_results = process_season_folder(season_folder, batch_size, output_dir)
         all_results.update(season_results)
     
     # Save combined results
-    output_path = os.path.join(base_dir, output_file)
+    if output_dir:
+        # Save in the specified output directory
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        output_path = os.path.join(output_dir, output_file)
+    else:
+        # Save in the base directory
+        output_path = os.path.join(base_dir, output_file)
+        
     with open(output_path, "w") as f:
         json.dump(all_results, f, indent=2)
     
@@ -188,6 +270,8 @@ if __name__ == "__main__":
                         help="Process only a specific season folder")
     parser.add_argument("--output", type=str, default="all_seasons_data.json",
                         help="Output filename for all combined results (default: 'all_seasons_data.json')")
+    parser.add_argument("--output-dir", type=str, default="Extracted Results",
+                        help="Directory to save the results (default: 'Extracted Results')")
     parser.add_argument("--batch-size", type=int, default=5,
                         help="Number of images to process in one batch (default: 5)")
     
@@ -208,6 +292,18 @@ if __name__ == "__main__":
             print(f"Error: Base directory not found at {args.base_dir} or {potential_base_dir}")
             sys.exit(1)
     
+    # Set up output directory - use the specified output dir or a default in the project root
+    output_dir = args.output_dir
+    if output_dir:
+        # Make sure it's an absolute path
+        if not os.path.isabs(output_dir):
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), output_dir)
+        
+        # Ensure the directory exists
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            print(f"Created output directory: {output_dir}")
+    
     # Process seasons
     if args.season:
         # Process only the specified season
@@ -216,7 +312,7 @@ if __name__ == "__main__":
             print(f"Error: Season directory not found at {season_path}")
             sys.exit(1)
         
-        process_season_folder(season_path, args.batch_size)
+        process_season_folder(season_path, args.batch_size, output_dir)
     else:
         # Process all seasons
-        process_all_seasons(base_dir, args.output, args.batch_size)
+        process_all_seasons(base_dir, args.output, args.batch_size, output_dir)

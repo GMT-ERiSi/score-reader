@@ -150,26 +150,42 @@ def generate_elo_ladder(db_path, output_dir="stats_reports", starting_elo=1000, 
     for team in teams:
         team_id = team['id']
         if team_id in elo_ratings:
-            # Count matches played
+            # Count matches played and won
             cursor.execute("""
-            SELECT COUNT(*) as matches_played,
-                   SUM(CASE WHEN 
-                           (imperial_team_id = ? AND winner = 'IMPERIAL') OR
-                           (rebel_team_id = ? AND winner = 'REBEL')
-                       THEN 1 ELSE 0 END) as matches_won
+            SELECT 
+                COUNT(*) as matches_played,
+                SUM(CASE WHEN 
+                        (imperial_team_id = ? AND winner = 'IMPERIAL') OR
+                        (rebel_team_id = ? AND winner = 'REBEL')
+                    THEN 1 ELSE 0 END) as matches_won,
+                SUM(CASE WHEN
+                        (imperial_team_id = ? AND winner = 'REBEL') OR
+                        (rebel_team_id = ? AND winner = 'IMPERIAL')
+                    THEN 1 ELSE 0 END) as matches_lost
             FROM matches
-            WHERE imperial_team_id = ? OR rebel_team_id = ?
-            """, (team_id, team_id, team_id, team_id))
+            WHERE (imperial_team_id = ? OR rebel_team_id = ?) AND winner IN ('IMPERIAL', 'REBEL')
+            """, (team_id, team_id, team_id, team_id, team_id, team_id))
             
             stats = dict(cursor.fetchone())
+            
+            # Fix for win rate calculation
+            matches_played = stats['matches_played'] or 0
+            matches_won = stats['matches_won'] or 0
+            matches_lost = stats['matches_lost'] or 0
+            
+            # Make sure we don't divide by zero
+            win_rate = 0
+            if matches_played > 0:
+                win_rate = round(matches_won / matches_played * 100, 1)
             
             ladder.append({
                 'team_id': team_id,
                 'team_name': team['name'],
                 'elo_rating': round(elo_ratings[team_id]),
-                'matches_played': stats['matches_played'] or 0,
-                'matches_won': stats['matches_won'] or 0,
-                'win_rate': round((stats['matches_won'] or 0) / (stats['matches_played'] or 1) * 100, 1) if stats['matches_played'] else 0
+                'matches_played': matches_played,
+                'matches_won': matches_won,
+                'matches_lost': matches_lost,
+                'win_rate': win_rate
             })
     
     # Sort ladder by ELO rating descending
@@ -193,13 +209,13 @@ def generate_elo_ladder(db_path, output_dir="stats_reports", starting_elo=1000, 
     print(f"  - elo_ladder.json: Current ELO ratings for all teams")
     print(f"  - elo_history.json: Full history of ELO changes for each match\n")
     
-    # Display top teams
+    # Display top teams with fixed formatting
     print("Top 10 teams by ELO rating:")
-    print("===========================================")
-    print(f"{'Rank':<5}{'Team':<20}{'ELO':<8}{'W/L':<8}{'Win %':<8}")
-    print("-------------------------------------------")
+    print("===========================================================")
+    print(f"{'Rank':<5}{'Team':<20}{'ELO':<8}{'W-L':<10}{'Win %':<8}")
+    print("-----------------------------------------------------------")
     for team in ladder[:10]:
-        print(f"{team['rank']:<5}{team['team_name'][:19]:<20}{team['elo_rating']:<8}{f'{team['matches_won']}/{team['matches_played']}':<8}{team['win_rate']}%")
+        print(f"{team['rank']:<5}{team['team_name'][:19]:<20}{team['elo_rating']:<8}{team['matches_won']}-{team['matches_lost']:<10}{team['win_rate']}%")
     
     conn.close()
     return ladder, elo_history

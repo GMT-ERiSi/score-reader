@@ -1,18 +1,25 @@
-﻿# Star Wars Squadrons Score Reader
+# Star Wars Squadrons Score Reader
 
-This project uses Claude's AI vision capabilities to extract and analyze scores from Star Wars Squadrons game screenshots, building a comprehensive database of match results and player statistics.
+This project uses AI vision capabilities to extract and analyze scores from Star Wars Squadrons game screenshots, building a comprehensive database of match results and player statistics. It includes an ELO rating system to track team skill levels over time.
+
+## Directory Structure
+
+- `../Screenshots/` - Raw screenshots organized by season (outside project folder)
+- `./Extracted Results/` - JSON files containing extracted match data
+- `./score_extractor/` - Module for extracting data from screenshots
+- `./stats_reader/` - Module for processing data and managing the database
+- `./stats_reports/` - Generated statistical reports
+- `./utilities/` - Maintenance and diagnostic tools
 
 ## Setup
 
-1. Clone the repository code:
+1. Clone the repository:
    ```
    git clone https://github.com/Harry84/score-reader
    cd score-reader
    ```
 
-2. Make sure pyenv-win is installed
-
-3. Set up Python environment:
+2. Set up Python environment:
    ```powershell
    # Install Python (if not already installed)
    pyenv install 3.10.9
@@ -28,56 +35,59 @@ This project uses Claude's AI vision capabilities to extract and analyze scores 
    pip install -r requirements.txt
    ```
 
-4. Edit the .env file to add your Claude API key
+3. Edit the .env file to add your Claude API key
 
-5. Place your screenshots in the Screenshots folder
+4. Place your screenshots in the `../Screenshots` folder (at the same level as the project folder)
 
-## Usage
+## Standard Workflow
 
-### Extract scores from screenshots
-Process all screenshots:
-```powershell
-python -m score_extractor.test_extraction --screenshots
-```
+1. **Add new screenshots** to the `../Screenshots` folder
 
-Process a single image:
-```powershell
-python -m score_extractor.test_extraction Screenshots\your-image.jpg
-```
+2. **Process screenshots**:
+   ```bash
+   python -m score_extractor.season_processor --base-dir ../Screenshots --output-dir "Extracted Results"
+   ```
 
-### Process scores by season
-```powershell
-python -m score_extractor.season_processor --base-dir Screenshots
-```
+3. **Clean the extracted data**:
+   ```bash
+   python -m stats_reader clean --input "Extracted Results/all_seasons_data.json" --output "Extracted Results/all_seasons_data_cleaned.json"
+   ```
+   This interactive tool allows you to verify and correct the AI-extracted data.
 
-### Stats Processing and ELO Ladder
+4. **Process data into database**:
+   ```bash
+   python -m stats_reader.stats_db_processor --input "Extracted Results/all_seasons_data_cleaned.json" --reference-db squadrons_reference.db
+   ```
 
-For detailed instructions on stats processing, database management, and the ELO ladder feature, refer to the README.md file in the stats_reader directory.
+5. **Update match dates** (only if needed):
+   ```bash
+   python utilities/update_paths.py
+   ```
+   This step is only necessary if dates couldn't be automatically extracted from screenshot filenames.
 
-Basic usage:
+6. **Generate ELO ladder**:
+   ```bash
+   python -m stats_reader elo
+   ```
 
-```powershell
-# Set up reference database (one-time setup)
+## Detailed Documentation
+
+- For details on statistical processing and the ELO ladder, see the `stats_reader/README.md` file
+- For utility scripts and maintenance tasks, see the `utilities/README.md` file
+
+## Reference Database
+
+The reference database (`squadrons_reference.db`) maintains consistent team and player names across matches. To set it up:
+
+```bash
 python -m stats_reader reference
-
-# Clean extracted data
-python -m stats_reader clean --input Screenshots/all_seasons_data.json --output Screenshots/all_seasons_data_cleaned.json
-
-# Process data into database
-python -m stats_reader process --input Screenshots/all_seasons_data_cleaned.json --reference-db squadrons_reference.db
-
-# Generate ELO ladder
-python -m stats_reader elo
 ```
 
-## Project Structure
-- `score_extractor/`: Module for extracting data from screenshots
-- `stats_reader/`: Module for processing data and managing the database (see its README for details)
-- `stats_reports/`: Generated statistical reports
-- `Screenshots/`: Directory for storing game screenshots
+This opens an interactive tool for managing canonical team and player names.
 
 ## Notes
+
 - The project is configured to work with PNG and JPG files
-- Extracted data is saved to Screenshots/extraction_results.json
+- Extracted data is saved to the Extracted Results directory
 - The SQLite database `squadrons_stats.db` contains all processed match data
 - Reports are generated in the `stats_reports` directory

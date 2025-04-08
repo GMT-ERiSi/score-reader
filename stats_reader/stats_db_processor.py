@@ -216,18 +216,23 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None):
     import re
     match_date = None
     
-    # Try pattern like "YYYY.MM.DD" or "YYYY-MM-DD"
-    date_pattern = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})', filename)
-    if date_pattern:
-        year, month, day = date_pattern.groups()
-        match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
-    
-    # Also try pattern like "DD.MM.YYYY" common in screenshots
-    if not match_date:
-        date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
+    # First check if match_data already has a date (from season_processor)
+    if 'match_date' in match_data:
+        match_date = match_data['match_date']
+        print(f"Using date from extracted data: {match_date}")
+    else:
+        # Try pattern like "YYYY.MM.DD" or "YYYY-MM-DD"
+        date_pattern = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})', filename)
         if date_pattern:
-            day, month, year = date_pattern.groups()
+            year, month, day = date_pattern.groups()
             match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
+        
+        # Also try pattern like "DD.MM.YYYY" common in screenshots
+        if not match_date:
+            date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
+            if date_pattern:
+                day, month, year = date_pattern.groups()
+                match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
     
     # Get teams data - handle different possible structures in the JSON
     teams_data = match_data.get("teams", {})

@@ -1,0 +1,303 @@
+{
+  "SCL15": {
+    "Star Wars  Squadrons Screenshot 2022.12.07 - 21.01.50.89.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "NRD_ERISi",
+              "score": 4775,
+              "kills": 42,
+              "deaths": 3,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 3774
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "cemoicece",
+              "score": 2250,
+              "kills": 6,
+              "deaths": 3,
+              "assists": 5,
+              "ai_kills": 3,
+              "cap_ship_damage": 37034
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "as5655",
+              "score": 260,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 450
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Bonsaiboompje",
+              "score": 130,
+              "kills": 0,
+              "deaths": 7,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 2275
+            }
+          ]
+        },
+        "empire": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "JEM BLESSAGE",
+              "score": 1314,
+              "kills": 6,
+              "deaths": 7,
+              "assists": 6,
+              "ai_kills": 0,
+              "cap_ship_damage": 687
+            },
+            {
+              "position": "Titan One",
+              "player": "LUCA DRESKER",
+              "score": 1066,
+              "kills": 3,
+              "deaths": 8,
+              "assists": 5,
+              "ai_kills": 3,
+              "cap_ship_damage": 8939
+            },
+            {
+              "position": "Titan Four",
+              "player": "VAX MILLESCO",
+              "score": 1010,
+              "kills": 3,
+              "deaths": 11,
+              "assists": 2,
+              "ai_kills": 4,
+              "cap_ship_damage": 3805
+            },
+            {
+              "position": "Titan Two",
+              "player": "MEI-LIN BRILAVO",
+              "score": 790,
+              "kills": 4,
+              "deaths": 12,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 3552
+            },
+            {
+              "position": "Titan Five",
+              "player": "KOR KORLI",
+              "score": 630,
+              "kills": 4,
+              "deaths": 13,
+              "assists": 0,
+              "ai_kills": 2,
+              "cap_ship_damage": 5567
+            }
+          ]
+        }
+      }
+    },
+    "Star Wars  Squadrons Screenshot 2023.01.18 - 23.02.43.74.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "ERisibek",
+              "score": 1690,
+              "kills": 10,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 38128
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Revenge",
+              "score": 1471,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 4,
+              "ai_kills": 2,
+              "cap_ship_damage": 1441
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Lions",
+              "score": 815,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 43233
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "DjJamesE",
+              "score": 785,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 3,
+              "cap_ship_damage": 4254
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "hook-handsome287",
+              "score": 210,
+              "kills": 0,
+              "deaths": 4,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 5160
+            },
+            {
+              "position": "Titan Two",
+              "player": "Marcel_Patulacci",
+              "score": 185,
+              "kills": 0,
+              "deaths": 7,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 3411
+            },
+            {
+              "position": "Titan One",
+              "player": "TwinZx3z",
+              "score": 0,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            },
+            {
+              "position": "Titan Four",
+              "player": "arzakel",
+              "score": 0,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            }
+          ]
+        }
+      }
+    },
+    "Star Wars  Squadrons Screenshot 2023.01.21 - 23.31.34.38.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "ERisibek",
+              "score": 3370,
+              "kills": 25,
+              "deaths": 2,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 10327
+            },
+            {
+              "position": "Titan Two",
+              "player": "TheBlackxRanger",
+              "score": 2785,
+              "kills": 8,
+              "deaths": 8,
+              "assists": 3,
+              "ai_kills": 10,
+              "cap_ship_damage": 58428
+            },
+            {
+              "position": "Titan Three",
+              "player": "Grendel292",
+              "score": 2120,
+              "kills": 9,
+              "deaths": 5,
+              "assists": 12,
+              "ai_kills": 0,
+              "cap_ship_damage": 9063
+            },
+            {
+              "position": "Titan One",
+              "player": "Boomer1724",
+              "score": 620,
+              "kills": 1,
+              "deaths": 7,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 6902
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Two",
+              "player": "Dathka",
+              "score": 2950,
+              "kills": 6,
+              "deaths": 9,
+              "assists": 0,
+              "ai_kills": 29,
+              "cap_ship_damage": 60148
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Agent Solace",
+              "score": 2255,
+              "kills": 12,
+              "deaths": 12,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 11744
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Corsair1220",
+              "score": 1378,
+              "kills": 1,
+              "deaths": 15,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 32358
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Deathbird99",
+              "score": 1365,
+              "kills": 5,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 10995
+            },
+            {
+              "position": "Vanguard One",
+              "player": "LordSithRui",
+              "score": 765,
+              "kills": 1,
+              "deaths": 11,
+              "assists": 2,
+              "ai_kills": 13,
+              "cap_ship_damage": 13
+            }
+          ]
+        }
+      }
+    }
+  }
+}
