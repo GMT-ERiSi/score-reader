@@ -127,8 +127,8 @@ class ReferenceDatabase:
         
         return None
     
-    def get_player(self, name, fuzzy_match=False, match_threshold=0.85):
-        """Get a player from the reference database"""
+    def get_player(self, name):
+        """Get a player from the reference database by exact match on name or alias."""
         cursor = self.conn.cursor()
         
         # Try exact match first
@@ -149,62 +149,104 @@ class ReferenceDatabase:
                 "alias": result[4]
             }
         
-        if not fuzzy_match:
-            return None
-        
-        # Try aliases
+        # Try exact match on alias (comma-separated)
+        # This query checks if the name exists within the comma-separated alias string
         cursor.execute("""
-            SELECT p.id, p.name, p.primary_team_id, t.name, p.alias 
+            SELECT p.id, p.name, p.primary_team_id, t.name, p.alias
             FROM ref_players p
             LEFT JOIN ref_teams t ON p.primary_team_id = t.id
-            WHERE p.alias LIKE ?
-        """, (f"%{name}%",))
+            WHERE ',' || p.alias || ',' LIKE ?
+        """, (f"%,{name},%",)) # Pad with commas for exact match within the list
         result = cursor.fetchone()
-        
+
         if result:
-            return {
-                "id": result[0], 
-                "name": result[1], 
-                "team_id": result[2], 
-                "team_name": result[3], 
-                "alias": result[4]
-            }
-        
-        # Try fuzzy matching
+             return {
+                 "id": result[0],
+                 "name": result[1],
+                 "team_id": result[2],
+                 "team_name": result[3],
+                 "alias": result[4]
+             }
+
+        return None # No exact match found on name or alias
+    
+    def find_fuzzy_player_matches(self, name, match_threshold=0.85):
+        """Find potential player matches using fuzzy matching on name and aliases."""
+        cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT p.id, p.name, p.primary_team_id, t.name, p.alias 
+            SELECT p.id, p.name, p.primary_team_id, t.name as team_name, p.alias
             FROM ref_players p
             LEFT JOIN ref_teams t ON p.primary_team_id = t.id
         """)
         all_players = cursor.fetchall()
-        best_match = None
-        best_score = 0
         
-        for player in all_players:
-            score = difflib.SequenceMatcher(None, name.lower(), player[1].lower()).ratio()
-            if score > best_score and score >= match_threshold:
-                best_score = score
-                best_match = player
-            
-            # Also check aliases
-            if player[4]:  # If aliases exist
-                for alias in player[4].split(','):
-                    alias_score = difflib.SequenceMatcher(None, name.lower(), alias.lower()).ratio()
-                    if alias_score > best_score and alias_score >= match_threshold:
+        potential_matches = []
+        
+        for player_row in all_players:
+            player_id, player_name, team_id, team_name, alias_str = player_row
+            best_score = 0
+            matched_on = None
+
+            # Check primary name
+            name_score = difflib.SequenceMatcher(None, name.lower(), player_name.lower()).ratio()
+            if name_score >= match_threshold and name_score > best_score:
+                best_score = name_score
+                matched_on = "name"
+
+            # Check aliases
+            if alias_str:
+                aliases = alias_str.split(',')
+                for alias in aliases:
+                    alias_score = difflib.SequenceMatcher(None, name.lower(), alias.strip().lower()).ratio()
+                    if alias_score >= match_threshold and alias_score > best_score:
                         best_score = alias_score
-                        best_match = player
+                        matched_on = f"alias ({alias.strip()})"
+
+            if best_score > 0: # If any score was above threshold
+                 potential_matches.append({
+                    "id": player_id,
+                    "name": player_name,
+                    "team_id": team_id,
+                    "team_name": team_name,
+                    "alias": alias_str,
+                    "match_score": best_score,
+                    "matched_on": matched_on
+                })
+
+        # Sort by score descending
+        potential_matches.sort(key=lambda x: x['match_score'], reverse=True)
         
-        if best_match:
-            return {
-                "id": best_match[0], 
-                "name": best_match[1], 
-                "team_id": best_match[2], 
-                "team_name": best_match[3], 
-                "alias": best_match[4],
-                "match_score": best_score
-            }
+        return potential_matches
+
+    def add_player_alias(self, player_id, new_alias):
+        """Adds a new alias to an existing player."""
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT alias FROM ref_players WHERE id = ?", (player_id,))
+        result = cursor.fetchone()
         
-        return None
+        if result is None:
+            print(f"Error: Player with ID {player_id} not found.")
+            return False
+
+        current_alias_str = result[0]
+        aliases = []
+        if current_alias_str:
+            aliases = [a.strip() for a in current_alias_str.split(',')]
+        
+        new_alias_stripped = new_alias.strip()
+        if new_alias_stripped and new_alias_stripped not in aliases:
+            aliases.append(new_alias_stripped)
+            updated_alias_str = ",".join(aliases)
+            
+            cursor.execute("UPDATE ref_players SET alias = ? WHERE id = ?", (updated_alias_str, player_id))
+            self.conn.commit()
+            return cursor.rowcount > 0
+        elif new_alias_stripped in aliases:
+             print(f"Alias '{new_alias_stripped}' already exists for player ID {player_id}.")
+             return True # Alias already exists, consider it a success
+        else:
+            print("Error: New alias cannot be empty.")
+            return False
     
     def update_team(self, team_id, name=None, alias=None):
         """Update a team in the reference database"""
@@ -280,15 +322,13 @@ class ReferenceDatabase:
                 FROM ref_players p
                 LEFT JOIN ref_teams t ON p.primary_team_id = t.id
                 WHERE p.primary_team_id = ?
-                ORDER BY p.name
             """, (team_id,))
         else:
             cursor.execute("""
                 SELECT p.id, p.name, p.primary_team_id, t.name, p.alias 
                 FROM ref_players p
                 LEFT JOIN ref_teams t ON p.primary_team_id = t.id
-                ORDER BY p.name
-            """)
+            """,)
         
         players = []
         for row in cursor.fetchall():
@@ -501,25 +541,17 @@ def interactive_player_management(ref_db):
             
             try:
                 team_choice = int(input("\nEnter team number: ").strip())
-                if team_choice == 0:
-                    team_id = None
-                elif 1 <= team_choice <= len(teams):
-                    team_id = teams[team_choice-1]['id']
+                if 0 <= team_choice <= len(teams):
+                    team_id = None if team_choice == 0 else teams[team_choice-1]['id']
+                    player_id = ref_db.add_player(name, team_id)
+                    if player_id:
+                        print(f"Player added successfully! ID: {player_id}")
+                    else:
+                        print("Failed to add player. It may already exist.")
                 else:
-                    print("Invalid team number. Setting to no team.")
-                    team_id = None
+                    print("Invalid team number.")
             except ValueError:
-                print("Invalid input. Setting to no team.")
-                team_id = None
-            
-            aliases_input = input("Enter aliases (comma-separated, or leave empty): ").strip()
-            aliases = [a.strip() for a in aliases_input.split(',')] if aliases_input else None
-            
-            player_id = ref_db.add_player(name, team_id, aliases)
-            if player_id:
-                print(f"Player added successfully! ID: {player_id}")
-            else:
-                print("Failed to add player. The name may already exist.")
+                print("Please enter a valid number.")
         
         elif choice == "4":
             # Edit a player
@@ -530,7 +562,7 @@ def interactive_player_management(ref_db):
                 # Get current player data
                 cursor = ref_db.conn.cursor()
                 cursor.execute("""
-                    SELECT p.name, p.primary_team_id, t.name, p.alias 
+                    SELECT p.name, p.primary_team_id, t.name, p.alias
                     FROM ref_players p
                     LEFT JOIN ref_teams t ON p.primary_team_id = t.id
                     WHERE p.id = ?
@@ -551,26 +583,26 @@ def interactive_player_management(ref_db):
                 name = input(f"Enter new name (or leave empty to keep '{current_name}'): ").strip()
                 name = name if name else None
                 
-                # Select new team
-                print("\nSelect new primary team:")
-                print(f"0. No team {' (current)' if not current_team_id else ''}")
+                # Select team
+                print("\nSelect player's new primary team (or leave empty to keep current):")
+                print("0. No team")
                 teams = ref_db.list_teams()
                 for i, team in enumerate(teams):
-                    is_current = ' (current)' if current_team_id and team['id'] == current_team_id else ''
-                    print(f"{i+1}. {team['name']}{is_current}")
-                print(f"{len(teams)+1}. Keep current team")
+                    print(f"{i+1}. {team['name']}")
                 
-                try:
-                    team_choice = int(input("\nEnter team number: ").strip())
-                    if team_choice == 0:
-                        team_id = None
-                    elif 1 <= team_choice <= len(teams):
-                        team_id = teams[team_choice-1]['id']
-                    else:
-                        team_id = None  # Keep current
-                except ValueError:
-                    print("Invalid input. Keeping current team.")
-                    team_id = None
+                team_choice = input("Enter team number: ").strip()
+                team_id = None
+                if team_choice:
+                    try:
+                        team_choice = int(team_choice)
+                        if 0 <= team_choice <= len(teams):
+                            team_id = None if team_choice == 0 else teams[team_choice-1]['id']
+                        else:
+                            print("Invalid team number, keeping current team.")
+                            team_id = current_team_id
+                    except ValueError:
+                        print("Invalid team number, keeping current team.")
+                        team_id = current_team_id
                 
                 aliases_input = input(f"Enter new aliases (comma-separated, or leave empty to keep current): ").strip()
                 aliases = [a.strip() for a in aliases_input.split(',')] if aliases_input else None
@@ -586,7 +618,7 @@ def interactive_player_management(ref_db):
         elif choice == "5":
             # Search for a player
             search_term = input("Enter player name to search: ").strip()
-            player = ref_db.get_player(search_term, fuzzy_match=True)
+            player = interactive_player_search(ref_db, search_term)
             
             if player:
                 match_score = player.get('match_score', 'Exact match')
@@ -650,40 +682,117 @@ def interactive_menu(ref_db):
         else:
             print("Invalid choice, please try again.")
 
+def populate_players_from_json(ref_db, json_path):
+    """Reads a seasons data JSON and adds all unique player names to the reference DB."""
+    print(f"Attempting to populate reference DB from: {json_path}")
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            seasons_data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: JSON file not found at {json_path}")
+        return
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in {json_path}")
+        return
+    except Exception as e:
+        print(f"Error reading JSON file {json_path}: {e}")
+        return
+
+    unique_players = set()
+    player_count = 0
+    match_count = 0
+
+    for season_name, season_matches in seasons_data.items():
+        for filename, match_data in season_matches.items():
+            match_count += 1
+            teams_data = match_data.get("teams", {})
+            for team_key, team_info in teams_data.items():
+                # Handle cases where team_info might be a list directly (older format?)
+                players = []
+                if isinstance(team_info, dict):
+                    players = team_info.get("players", [])
+                elif isinstance(team_info, list):
+                     players = team_info # Assume list contains player data directly
+
+                for player_entry in players:
+                    player_name = None
+                    if isinstance(player_entry, dict):
+                        player_name = player_entry.get("player")
+                    elif isinstance(player_entry, str):
+                         player_name = player_entry # Handle case where it's just a name string
+
+                    if player_name:
+                        unique_players.add(player_name.strip())
+                        player_count += 1
+
+    print(f"Found {len(unique_players)} unique player names across {player_count} entries in {match_count} matches.")
+
+    added_count = 0
+    skipped_count = 0
+    for player_name in sorted(list(unique_players)):
+        # Add player without team or alias initially
+        player_id = ref_db.add_player(name=player_name, primary_team_id=None, alias=None)
+        if player_id:
+            # Check if it was newly added (lastrowid > 0) or already existed
+            # Note: add_player returns existing ID if IntegrityError occurs
+            cursor = ref_db.conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM ref_players WHERE name = ?", (player_name,))
+            # This check isn't perfect as add_player returns ID even if exists,
+            # but we can infer based on whether it *was* added or *already* existed.
+            # A better way might be to check existence before calling add_player.
+            # For simplicity, we'll just report based on the set size.
+            added_count += 1 # Count all unique names processed
+        else:
+             # This case shouldn't happen often with current add_player logic unless name is empty
+             skipped_count += 1
+
+
+    print(f"Processed {added_count} unique player names into the reference database.")
+    if skipped_count > 0:
+        print(f"Skipped {skipped_count} entries (potentially empty or error).")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Manage reference database of teams and players")
-    
-    parser.add_argument("--db", type=str, default="squadrons_reference.db",
-                      help="SQLite reference database file path (default: squadrons_reference.db)")
-    parser.add_argument("--import-json", type=str,
-                      help="Import teams and players from JSON file")
-    parser.add_argument("--export-json", type=str,
-                      help="Export teams and players to JSON file")
-    
+    parser = argparse.ArgumentParser(description="Manage the Squadrons reference database.")
+    parser.add_argument('--db', default='squadrons_reference.db', help='Path to the reference SQLite database file (default: squadrons_reference.db).')
+    parser.add_argument('--manage', action='store_true', help='Enter interactive management mode.')
+    parser.add_argument('--import-json', help='Path to a reference JSON file (teams/players structure) to import data from.')
+    parser.add_argument('--export-json', help='Path to export the reference database data to JSON.')
+    parser.add_argument('--populate-from-json', help='Path to a seasons data JSON file (like all_seasons_data.json) to populate initial player names from.')
+
     args = parser.parse_args()
-    
-    ref_db = ReferenceDatabase(args.db)
-    
-    if args.import_json:
-        if os.path.exists(args.import_json):
+
+    # Ensure the database directory exists if specified with a path
+    db_dir = os.path.dirname(args.db)
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir)
+        print(f"Created directory for database: {db_dir}")
+
+    try:
+        ref_db = ReferenceDatabase(args.db)
+
+        if args.populate_from_json:
+            populate_players_from_json(ref_db, args.populate_from_json)
+        elif args.manage:
+            interactive_menu(ref_db)
+        elif args.import_json:
             if ref_db.import_from_json(args.import_json):
                 print(f"Data imported successfully from {args.import_json}")
             else:
                 print(f"Failed to import data from {args.import_json}")
+        elif args.export_json:
+            if ref_db.export_to_json(args.export_json):
+                print(f"Data exported successfully from {args.export_json}")
+            else:
+                print(f"Failed to export data to {args.export_json}")
         else:
-            print(f"File not found: {args.import_json}")
-    
-    elif args.export_json:
-        if ref_db.export_to_json(args.export_json):
-            print(f"Data exported successfully to {args.export_json}")
-        else:
-            print(f"Failed to export data to {args.export_json}")
-    
-    else:
-        # Run interactive mode
-        interactive_menu(ref_db)
-    
-    ref_db.close()
+             # Default action if no specific mode is chosen could be to print status or help
+             print("Reference DB initialized. Use --manage, --import-json, --export-json, or --populate-from-json.")
+
+    finally:
+        if ref_db:
+            ref_db.close()
+            print("Reference database connection closed.")
 
 if __name__ == "__main__":
     main()
