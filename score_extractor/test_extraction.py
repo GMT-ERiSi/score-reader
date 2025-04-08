@@ -10,7 +10,7 @@ from score_extractor import extract_scores_from_image, extract_scores_from_multi
 # Load environment variables from .env file
 load_dotenv()
 
-def test_with_file(image_path):
+def _test_with_file(image_path):
     """Test the score extraction with a file path"""
     print(f"Testing extraction with image: {image_path}")
     try:
@@ -23,7 +23,7 @@ def test_with_file(image_path):
         print(f"\nError: {str(e)}")
         return None
 
-def test_with_multiple_files(image_paths):
+def _test_with_multiple_files(image_paths):
     """Test the score extraction with multiple file paths"""
     print(f"Testing extraction with {len(image_paths)} images")
     try:
@@ -36,7 +36,7 @@ def test_with_multiple_files(image_paths):
         print(f"\nError: {str(e)}")
         return None
 
-def test_with_folder(folder_path, batch_size=None):
+def _test_with_folder(folder_path, batch_size=None):
     """Process all image files in a folder"""
     print(f"Processing all images in folder: {folder_path}")
     
@@ -78,15 +78,17 @@ if __name__ == "__main__":
         print("Or make sure your .env file contains: ANTHROPIC_API_KEY=your-api-key-here")
         sys.exit(1)
     
-    # Default Screenshots folder in project root
-    default_screenshots_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "Screenshots")
+    # Default Screenshots folder at same level as project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    parent_dir = os.path.dirname(project_root)
+    default_screenshots_folder = os.path.join(parent_dir, "Screenshots")
     
     # Simple command line interface
     if len(sys.argv) < 2:
         # Check if Screenshots folder exists
         if os.path.isdir(default_screenshots_folder):
             print(f"No path specified. Using default Screenshots folder: {default_screenshots_folder}")
-            test_with_folder(default_screenshots_folder)
+            _test_with_folder(default_screenshots_folder)
         else:
             print("Usage:")
             print("  python -m score_extractor.test_extraction <image_path>")
@@ -95,7 +97,7 @@ if __name__ == "__main__":
             print(f"\nDefault Screenshots folder not found at: {default_screenshots_folder}")
             sys.exit(1)
     elif sys.argv[1] == "--multiple" and len(sys.argv) >= 3:
-        test_with_multiple_files(sys.argv[2:])
+        _test_with_multiple_files(sys.argv[2:])
     elif sys.argv[1] == "--folder" and len(sys.argv) >= 3:
         # Check for batch size
         batch_size = None
@@ -107,7 +109,7 @@ if __name__ == "__main__":
             except ValueError:
                 print(f"Invalid batch size: {sys.argv[4]}. Using no batching.")
         
-        test_with_folder(folder_path, batch_size)
+        _test_with_folder(folder_path, batch_size)
     elif sys.argv[1] == "--screenshots":
         # Use the default Screenshots folder
         if os.path.isdir(default_screenshots_folder):
@@ -121,9 +123,9 @@ if __name__ == "__main__":
                 except ValueError:
                     print(f"Invalid batch size: {sys.argv[3]}. Using no batching.")
             
-            test_with_folder(default_screenshots_folder, batch_size)
+            _test_with_folder(default_screenshots_folder, batch_size)
         else:
             print(f"Error: Screenshots folder not found at: {default_screenshots_folder}")
             sys.exit(1)
     else:
-        test_with_file(sys.argv[1])
+        _test_with_file(sys.argv[1])

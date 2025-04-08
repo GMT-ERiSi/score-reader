@@ -28,7 +28,17 @@ def extract_scores_from_multiple_images(image_paths):
             filename = os.path.basename(image_path)
             print(f"Processing image: {filename}")
             
+            # Try to extract date from filename
+            match_date = extract_date_from_filename(filename)
+            if match_date:
+                print(f"Extracted date from filename: {match_date}")
+            
             result = extract_scores_from_image(image_path)
+            
+            # Add the date to the result if found
+            if match_date:
+                result['match_date'] = match_date
+                
             results[filename] = result
             
             print(f"Successfully processed {filename}")
@@ -38,7 +48,66 @@ def extract_scores_from_multiple_images(image_paths):
     
     return results
 
-def process_season_folder(season_folder, batch_size=None):
+def extract_date_from_filename(filename):
+    """
+    Extract a date from a filename using various patterns
+    
+    Args:
+        filename (str): The filename to parse
+        
+    Returns:
+        str or None: Extracted date in YYYY-MM-DD HH:MM:SS format, or None if not found
+    """
+    import re
+    from datetime import datetime
+    
+    # Check for specific patterns first, then more general ones
+
+    # Pattern: Star Wars Squadrons Screenshot YYYY.MM.DD - HH.MM.SS (Check this first!)
+    # Example: Star Wars Squadrons Screenshot 2022.09.24 - 00.17.55.76.png
+    sw_match = re.search(
+        r'Star Wars\s+Squadrons\s+Screenshot\s+'  # Prefix
+        r'(\d{4})\.(\d{2})\.(\d{2})'              # Date YYYY.MM.DD
+        r'\s+-\s+'                                # Separator
+        r'(\d{2})\.(\d{2})\.(\d{2})',             # Time HH.MM.SS
+        filename,
+        re.IGNORECASE
+    )
+    if sw_match:
+        year, month, day, hour, minute, second = sw_match.groups()
+        # Validate time components
+        if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
+            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        # Fallback if time is invalid - return date with default time
+        return f"{year}-{month}-{day} 12:00:00"
+
+    # Pattern: YYYY[.-]MM[.-]DD followed by optional [_ or space]HH.MM.SS
+    # Example: 2023.10.25_15.30.00 or 2023-12-25 20.05.30
+    match = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})(?:[_ ]?(\d{2})\.(\d{2})\.(\d{2}))?', filename)
+    if match:
+        year, month, day, hour, minute, second = match.groups()
+        if hour and minute and second:
+            # Validate time components (simple check for now)
+            if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
+                 return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        # Default to noon if no valid time found
+        return f"{year}-{month}-{day} 12:00:00"
+
+    # Pattern: DD[.-]MM[.-]YYYY followed by optional [ space]HH.MM.SS
+    # Example: 15.11.2023 or 10.03.2024 18.45.15
+    match = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})(?:[ ]?(\d{2})\.(\d{2})\.(\d{2}))?', filename)
+    if match:
+        day, month, year, hour, minute, second = match.groups()
+        if hour and minute and second:
+             # Validate time components (simple check for now)
+            if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
+                return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        # Default to noon if no valid time found
+        return f"{year}-{month}-{day} 12:00:00"
+    
+    return None
+
+def process_season_folder(season_folder, batch_size=None, output_dir=None):
     """
     Process all images in a season folder
     
@@ -83,7 +152,7 @@ def process_season_folder(season_folder, batch_size=None):
             season_results.update(batch_results)
             
             # Save intermediate results
-            save_season_results(season_folder, season_name, season_results)
+            save_season_results(season_folder, season_name, season_results, output_dir)
             
             # Small delay between batches to avoid API rate limits
             if i + batch_size < len(image_paths):
@@ -92,20 +161,34 @@ def process_season_folder(season_folder, batch_size=None):
     else:
         # Process all images at once
         season_results = extract_scores_from_multiple_images(image_paths)
-        save_season_results(season_folder, season_name, season_results)
+        save_season_results(season_folder, season_name, season_results, output_dir)
     
     return {season_name: season_results}
 
-def save_season_results(folder_path, season_name, results):
+def save_season_results(folder_path, season_name, results, output_dir=None):
     """Save the results for a season to a JSON file"""
-    # Save results to a JSON file in the season folder
-    output_path = os.path.join(folder_path, f"{season_name}_results.json")
+    # Determine output path - either in output_dir or in the season folder
+    if output_dir:
+        # Make sure the output directory exists
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            
+        # Create a season subdirectory within the output directory
+        season_output_dir = os.path.join(output_dir, season_name)
+        if not os.path.exists(season_output_dir):
+            os.makedirs(season_output_dir)
+            
+        output_path = os.path.join(season_output_dir, f"{season_name}_results.json")
+    else:
+        # Save in the original season folder
+        output_path = os.path.join(folder_path, f"{season_name}_results.json")
+    
     with open(output_path, "w") as f:
         json.dump({season_name: results}, f, indent=2)
     
     print(f"Season results saved to: {output_path}")
 
-def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_size=None):
+def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_size=None, output_dir=None):
     """
     Process all season folders within the base directory
     
@@ -136,11 +219,19 @@ def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_siz
     # Process each season folder
     all_results = {}
     for season_folder in season_folders:
-        season_results = process_season_folder(season_folder, batch_size)
+        season_results = process_season_folder(season_folder, batch_size, output_dir)
         all_results.update(season_results)
     
     # Save combined results
-    output_path = os.path.join(base_dir, output_file)
+    if output_dir:
+        # Save in the specified output directory
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        output_path = os.path.join(output_dir, output_file)
+    else:
+        # Save in the base directory
+        output_path = os.path.join(base_dir, output_file)
+        
     with open(output_path, "w") as f:
         json.dump(all_results, f, indent=2)
     
@@ -149,9 +240,10 @@ def process_all_seasons(base_dir, output_file="all_seasons_data.json", batch_siz
 
 def find_screenshots_dir():
     """Find the Screenshots directory used by test_extraction"""
-    # Default Screenshots folder logic from test_extraction.py
+    # Default Screenshots folder at same level as project root
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    parent_dir = os.path.dirname(project_root)
     default_screenshots_folder = os.path.join(parent_dir, "Screenshots")
     
     if os.path.isdir(default_screenshots_folder):
@@ -187,6 +279,8 @@ if __name__ == "__main__":
                         help="Process only a specific season folder")
     parser.add_argument("--output", type=str, default="all_seasons_data.json",
                         help="Output filename for all combined results (default: 'all_seasons_data.json')")
+    parser.add_argument("--output-dir", type=str, default="Extracted Results",
+                        help="Directory to save the results (default: 'Extracted Results')")
     parser.add_argument("--batch-size", type=int, default=5,
                         help="Number of images to process in one batch (default: 5)")
     
@@ -207,6 +301,18 @@ if __name__ == "__main__":
             print(f"Error: Base directory not found at {args.base_dir} or {potential_base_dir}")
             sys.exit(1)
     
+    # Set up output directory - use the specified output dir or a default in the project root
+    output_dir = args.output_dir
+    if output_dir:
+        # Make sure it's an absolute path
+        if not os.path.isabs(output_dir):
+            output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), output_dir)
+        
+        # Ensure the directory exists
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            print(f"Created output directory: {output_dir}")
+    
     # Process seasons
     if args.season:
         # Process only the specified season
@@ -215,7 +321,7 @@ if __name__ == "__main__":
             print(f"Error: Season directory not found at {season_path}")
             sys.exit(1)
         
-        process_season_folder(season_path, args.batch_size)
+        process_season_folder(season_path, args.batch_size, output_dir)
     else:
         # Process all seasons
-        process_all_seasons(base_dir, args.output, args.batch_size)
+        process_all_seasons(base_dir, args.output, args.batch_size, output_dir)
