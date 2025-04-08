@@ -55,3 +55,4 @@ Screenshots/**
 
 # Ignore stats_reports
 stats_reports/**
+!stats_reports/.gitkeep
