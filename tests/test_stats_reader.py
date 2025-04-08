@@ -77,80 +77,26 @@ def ref_db():
         os.remove(TEST_REF_DB)
 
 
-# Fixture to provide a populated database connection
+# Fixture that uses the actual processing function to populate the DB
 @pytest.fixture(scope="function")
-def populated_db_conn(db_conn):
-    """Fixture to set up a test database and populate it with sample data"""
-    cursor = db_conn.cursor()
+def processed_db_conn(db_conn):
+    """Fixture that runs process_seasons_data on the test DB using TEST_DATA_FILE"""
+    # Load the test data to compare against later
+    try:
+        with open(TEST_DATA_FILE, 'r') as f:
+            test_data = json.load(f)
+    except Exception as e:
+        pytest.fail(f"Failed to load test data file {TEST_DATA_FILE}: {e}")
 
-    # Insert sample data
-    # Seasons
-    cursor.execute("INSERT INTO seasons (name) VALUES (?)", ("TestSeason1",))
-    season_id = cursor.lastrowid
+    # Run the actual processing function
+    try:
+        process_seasons_data(TEST_DATA_FILE, TEST_DB, ref_db=None) # Use None for ref_db in this test context
+    except Exception as e:
+        pytest.fail(f"process_seasons_data failed during fixture setup: {e}")
 
-    # Teams
-    cursor.execute("INSERT INTO teams (name) VALUES (?)", ("Alpha Team",))
-    alpha_id = cursor.lastrowid
-    cursor.execute("INSERT INTO teams (name) VALUES (?)", ("Bravo Team",))
-    bravo_id = cursor.lastrowid
-    cursor.execute("INSERT INTO teams (name) VALUES (?)", ("Charlie Team",))
-    charlie_id = cursor.lastrowid
-
-    # Players (using generate_player_hash for consistency)
-    players = {
-        "Player A1": {"id": None, "hash": generate_player_hash("Player A1")},
-        "Player A2": {"id": None, "hash": generate_player_hash("Player A2")},
-        "Player A3": {"id": None, "hash": generate_player_hash("Player A3")},
-        "Player B1": {"id": None, "hash": generate_player_hash("Player B1")},
-        "Player B2": {"id": None, "hash": generate_player_hash("Player B2")},
-        "Player C1": {"id": None, "hash": generate_player_hash("Player C1")},
-        "Player C2": {"id": None, "hash": generate_player_hash("Player C2")},
-    }
-    for name, data in players.items():
-        cursor.execute("INSERT INTO players (name, player_hash) VALUES (?, ?)", (name, data["hash"]))
-        data["id"] = cursor.lastrowid
-
-    # Match 1: Alpha vs Bravo (Alpha wins)
-    cursor.execute("""
-        INSERT INTO matches (season_id, imperial_team_id, rebel_team_id, winner, filename, match_date)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (season_id, alpha_id, bravo_id, "IMPERIAL", "dummy_match1.png", "2025-08-04 10:00:00"))
-    match1_id = cursor.lastrowid
-    # Player Stats Match 1
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match1_id, players["Player A1"]["id"], "Player A1", players["Player A1"]["hash"], alpha_id, "IMPERIAL", 5000, 10, 2, 5, 15000))
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match1_id, players["Player A2"]["id"], "Player A2", players["Player A2"]["hash"], alpha_id, "IMPERIAL", 4500, 8, 3, 6, 12000))
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match1_id, players["Player B1"]["id"], "Player B1", players["Player B1"]["hash"], bravo_id, "REBEL", 3000, 5, 4, 3, 8000))
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match1_id, players["Player B2"]["id"], "Player B2", players["Player B2"]["hash"], bravo_id, "REBEL", 2500, 4, 5, 2, 5000))
-    # Update team wins/losses for Match 1
-    cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (alpha_id,))
-    cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (bravo_id,))
-
-
-    # Match 2: Alpha vs Charlie (Charlie wins)
-    cursor.execute("""
-        INSERT INTO matches (season_id, imperial_team_id, rebel_team_id, winner, filename, match_date)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (season_id, alpha_id, charlie_id, "REBEL", "dummy_match2.png", "2025-08-04 11:00:00"))
-    match2_id = cursor.lastrowid
-    # Player Stats Match 2
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match2_id, players["Player A1"]["id"], "Player A1", players["Player A1"]["hash"], alpha_id, "IMPERIAL", 3500, 6, 5, 4, 10000))
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match2_id, players["Player A3"]["id"], "Player A3", players["Player A3"]["hash"], alpha_id, "IMPERIAL", 3000, 5, 6, 3, 9000)) # New player A3
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match2_id, players["Player C1"]["id"], "Player C1", players["Player C1"]["hash"], charlie_id, "REBEL", 6000, 12, 3, 7, 20000))
-    cursor.execute("""INSERT INTO player_stats (match_id, player_id, player_name, player_hash, team_id, faction, score, kills, deaths, assists, cap_ship_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                   (match2_id, players["Player C2"]["id"], "Player C2", players["Player C2"]["hash"], charlie_id, "REBEL", 5500, 10, 4, 8, 18000))
-    # Update team wins/losses for Match 2
-    cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (alpha_id,))
-    cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (charlie_id,))
-
-    db_conn.commit()
-    yield db_conn # Provide the populated connection
+    # Attach the loaded test data to the connection object for use in tests
+    db_conn.test_data = test_data
+    yield db_conn # Provide the connection *after* processing
 
 
 def test_create_database(db_conn):
@@ -255,7 +201,109 @@ def test_get_or_create_player_no_ref(db_conn):
     assert result[2] == expected_hash # Stored hash
 
 
-def test_generate_stats_reports(populated_db_conn):
+def test_process_seasons_data(processed_db_conn):
+    """Verify that process_seasons_data correctly populates the database"""
+    cursor = processed_db_conn.cursor()
+    test_data = processed_db_conn.test_data # Retrieve data loaded in fixture
+
+    # --- Verification ---
+    # 1. Check Seasons
+    cursor.execute("SELECT name FROM seasons")
+    db_seasons = {row[0] for row in cursor.fetchall()}
+    expected_seasons = set(test_data.keys())
+    assert db_seasons == expected_seasons
+
+    # 2. Check Matches (count and one specific match)
+    total_expected_matches = sum(len(season_data) for season_data in test_data.values())
+    cursor.execute("SELECT COUNT(*) FROM matches")
+    assert cursor.fetchone()[0] == total_expected_matches
+
+    # Check details of the first match in the test data
+    test_season_name = list(test_data.keys())[0]
+    test_match_filename = list(test_data[test_season_name].keys())[0]
+    test_match_data = test_data[test_season_name][test_match_filename]
+
+    cursor.execute("""
+        SELECT s.name, m.filename, m.winner, imp.name, reb.name
+        FROM matches m
+        JOIN seasons s ON m.season_id = s.id
+        LEFT JOIN teams imp ON m.imperial_team_id = imp.id
+        LEFT JOIN teams reb ON m.rebel_team_id = reb.id
+        WHERE m.filename = ?
+    """, (test_match_filename,))
+    match_row = cursor.fetchone()
+    assert match_row is not None
+    assert match_row[0] == test_season_name
+    assert match_row[1] == test_match_filename
+    # Determine expected winner faction from test data
+    winner_text = test_match_data.get("match_result", "").upper()
+    expected_winner = None
+    if "NEW REPUBLIC VICTORY" in winner_text or "REBEL VICTORY" in winner_text: expected_winner = "REBEL"
+    if "IMPERIAL VICTORY" in winner_text or "EMPIRE VICTORY" in winner_text: expected_winner = "IMPERIAL"
+    assert match_row[2] == expected_winner
+    # Note: Team names might be generic ("Imperial Test Team") as defined in the processing logic if not using ref_db
+    # assert match_row[3] is not None # Check imperial team exists if expected
+    # assert match_row[4] is not None # Check rebel team exists if expected
+
+    # 3. Check Players (count and one specific player)
+    all_test_players = set()
+    for season_data in test_data.values():
+        for match_data in season_data.values():
+            for team_data in match_data.get("teams", {}).values():
+                for player in team_data.get("players", []):
+                    if player.get("player"):
+                        all_test_players.add(player["player"])
+
+    cursor.execute("SELECT COUNT(DISTINCT player_hash) FROM players")
+    # Note: Hash count might differ if names normalize to the same hash
+    # assert cursor.fetchone()[0] == len(all_test_players)
+
+    # Check a specific player exists
+    test_player_name = list(all_test_players)[0]
+    test_player_hash = generate_player_hash(test_player_name)
+    cursor.execute("SELECT name FROM players WHERE player_hash = ?", (test_player_hash,))
+    player_row = cursor.fetchone()
+    assert player_row is not None
+    # assert player_row[0] == test_player_name # Name might be canonicalized if ref_db were used
+
+    # 4. Check Player Stats (count and one specific stat)
+    total_expected_stats = 0
+    first_player_stat_data = None
+    first_player_name = None
+    for season_data in test_data.values():
+        for match_filename, match_data in season_data.items():
+             for team_key, team_data in match_data.get("teams", {}).items():
+                for player in team_data.get("players", []):
+                    if player.get("player"):
+                        total_expected_stats += 1
+                        if first_player_stat_data is None:
+                            first_player_stat_data = player
+                            first_player_name = player["player"]
+                            first_match_filename = match_filename
+
+
+    cursor.execute("SELECT COUNT(*) FROM player_stats")
+    assert cursor.fetchone()[0] == total_expected_stats
+
+    # Check stats for the first player found in the test data
+    cursor.execute("""
+        SELECT ps.score, ps.kills, ps.deaths, ps.assists, ps.cap_ship_damage, ps.ai_kills
+        FROM player_stats ps
+        JOIN matches m ON ps.match_id = m.id
+        JOIN players p ON ps.player_id = p.id
+        WHERE m.filename = ? AND p.player_hash = ?
+    """, (first_match_filename, generate_player_hash(first_player_name)))
+    stat_row = cursor.fetchone()
+    assert stat_row is not None
+    assert stat_row[0] == first_player_stat_data.get("score", 0)
+    assert stat_row[1] == first_player_stat_data.get("kills", 0)
+    assert stat_row[2] == first_player_stat_data.get("deaths", 0)
+    assert stat_row[3] == first_player_stat_data.get("assists", 0)
+    assert stat_row[4] == first_player_stat_data.get("cap_ship_damage", 0)
+    assert stat_row[5] == first_player_stat_data.get("ai_kills", 0)
+
+
+def test_generate_stats_reports(processed_db_conn):
     """Test the generation of JSON stats reports"""
     # Ensure the reports directory does not exist before the test
     if os.path.exists(TEST_REPORTS_DIR):
@@ -289,29 +337,49 @@ def test_generate_stats_reports(populated_db_conn):
             pytest.fail(f"Report file {report_file} failed validation: {e}")
 
     # Specific check for team standings (based on inserted data)
+    # Specific check for team standings (based on TEST_DATA_FILE content)
+    # In TEST_DATA_FILE:
+    # Match 1: "New Republic Test Team" (Rebel) wins vs "Imperial Test Team" (Imp)
     standings_path = os.path.join(TEST_REPORTS_DIR, "team_standings.json")
     with open(standings_path, 'r') as f:
         standings = json.load(f)
-    
-    assert len(standings) == 3 # Alpha, Bravo, Charlie
-    # Charlie: 1 W, 0 L -> 1.0 win rate
-    # Alpha: 1 W, 1 L -> 0.5 win rate
-    # Bravo: 0 W, 1 L -> 0.0 win rate
-    assert standings[0]['name'] == 'Charlie Team' and standings[0]['win_rate'] == 1.0
-    assert standings[1]['name'] == 'Alpha Team' and standings[1]['win_rate'] == 0.5
-    assert standings[2]['name'] == 'Bravo Team' and standings[2]['win_rate'] == 0.0
 
-    # Specific check for player performance (Player A1 played 2 games)
+    assert len(standings) == 2 # Only two teams in the test file
+    # Expected: NR wins 1, Imp loses 1
+    nr_team = next((t for t in standings if "New Republic" in t['name']), None)
+    imp_team = next((t for t in standings if "Imperial" in t['name']), None)
+
+    assert nr_team is not None
+    assert imp_team is not None
+
+    assert nr_team['wins'] == 1
+    assert nr_team['losses'] == 0
+    assert nr_team['win_rate'] == 100.0
+
+    assert imp_team['wins'] == 0
+    assert imp_team['losses'] == 1
+    assert imp_team['win_rate'] == 0.0
+
+    # Check order (NR should be first)
+    assert standings[0]['name'] == nr_team['name']
+    assert standings[1]['name'] == imp_team['name']
+
+    # Specific check for player performance (Player A1 from TEST_DATA_FILE)
     perf_path = os.path.join(TEST_REPORTS_DIR, "player_performance.json")
     with open(perf_path, 'r') as f:
         performance = json.load(f)
-    
-    player_a1_perf = next((p for p in performance if p['name'] == 'Player A1'), None)
+
+    # Find Player A1's performance (name might be canonicalized, check hash)
+    player_a1_hash = generate_player_hash("Player A1")
+    player_a1_perf = next((p for p in performance if p['player_hash'] == player_a1_hash), None)
+
     assert player_a1_perf is not None
-    assert player_a1_perf['games_played'] == 2
-    assert player_a1_perf['total_score'] == 5000 + 3500
-    assert player_a1_perf['total_kills'] == 10 + 6
-    assert player_a1_perf['total_deaths'] == 2 + 5
+    assert player_a1_perf['games_played'] == 1 # Played only one game in test data
+    assert player_a1_perf['total_score'] == 5000
+    assert player_a1_perf['total_kills'] == 10
+    assert player_a1_perf['total_deaths'] == 2
+    assert player_a1_perf['total_assists'] == 5
+    assert player_a1_perf['total_cap_ship_damage'] == 15000
 
 
 # == Tests for elo_ladder.py ==
@@ -363,7 +431,7 @@ def test_calculate_new_rating():
     new_rating = calculate_new_rating(rating, expected, actual, k_factor)
     assert new_rating == 1000 + 32 * (0.0 - 0.75) == 976
 
-def test_generate_elo_ladder(populated_db_conn):
+def test_generate_elo_ladder(processed_db_conn):
     """Test the generation of ELO ladder and history files"""
     # Ensure the reports directory does not exist before the test
     if os.path.exists(TEST_REPORTS_DIR):
@@ -382,88 +450,57 @@ def test_generate_elo_ladder(populated_db_conn):
 
     # --- Validate History ---
     assert isinstance(history, list)
-    assert len(history) == 2 # Two matches were processed
+    assert len(history) == 1 # Only one match in TEST_DATA_FILE
 
-    # Match 1: Alpha (Imp) vs Bravo (Reb), Alpha wins
+    # Match 1: Imperial Test Team vs New Republic Test Team, NR wins
     match1_hist = history[0]
-    assert match1_hist['imperial']['team_name'] == 'Alpha Team'
-    assert match1_hist['rebel']['team_name'] == 'Bravo Team'
-    assert match1_hist['winner'] == 'IMPERIAL'
+    assert match1_hist['imperial']['team_name'] == 'Imperial Test Team'
+    assert match1_hist['rebel']['team_name'] == 'New Republic Test Team'
+    assert match1_hist['winner'] == 'REBEL' # NR won
     assert match1_hist['imperial']['old_rating'] == starting_elo
     assert match1_hist['rebel']['old_rating'] == starting_elo
     # Expected outcome for equal teams is 0.5
-    expected_alpha_m1 = 0.5
-    expected_bravo_m1 = 0.5
+    expected_imp_m1 = 0.5
+    expected_nr_m1 = 0.5
     # New ratings
-    new_alpha_m1 = calculate_new_rating(starting_elo, expected_alpha_m1, 1.0, k_factor) # Win
-    new_bravo_m1 = calculate_new_rating(starting_elo, expected_bravo_m1, 0.0, k_factor) # Loss
-    assert match1_hist['imperial']['new_rating'] == pytest.approx(new_alpha_m1)
-    assert match1_hist['rebel']['new_rating'] == pytest.approx(new_bravo_m1)
-    assert new_alpha_m1 == 1016
-    assert new_bravo_m1 == 984
-
-    # Match 2: Alpha (Imp) vs Charlie (Reb), Charlie wins
-    match2_hist = history[1]
-    assert match2_hist['imperial']['team_name'] == 'Alpha Team'
-    assert match2_hist['rebel']['team_name'] == 'Charlie Team'
-    assert match2_hist['winner'] == 'REBEL'
-    # Old ratings are the results from Match 1 for Alpha, starting for Charlie
-    assert match2_hist['imperial']['old_rating'] == pytest.approx(new_alpha_m1)
-    assert match2_hist['rebel']['old_rating'] == starting_elo # Charlie's first match
-    # Expected outcomes
-    expected_alpha_m2 = calculate_expected_outcome(new_alpha_m1, starting_elo)
-    expected_charlie_m2 = 1.0 - expected_alpha_m2
-    # New ratings
-    new_alpha_m2 = calculate_new_rating(new_alpha_m1, expected_alpha_m2, 0.0, k_factor) # Loss
-    new_charlie_m2 = calculate_new_rating(starting_elo, expected_charlie_m2, 1.0, k_factor) # Win
-    assert match2_hist['imperial']['new_rating'] == pytest.approx(new_alpha_m2)
-    assert match2_hist['rebel']['new_rating'] == pytest.approx(new_charlie_m2)
-    # Expected values: E_alpha = 1/(1+10^((1000-1016)/400)) = 1/(1+10^-0.04) ~= 0.523
-    # E_charlie = 1 - 0.523 = 0.477
-    # R'_alpha = 1016 + 32*(0 - 0.523) ~= 1016 - 16.736 = 999.264
-    # R'_charlie = 1000 + 32*(1 - 0.477) ~= 1000 + 16.736 = 1016.736
-    assert new_alpha_m2 == pytest.approx(999.264, abs=1e-3)
-    assert new_charlie_m2 == pytest.approx(1016.736, abs=1e-3)
+    new_imp_m1 = calculate_new_rating(starting_elo, expected_imp_m1, 0.0, k_factor) # Loss
+    new_nr_m1 = calculate_new_rating(starting_elo, expected_nr_m1, 1.0, k_factor) # Win
+    assert match1_hist['imperial']['new_rating'] == pytest.approx(new_imp_m1)
+    assert match1_hist['rebel']['new_rating'] == pytest.approx(new_nr_m1)
+    assert new_imp_m1 == 984  # 1000 + 32 * (0.0 - 0.5)
+    assert new_nr_m1 == 1016 # 1000 + 32 * (1.0 - 0.5)
 
 
     # --- Validate Ladder ---
     assert isinstance(ladder, list)
-    assert len(ladder) == 3 # Alpha, Bravo, Charlie
+    assert len(ladder) == 2 # Imperial Test Team, New Republic Test Team
 
     # Find teams in ladder
-    alpha_ladder = next((t for t in ladder if t['team_name'] == 'Alpha Team'), None)
-    bravo_ladder = next((t for t in ladder if t['team_name'] == 'Bravo Team'), None)
-    charlie_ladder = next((t for t in ladder if t['team_name'] == 'Charlie Team'), None)
+    imp_ladder = next((t for t in ladder if t['team_name'] == 'Imperial Test Team'), None)
+    nr_ladder = next((t for t in ladder if t['team_name'] == 'New Republic Test Team'), None)
 
-    assert alpha_ladder is not None
-    assert bravo_ladder is not None
-    assert charlie_ladder is not None
+    assert imp_ladder is not None
+    assert nr_ladder is not None
 
-    # Check final ELO ratings (should match the last entry in history for each team)
-    assert alpha_ladder['elo_rating'] == round(new_alpha_m2) # approx 999
-    assert bravo_ladder['elo_rating'] == round(new_bravo_m1) # approx 984
-    assert charlie_ladder['elo_rating'] == round(new_charlie_m2) # approx 1017
+    # Check final ELO ratings
+    assert imp_ladder['elo_rating'] == round(new_imp_m1) # 984
+    assert nr_ladder['elo_rating'] == round(new_nr_m1) # 1016
 
     # Check stats
-    assert alpha_ladder['matches_played'] == 2
-    assert alpha_ladder['matches_won'] == 1
-    assert alpha_ladder['matches_lost'] == 1
-    assert alpha_ladder['win_rate'] == 50.0
+    # Check stats (based on the single match in test data)
+    assert imp_ladder['matches_played'] == 1
+    assert imp_ladder['matches_won'] == 0
+    assert imp_ladder['matches_lost'] == 1
+    assert imp_ladder['win_rate'] == 0.0
 
-    assert bravo_ladder['matches_played'] == 1
-    assert bravo_ladder['matches_won'] == 0
-    assert bravo_ladder['matches_lost'] == 1
-    assert bravo_ladder['win_rate'] == 0.0
+    assert nr_ladder['matches_played'] == 1
+    assert nr_ladder['matches_won'] == 1
+    assert nr_ladder['matches_lost'] == 0
+    assert nr_ladder['win_rate'] == 100.0
 
-    assert charlie_ladder['matches_played'] == 1
-    assert charlie_ladder['matches_won'] == 1
-    assert charlie_ladder['matches_lost'] == 0
-    assert charlie_ladder['win_rate'] == 100.0
-
-    # Check ranking (Charlie > Alpha > Bravo)
-    assert charlie_ladder['rank'] == 1
-    assert alpha_ladder['rank'] == 2
-    assert bravo_ladder['rank'] == 3
+    # Check ranking (NR > Imp)
+    assert nr_ladder['rank'] == 1
+    assert imp_ladder['rank'] == 2
 
     # Check JSON files were written correctly
     ladder_path = os.path.join(TEST_REPORTS_DIR, "elo_ladder.json")

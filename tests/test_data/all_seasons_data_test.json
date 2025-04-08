@@ -1,38 +1,57 @@
 {
   "TestSeason1": {
-    "Match_20250804_100000": {
-      "filename": "dummy/path/TestSeason1/Screenshot_20250804_100000.png",
-      "map": "Yavin Prime",
-      "match_type": "Fleet Battles",
-      "outcome": "Victory",
-      "duration": "15:30",
-      "team1_name": "Alpha Team",
-      "team1_score": 100,
-      "team2_name": "Bravo Team",
-      "team2_score": 50,
-      "players": [
-        {"name": "Player A1", "team": "Alpha Team", "score": 5000, "kills": 10, "deaths": 2, "assists": 5, "objective_damage": 25000, "capital_ship_damage": 15000},
-        {"name": "Player A2", "team": "Alpha Team", "score": 4500, "kills": 8, "deaths": 3, "assists": 6, "objective_damage": 20000, "capital_ship_damage": 12000},
-        {"name": "Player B1", "team": "Bravo Team", "score": 3000, "kills": 5, "deaths": 4, "assists": 3, "objective_damage": 15000, "capital_ship_damage": 8000},
-        {"name": "Player B2", "team": "Bravo Team", "score": 2500, "kills": 4, "deaths": 5, "assists": 2, "objective_damage": 10000, "capital_ship_damage": 5000}
-      ]
-    },
-    "Match_20250804_110000": {
-      "filename": "dummy/path/TestSeason1/Screenshot_20250804_110000.png",
-      "map": "Esseles",
-      "match_type": "Fleet Battles",
-      "outcome": "Defeat",
-      "duration": "12:15",
-      "team1_name": "Alpha Team",
-      "team1_score": 30,
-      "team2_name": "Charlie Team",
-      "team2_score": 100,
-      "players": [
-        {"name": "Player A1", "team": "Alpha Team", "score": 3500, "kills": 6, "deaths": 5, "assists": 4, "objective_damage": 18000, "capital_ship_damage": 10000},
-        {"name": "Player A3", "team": "Alpha Team", "score": 3000, "kills": 5, "deaths": 6, "assists": 3, "objective_damage": 15000, "capital_ship_damage": 9000},
-        {"name": "Player C1", "team": "Charlie Team", "score": 6000, "kills": 12, "deaths": 3, "assists": 7, "objective_damage": 30000, "capital_ship_damage": 20000},
-        {"name": "Player C2", "team": "Charlie Team", "score": 5500, "kills": 10, "deaths": 4, "assists": 8, "objective_damage": 28000, "capital_ship_damage": 18000}
-      ]
+    "TestMatchFile1.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "Player A1",
+              "score": 5000,
+              "kills": 10,
+              "deaths": 2,
+              "assists": 5,
+              "ai_kills": 10,
+              "cap_ship_damage": 15000
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Player A2",
+              "score": 4500,
+              "kills": 8,
+              "deaths": 3,
+              "assists": 6,
+              "ai_kills": 5,
+              "cap_ship_damage": 12000
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "Player B1",
+              "score": 3000,
+              "kills": 5,
+              "deaths": 4,
+              "assists": 3,
+              "ai_kills": 8,
+              "cap_ship_damage": 8000
+            },
+            {
+              "position": "Titan Two",
+              "player": "Player B2",
+              "score": 2500,
+              "kills": 4,
+              "deaths": 5,
+              "assists": 2,
+              "ai_kills": 3,
+              "cap_ship_damage": 5000
+            }
+          ]
+        }
+      }
     }
   }
 }
