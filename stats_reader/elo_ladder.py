@@ -1,3 +1,55 @@
+    # For pickup/ranked matches, ensure we're processing players without team IDs
+    if match_type in ['pickup', 'ranked']:
+        cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM player_stats ps
+        JOIN matches m ON ps.match_id = m.id
+        WHERE m.match_type = ? AND ps.team_id IS NULL
+        """, (match_type,))
+        
+        null_team_count = cursor.fetchone()['count']
+        print(f"Found {null_team_count} player entries in '{match_type}' matches with NULL team_id")
+        
+        if null_team_count == 0 and player_count > 0:
+            print("WARNING: Pickup/ranked matches should have team_id set to NULL for player stats")
+            print("         Run fix_pickup_team_ids.py to correct this issue")"""
+ELO ladder generator for Star Wars Squadrons teams
+"""
+import os
+import sys
+import json
+import sqlite3
+import argparse
+from datetime import datetime
+
+def calculate_expected_outcome(rating_a, rating_b):
+    """
+    Calculate the expected outcome (probability of winning) for team A
+    
+    Args:
+        rating_a (float): ELO rating of team A
+        rating_b (float): ELO rating of team B
+        
+    Returns:
+        float: Expected outcome (probability of team A winning)
+    """
+    return 1.0 / (1.0 + 10 ** ((rating_b - rating_a) / 400))
+
+def calculate_new_rating(rating, expected_outcome, actual_outcome, k_factor):
+    """
+    Calculate the new ELO rating after a match
+    
+    Args:
+        rating (float): Current ELO rating
+        expected_outcome (float): Expected outcome (probability of winning)
+        actual_outcome (float): Actual outcome (1=win, 0.5=draw, 0=loss)
+        k_factor (int): K-factor for ELO calculation
+        
+    Returns:
+        float: New ELO rating
+    """
+    return rating + k_factor * (actual_outcome - expected_outcome)
+
 def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo=1000, k_factor=32, match_type="pickup", 
                           ladder_filename="player_elo_ladder.json", history_filename="player_elo_history.json"):
     """
@@ -36,6 +88,37 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
     """, (match_type,))
     
     matches = [dict(row) for row in cursor.fetchall()]
+    
+    # Debug info
+    print(f"\nLooking for matches with match_type = '{match_type}'")
+    print(f"Found {len(matches)} matches of type '{match_type}'")
+    
+    # For player ELO, we need to ensure we have players in the matches
+    cursor.execute("""
+    SELECT COUNT(*) as count
+    FROM player_stats ps
+    JOIN matches m ON ps.match_id = m.id
+    WHERE m.match_type = ?
+    """, (match_type,))
+    
+    player_count = cursor.fetchone()['count']
+    print(f"Found {player_count} player entries in '{match_type}' matches")
+    
+    # For pickup/ranked matches, ensure we're processing players without team IDs
+    if match_type in ['pickup', 'ranked']:
+        cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM player_stats ps
+        JOIN matches m ON ps.match_id = m.id
+        WHERE m.match_type = ? AND ps.team_id IS NULL
+        """, (match_type,))
+        
+        null_team_count = cursor.fetchone()['count']
+        print(f"Found {null_team_count} player entries in '{match_type}' matches with NULL team_id")
+        
+        if null_team_count == 0 and player_count > 0:
+            print("WARNING: Pickup/ranked matches should have team_id set to NULL for player stats")
+            print("         Run fix_pickup_team_ids.py to correct this issue")
     
     # Initialize ELO ratings for players
     elo_ratings = {}
@@ -226,43 +309,6 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
     
     conn.close()
     return ladder, elo_history
-"""
-ELO ladder generator for Star Wars Squadrons teams
-"""
-import os
-import sys
-import json
-import sqlite3
-import argparse
-from datetime import datetime
-
-def calculate_expected_outcome(rating_a, rating_b):
-    """
-    Calculate the expected outcome (probability of winning) for team A
-    
-    Args:
-        rating_a (float): ELO rating of team A
-        rating_b (float): ELO rating of team B
-        
-    Returns:
-        float: Expected outcome (probability of team A winning)
-    """
-    return 1.0 / (1.0 + 10 ** ((rating_b - rating_a) / 400))
-
-def calculate_new_rating(rating, expected_outcome, actual_outcome, k_factor):
-    """
-    Calculate the new ELO rating after a match
-    
-    Args:
-        rating (float): Current ELO rating
-        expected_outcome (float): Expected outcome (probability of winning)
-        actual_outcome (float): Actual outcome (1=win, 0.5=draw, 0=loss)
-        k_factor (int): K-factor for ELO calculation
-        
-    Returns:
-        float: New ELO rating
-    """
-    return rating + k_factor * (actual_outcome - expected_outcome)
 
 def generate_elo_ladder(db_path, output_dir="stats_reports", starting_elo=1000, k_factor=32, match_type="team"):
     """
@@ -671,6 +717,59 @@ def main():
     
     if args.match_type == "all":
         # Generate combined ladder for backward compatibility
+        generate_combined_ladder(args.db, args.output, args.starting_elo, args.k_factor)
+
+if __name__ == "__main__":
+    main()("--k-factor", type=int, default=32,
+                      help="K-factor for ELO calculation (default: 32)")
+    parser.add_argument("--match-type", type=str, choices=["team", "pickup", "ranked", "all"], default="all",
+                      help="Generate ELO ladder only for a specific match type (default: all)")
+    
+    args = parser.parse_args()
+    
+    # Check that database exists
+    if not os.path.exists(args.db):
+        print(f"Error: Database file not found: {args.db}")
+        print("Please run the stats_db_processor.py script first to generate the database.")
+        sys.exit(1)
+    
+    if args.match_type == "all" or args.match_type == "team":
+        # Generate team ELO ladder
+        generate_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "team")
+    
+    if args.match_type == "all" or args.match_type == "pickup":
+        # Generate pickup team ELO ladder
+        generate_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup")
+        # Generate pickup player ELO ladder
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup", 
+                                 "pickup_player_elo_ladder.json", "pickup_player_elo_history.json")
+    
+    if args.match_type == "all" or args.match_type == "ranked":
+        # Generate ranked player ELO ladder
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "ranked", 
+                                 "ranked_player_elo_ladder.json", "ranked_player_elo_history.json")
+    
+    if args.match_type == "all":
+        # Generate combined ladder for backward compatibility
+        generate_combined_ladder(args.db, args.output, args.starting_elo, args.k_factor)
+
+if __name__ == "__main__":
+    main()
+        # Generate pickup player ELO ladder
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup", 
+                                 "pickup_player_elo_ladder.json", "pickup_player_elo_history.json")
+    
+    if args.match_type == "all" or args.match_type == "ranked":
+        # Generate ranked player ELO ladder
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "ranked", 
+                                 "ranked_player_elo_ladder.json", "ranked_player_elo_history.json")
+    
+    if args.match_type == "all":
+        # Generate combined ladder for backward compatibility
+        generate_combined_ladder(args.db, args.output, args.starting_elo, args.k_factor)
+
+if __name__ == "__main__":
+    main()
         generate_combined_ladder(args.db, args.output, args.starting_elo, args.k_factor)
 
 if __name__ == "__main__":

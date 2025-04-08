@@ -781,7 +781,7 @@ def generate_stats_reports(db_path, output_dir):
     conn.close()
     return True
 
-def update_match_types_batch(db_path):
+def update_match_types_batch(db_path, force_update=False):
     """
     Update match types for existing matches in the database using a batch approach
     
@@ -805,16 +805,23 @@ def update_match_types_batch(db_path):
         cursor.execute("ALTER TABLE matches ADD COLUMN match_type TEXT DEFAULT 'team';")
         conn.commit()
     
-    # Get all matches without a specified match_type
-    cursor.execute("""
-    SELECT COUNT(*) as count
-    FROM matches
-    WHERE match_type IS NULL OR match_type = ''
-    """)
+    # Get all matches count
+    if force_update:
+        cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM matches
+        """)
+    else:
+        # Get only matches without a specified match_type
+        cursor.execute("""
+        SELECT COUNT(*) as count
+        FROM matches
+        WHERE match_type IS NULL OR match_type = ''
+        """)
     
     count = cursor.fetchone()['count']
     
-    if count == 0:
+    if count == 0 and not force_update:
         print("All matches already have match_type set. Nothing to update.")
         return True
     
@@ -834,14 +841,23 @@ def update_match_types_batch(db_path):
         print(f"Updated {count} matches to type 'team'")
     else:
         # Allow batch setting by season
-        cursor.execute("""
-        SELECT s.id, s.name, COUNT(m.id) as match_count
-        FROM seasons s
-        JOIN matches m ON s.id = m.season_id
-        WHERE m.match_type IS NULL OR m.match_type = ''
-        GROUP BY s.id
-        ORDER BY s.name
-        """)
+        if force_update:
+            cursor.execute("""
+            SELECT s.id, s.name, COUNT(m.id) as match_count
+            FROM seasons s
+            JOIN matches m ON s.id = m.season_id
+            GROUP BY s.id
+            ORDER BY s.name
+            """)
+        else:
+            cursor.execute("""
+            SELECT s.id, s.name, COUNT(m.id) as match_count
+            FROM seasons s
+            JOIN matches m ON s.id = m.season_id
+            WHERE m.match_type IS NULL OR m.match_type = ''
+            GROUP BY s.id
+            ORDER BY s.name
+            """)
         
         seasons = [dict(row) for row in cursor.fetchall()]
         
@@ -860,14 +876,24 @@ def update_match_types_batch(db_path):
                 print(f"Updated {season['match_count']} matches in {season['name']} to type '{decision}'")
             else:
                 # Manual handling for this season
-                cursor.execute("""
-                SELECT m.id, m.filename, t_imp.name as imperial_team, t_reb.name as rebel_team
-                FROM matches m
-                JOIN teams t_imp ON m.imperial_team_id = t_imp.id
-                JOIN teams t_reb ON m.rebel_team_id = t_reb.id
-                WHERE m.season_id = ? AND (m.match_type IS NULL OR m.match_type = '')
-                ORDER BY m.match_date
-                """, (season['id'],))
+                if force_update:
+                    cursor.execute("""
+                    SELECT m.id, m.filename, t_imp.name as imperial_team, t_reb.name as rebel_team, m.match_type
+                    FROM matches m
+                    JOIN teams t_imp ON m.imperial_team_id = t_imp.id
+                    JOIN teams t_reb ON m.rebel_team_id = t_reb.id
+                    WHERE m.season_id = ?
+                    ORDER BY m.match_date
+                    """, (season['id'],))
+                else:
+                    cursor.execute("""
+                    SELECT m.id, m.filename, t_imp.name as imperial_team, t_reb.name as rebel_team, m.match_type
+                    FROM matches m
+                    JOIN teams t_imp ON m.imperial_team_id = t_imp.id
+                    JOIN teams t_reb ON m.rebel_team_id = t_reb.id
+                    WHERE m.season_id = ? AND (m.match_type IS NULL OR m.match_type = '')
+                    ORDER BY m.match_date
+                    """, (season['id'],))
                 
                 season_matches = [dict(row) for row in cursor.fetchall()]
                 
@@ -876,6 +902,7 @@ def update_match_types_batch(db_path):
                     print(f"Imperial team: {match['imperial_team']}")
                     print(f"Rebel team: {match['rebel_team']}")
                     print(f"Filename: {match['filename']}")
+                    print(f"Current match type: {match['match_type']}")
                     
                     match_type = input("Enter match type (team/pickup/ranked) [default: team]: ").strip().lower()
                     if match_type not in ["pickup", "ranked"]:
@@ -910,16 +937,18 @@ def main():
                        help="Only generate stats reports from existing database")
     parser.add_argument("--update-match-types", action="store_true",
                        help="Update match types for existing matches in the database")
+    parser.add_argument("--force-update-match-types", action="store_true",
+                       help="Force update of match types, even if they are already set")
     
     args = parser.parse_args()
     
-    if args.update_match_types:
+    if args.update_match_types or args.force_update_match_types:
         # Update match types for existing matches
         if not os.path.exists(args.db):
             print(f"Error: Database file not found: {args.db}")
             sys.exit(1)
         
-        update_match_types_batch(args.db)
+        update_match_types_batch(args.db, force_update=args.force_update_match_types)
     elif args.generate_only:
         # Only generate stats reports
         if not os.path.exists(args.db):
