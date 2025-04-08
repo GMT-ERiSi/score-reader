@@ -2,16 +2,15 @@
 
 This system now supports multiple ELO ladders for different match types:
 
-1. **Team ELO Ladder** - For organized team matches (match_type = 'team')
-2. **Pickup ELO Ladder** - For custom pickup team matches (match_type = 'pickup')
-3. **Pickup Player ELO Ladder** - For individual player rankings from custom pickup matches
-4. **Ranked Player ELO Ladder** - For individual player rankings from ranked queue matches
+1.  **Team ELO Ladder** - For organized team matches (match_type = 'team')
+2.  **Pickup Player ELO Ladder** - For individual player rankings from custom pickup matches (match_type = 'pickup')
+3.  **Ranked Player ELO Ladder** - For individual player rankings from ranked queue matches (match_type = 'ranked')
 
 ## Match Types
 
 Each match in the database now has a `match_type` field that can be:
 - `team` - Organized matches between established teams
-- `pickup` - Custom pickup games where players are not representing established teams
+- `pickup` - Custom pickup games where players are not necessarily representing established teams
 - `ranked` - Ranked queue matches where players queue individually
 
 ## Updating Existing Matches
@@ -29,13 +28,13 @@ This will guide you through the process of setting match types for existing matc
 
 ## Generating ELO Ladders
 
-The ELO ladder generation creates multiple ladder files:
+The ELO ladder generation creates multiple ladder files based on the specified `--match-type` or all if none is specified:
 
 - `elo_ladder_team.json` - Team ELO ratings for organized team matches
-- `elo_ladder_pickup.json` - Team ELO ratings for pickup matches
 - `pickup_player_elo_ladder.json` - Individual player ELO ratings from custom pickup matches
 - `ranked_player_elo_ladder.json` - Individual player ELO ratings from ranked queue matches
-- `elo_ladder.json` - Combined ladder with all matches (for backward compatibility)
+- `elo_ladder.json` - Combined team ladder with all matches (for backward compatibility)
+- Associated `_history.json` files are also generated for each ladder.
 
 To generate all ladders, run:
 
@@ -47,15 +46,13 @@ You can also generate ladders for specific match types only:
 
 ```
 python -m stats_reader.elo_ladder --match-type team     # Only team ladder
-python -m stats_reader.elo_ladder --match-type pickup   # Only pickup ladders
-python -m stats_reader.elo_ladder --match-type ranked   # Only ranked ladder
+python -m stats_reader.elo_ladder --match-type pickup   # Only pickup player ladder
+python -m stats_reader.elo_ladder --match-type ranked   # Only ranked player ladder
 ```
 
 ## Implementation Details
 
-- Team ELO: Calculated only from matches with match_type = 'team'
-- Pickup Team ELO: Calculated only from matches with match_type = 'pickup'
-- Pickup Player ELO: Calculated from individual player performance in custom pickup matches
-- Ranked Player ELO: Calculated from individual player performance in ranked queue matches
+- **Team ELO (`team`)**: Calculated only from matches with `match_type = 'team'`, based on the ELO ratings of the competing teams.
+- **Player ELO (`pickup`, `ranked`)**: Calculated from individual player performance in matches with `match_type = 'pickup'` or `match_type = 'ranked'`. The calculation uses the average ELO of the players on each side of the match to determine expected outcomes and update individual player ratings.
 
-When processing new matches, you'll be prompted to specify the match type. Make sure to set it correctly based on whether it's an organized team match or a pickup game.
+When processing new matches, ensure the `match_type` is set correctly based on whether it's an organized team match, a custom pickup game, or a ranked queue match.
