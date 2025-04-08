@@ -334,6 +334,9 @@ def test_process_seasons_data(processed_db_conn): # Fixture now yields (conn, te
 
 def test_generate_stats_reports(processed_db_conn):
     """Test the generation of JSON stats reports"""
+    # Unpack the fixture to get both the connection and test data
+    db_conn, test_data = processed_db_conn
+    
     # Ensure the reports directory does not exist before the test
     if os.path.exists(TEST_REPORTS_DIR):
         import shutil
