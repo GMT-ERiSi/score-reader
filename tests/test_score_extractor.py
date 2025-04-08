@@ -77,9 +77,9 @@ def test_extract_scores_from_multiple_images(mock_extract, dummy_image_files):
     # Check that the mock was called for each image
     assert mock_extract.call_count == len(image_paths)
     mock_extract.assert_has_calls([
-        call(str(dummy_image_files["match_2024-01-01_100000.png"])),
-        call(str(dummy_image_files["match_no_date.jpg"])),
-        call(str(dummy_image_files["error_image.png"]))
+        call(dummy_image_files["match_2024-01-01_100000.png"]), # Compare Path objects directly
+        call(dummy_image_files["match_no_date.jpg"]),          # Compare Path objects directly
+        call(dummy_image_files["error_image.png"])             # Compare Path objects directly
     ], any_order=True) # Order might vary depending on listdir
     
     # Check the structure of the results dictionary

@@ -1,0 +1,22 @@
+{
+  "teams": [
+    {
+      "id": 1,
+      "name": "Export Team",
+      "alias": [
+        "ET"
+      ]
+    }
+  ],
+  "players": [
+    {
+      "id": 1,
+      "name": "Export Player",
+      "team_id": 1,
+      "team_name": "Export Team",
+      "alias": [
+        "EP"
+      ]
+    }
+  ]
+}

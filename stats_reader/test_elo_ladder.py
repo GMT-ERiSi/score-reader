@@ -112,7 +112,7 @@ class TestEloLadder(unittest.TestCase):
         self.assertLess(calculate_expected_outcome(1000, 1100), 0.5)
         
         # Specific value test
-        self.assertAlmostEqual(calculate_expected_outcome(1200, 1000), 0.75973, places=5)
+        self.assertAlmostEqual(calculate_expected_outcome(1200, 1000), 0.75975, places=5) # Adjusted expected value slightly
     
     def test_calculate_new_rating(self):
         """Test the new rating calculation"""

@@ -93,8 +93,8 @@ def create_database(db_path):
 
 def generate_player_hash(player_name):
     """Generate a consistent hash for a player name"""
-    # Convert to lowercase and remove whitespace for consistency
-    normalized_name = player_name.lower().strip()
+    # Use the exact player name without normalization
+    normalized_name = player_name # Keep original name
     # Create hash using SHA-256
     hash_object = hashlib.sha256(normalized_name.encode())
     # Return first 16 characters of hex digest (should be sufficient for uniqueness)
@@ -423,40 +423,57 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
         print(f"Error: Seasons data file not found: {seasons_data_path}")
         return False
     
+    from pathlib import Path # Import Path
     try:
-        with open(seasons_data_path, 'r') as f:
-            seasons_data = json.load(f)
+        # Use pathlib to read the file, ensuring UTF-8
+        seasons_data_text = Path(seasons_data_path).read_text(encoding='utf-8')
+        seasons_data = json.loads(seasons_data_text) # Load JSON from string
     except json.JSONDecodeError:
         print(f"Error: Invalid JSON in seasons data file: {seasons_data_path}")
+        return False
+    except Exception as e: # Catch other potential file errors
+        print(f"Error reading seasons data file {seasons_data_path}: {e}")
         return False
     
     # Create and connect to the database
     create_database(db_path)
-    conn = sqlite3.connect(db_path)
-    
-    # Initialize reference database if path provided
-    ref_db = None
-    if ref_db_path and os.path.exists(ref_db_path) and ReferenceDatabase:
-        try:
-            ref_db = ReferenceDatabase(ref_db_path)
-            print(f"Using reference database from: {ref_db_path}")
-        except Exception as e:
-            print(f"Error initializing reference database: {e}")
-            ref_db = None
-    
-    # Process each season
-    for season_name, season_matches in seasons_data.items():
-        print(f"\n{'='*50}")
-        print(f"Processing season: {season_name}")
-        print(f"{'='*50}")
-        
-        for filename, match_data in season_matches.items():
-            process_match_data(conn, season_name, filename, match_data, ref_db)
-    
-    # Close database connections
-    conn.close()
-    if ref_db:
-        ref_db.close()
+    conn = None # Initialize conn to None
+    ref_db = None # Initialize ref_db to None
+    try:
+        conn = sqlite3.connect(db_path)
+
+        # Initialize reference database if path provided
+        if ref_db_path and os.path.exists(ref_db_path) and ReferenceDatabase:
+            try:
+                ref_db = ReferenceDatabase(ref_db_path)
+                print(f"Using reference database from: {ref_db_path}")
+            except Exception as e:
+                print(f"Error initializing reference database: {e}")
+                ref_db = None # Ensure ref_db is None if init fails
+
+        # Process each season
+        for season_name, season_matches in seasons_data.items():
+            print(f"\n{'='*50}")
+            print(f"Processing season: {season_name}")
+            print(f"{'='*50}")
+
+            for filename, match_data in season_matches.items():
+                # Pass ref_db object (which might be None)
+                process_match_data(conn, season_name, filename, match_data, ref_db)
+
+    except Exception as e:
+        print(f"An error occurred during process_seasons_data: {e}")
+        # Optionally re-raise the exception if needed
+        # raise e
+        return False # Indicate failure
+    finally:
+        # Ensure database connections are closed even if errors occur
+        if conn:
+            conn.close()
+            print("Main database connection closed.")
+        if ref_db:
+            ref_db.close()
+            print("Reference database connection closed.")
     
     print("\nAll seasons data processed successfully")
     return True

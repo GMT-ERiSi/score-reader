@@ -1,6 +1,6 @@
 {
   "TestSeason1": {
-    "TestMatchFile1.png": {
+    "TestMatchFile1_S1.png": {
       "match_result": "NEW REPUBLIC VICTORY",
       "teams": {
         "new_republic": {
@@ -8,22 +8,12 @@
             {
               "position": "Vanguard One",
               "player": "Player A1",
-              "score": 5000,
-              "kills": 10,
-              "deaths": 2,
-              "assists": 5,
-              "ai_kills": 10,
-              "cap_ship_damage": 15000
+              "score": 5000, "kills": 10, "deaths": 2, "assists": 5, "ai_kills": 10, "cap_ship_damage": 15000
             },
             {
               "position": "Vanguard Two",
               "player": "Player A2",
-              "score": 4500,
-              "kills": 8,
-              "deaths": 3,
-              "assists": 6,
-              "ai_kills": 5,
-              "cap_ship_damage": 12000
+              "score": 4500, "kills": 8, "deaths": 3, "assists": 6, "ai_kills": 5, "cap_ship_damage": 12000
             }
           ]
         },
@@ -32,22 +22,80 @@
             {
               "position": "Titan One",
               "player": "Player B1",
-              "score": 3000,
-              "kills": 5,
-              "deaths": 4,
-              "assists": 3,
-              "ai_kills": 8,
-              "cap_ship_damage": 8000
+              "score": 3000, "kills": 5, "deaths": 4, "assists": 3, "ai_kills": 8, "cap_ship_damage": 8000
             },
             {
               "position": "Titan Two",
               "player": "Player B2",
-              "score": 2500,
-              "kills": 4,
-              "deaths": 5,
-              "assists": 2,
-              "ai_kills": 3,
-              "cap_ship_damage": 5000
+              "score": 2500, "kills": 4, "deaths": 5, "assists": 2, "ai_kills": 3, "cap_ship_damage": 5000
+            }
+          ]
+        }
+      }
+    },
+    "TestMatchFile2_S1.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "player a2",  
+              "score": 3500, "kills": 6, "deaths": 5, "assists": 4, "ai_kills": 2, "cap_ship_damage": 11000
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Player C1", 
+              "score": 4000, "kills": 7, "deaths": 4, "assists": 5, "ai_kills": 3, "cap_ship_damage": 13000
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "Player A1", 
+              "score": 6000, "kills": 12, "deaths": 1, "assists": 8, "ai_kills": 15, "cap_ship_damage": 20000
+            },
+            {
+              "position": "Titan Four",
+              "player": " Player B1 ", 
+              "score": 2800, "kills": 4, "deaths": 6, "assists": 1, "ai_kills": 6, "cap_ship_damage": 7000
+            }
+          ]
+        }
+      }
+    }
+  },
+  "TestSeason2": {
+    "TestMatchFile1_S2.png": {
+      "match_result": "REBEL VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Alpha",
+              "player": "Player A1", 
+              "score": 5500, "kills": 11, "deaths": 3, "assists": 7, "ai_kills": 12, "cap_ship_damage": 16000
+            },
+            {
+              "position": "Vanguard Beta",
+              "player": "Player D1", 
+              "score": 4800, "kills": 9, "deaths": 2, "assists": 8, "ai_kills": 6, "cap_ship_damage": 14000
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Alpha",
+              "player": "Player B2", 
+              "score": 3200, "kills": 6, "deaths": 5, "assists": 4, "ai_kills": 9, "cap_ship_damage": 9000
+            },
+            {
+              "position": "Titan Beta",
+              "player": "player a2", 
+              "score": 2700, "kills": 5, "deaths": 7, "assists": 3, "ai_kills": 4, "cap_ship_damage": 6000
             }
           ]
         }

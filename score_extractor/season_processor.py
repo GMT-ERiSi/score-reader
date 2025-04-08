@@ -61,40 +61,49 @@ def extract_date_from_filename(filename):
     import re
     from datetime import datetime
     
-    # Try to find a date pattern in the filename
-    
-    # Pattern: YYYY.MM.DD or YYYY-MM-DD
-    date_pattern = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})', filename)
-    if date_pattern:
-        year, month, day = date_pattern.groups()
-        # Try to find a time pattern too
-        time_pattern = re.search(r'(\d{2})\.(\d{2})\.(\d{2})', filename)
-        if time_pattern and len(time_pattern.groups()) == 3:
-            hour, minute, second = time_pattern.groups()
-            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
-        else:
-            # Default to noon if no time found
-            return f"{year}-{month}-{day} 12:00:00"
-    
-    # Pattern: DD.MM.YYYY or DD-MM-YYYY
-    date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
-    if date_pattern:
-        day, month, year = date_pattern.groups()
-        # Try to find a time pattern too
-        time_pattern = re.search(r'(\d{2})\.(\d{2})\.(\d{2})', filename)
-        if time_pattern and len(time_pattern.groups()) == 3:
-            hour, minute, second = time_pattern.groups()
-            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
-        else:
-            # Default to noon if no time found
-            return f"{year}-{month}-{day} 12:00:00"
-    
-    # Try to extract timestamps from Star Wars Squadrons screenshot format
+    # Check for specific patterns first, then more general ones
+
+    # Pattern: Star Wars Squadrons Screenshot YYYY.MM.DD - HH.MM.SS (Check this first!)
     # Example: Star Wars Squadrons Screenshot 2022.09.24 - 00.17.55.76.png
-    sw_pattern = re.search(r'Star Wars\s+Squadrons\s+Screenshot\s+(\d{4})\.(\d{2})\.(\d{2})\s+-\s+(\d{2})\.(\d{2})\.(\d{2})', filename, re.IGNORECASE)
-    if sw_pattern:
-        year, month, day, hour, minute, second = sw_pattern.groups()
-        return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+    sw_match = re.search(
+        r'Star Wars\s+Squadrons\s+Screenshot\s+'  # Prefix
+        r'(\d{4})\.(\d{2})\.(\d{2})'              # Date YYYY.MM.DD
+        r'\s+-\s+'                                # Separator
+        r'(\d{2})\.(\d{2})\.(\d{2})',             # Time HH.MM.SS
+        filename,
+        re.IGNORECASE
+    )
+    if sw_match:
+        year, month, day, hour, minute, second = sw_match.groups()
+        # Validate time components
+        if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
+            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        # Fallback if time is invalid - return date with default time
+        return f"{year}-{month}-{day} 12:00:00"
+
+    # Pattern: YYYY[.-]MM[.-]DD followed by optional [_ or space]HH.MM.SS
+    # Example: 2023.10.25_15.30.00 or 2023-12-25 20.05.30
+    match = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})(?:[_ ]?(\d{2})\.(\d{2})\.(\d{2}))?', filename)
+    if match:
+        year, month, day, hour, minute, second = match.groups()
+        if hour and minute and second:
+            # Validate time components (simple check for now)
+            if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
+                 return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        # Default to noon if no valid time found
+        return f"{year}-{month}-{day} 12:00:00"
+
+    # Pattern: DD[.-]MM[.-]YYYY followed by optional [ space]HH.MM.SS
+    # Example: 15.11.2023 or 10.03.2024 18.45.15
+    match = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})(?:[ ]?(\d{2})\.(\d{2})\.(\d{2}))?', filename)
+    if match:
+        day, month, year, hour, minute, second = match.groups()
+        if hour and minute and second:
+             # Validate time components (simple check for now)
+            if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
+                return f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        # Default to noon if no valid time found
+        return f"{year}-{month}-{day} 12:00:00"
     
     return None
 
