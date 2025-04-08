@@ -685,23 +685,25 @@ def main():
         print("Please run the stats_db_processor.py script first to generate the database.")
         sys.exit(1)
     
-    if args.match_type == "all" or args.match_type == "team":
+    if args.match_type == "team":
         # Generate team ELO ladder
         generate_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "team")
-    
-    if args.match_type == "all" or args.match_type == "pickup":
-        # Generate pickup team ELO ladder
-        generate_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup")
+    elif args.match_type == "pickup":
         # Generate pickup player ELO ladder
-        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup", 
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup",
                                  "pickup_player_elo_ladder.json", "pickup_player_elo_history.json")
-    
-    if args.match_type == "all" or args.match_type == "ranked":
+    elif args.match_type == "ranked":
         # Generate ranked player ELO ladder
-        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "ranked", 
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "ranked",
                                  "ranked_player_elo_ladder.json", "ranked_player_elo_history.json")
-    
-    if args.match_type == "all":
+    elif args.match_type == "all":
+        # Generate all ladders
+        print("\nGenerating Team ELO ladder...")
+        generate_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "team")
+        print("\nGenerating Pickup Player ELO ladder...")
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "pickup", "pickup_player_elo_ladder.json", "pickup_player_elo_history.json")
+        print("\nGenerating Ranked Player ELO ladder...")
+        generate_player_elo_ladder(args.db, args.output, args.starting_elo, args.k_factor, "ranked", "ranked_player_elo_ladder.json", "ranked_player_elo_history.json")
         # Generate combined ladder for backward compatibility
         generate_combined_ladder(args.db, args.output, args.starting_elo, args.k_factor)
 
