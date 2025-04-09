@@ -1,0 +1,1925 @@
+{
+  "TEST": {
+    "NWs_vs_KE_G1_02-08-24.PNG": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Two",
+              "player": "NiWi-Side_Stack",
+              "score": 1945,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 22,
+              "cap_ship_damage": 81958
+            },
+            {
+              "position": "Titan Four",
+              "player": "NiWi-Slacks",
+              "score": 1785,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 33,
+              "cap_ship_damage": 113558
+            },
+            {
+              "position": "Titan Three",
+              "player": "NiWi-Pseudo_nine",
+              "score": 1458,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 10651
+            },
+            {
+              "position": "Titan One",
+              "player": "NiWi-Ska_ftc",
+              "score": 1435,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 76370
+            },
+            {
+              "position": "Titan Five",
+              "player": "NiWi-JC",
+              "score": 935,
+              "kills": 2,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 1332
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "Shmeledran",
+              "score": 1610,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 21,
+              "cap_ship_damage": 65633
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Gucchi",
+              "score": 1580,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 70101
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "TheRevanite1018",
+              "score": 1415,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 87893
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Staffycat",
+              "score": 1235,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 17,
+              "cap_ship_damage": 34409
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Solhawk",
+              "score": 1018,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 7984
+            }
+          ]
+        }
+      }
+    },
+    "NWS_vs_KE_G2_02-08-24.PNG": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Five",
+              "player": "NiWi-Side_Stack",
+              "score": 1875,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 42,
+              "cap_ship_damage": 68716
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "NiWi-Ska_flc",
+              "score": 1715,
+              "kills": 6,
+              "deaths": 3,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 50048
+            },
+            {
+              "position": "Vanguard One",
+              "player": "NiWi-Stacks",
+              "score": 1470,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 17,
+              "cap_ship_damage": 102188
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "NiWi-Pseudo_nine",
+              "score": 1262,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 2123
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "NiWi-JC",
+              "score": 880,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 6,
+              "ai_kills": 0,
+              "cap_ship_damage": 14272
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "TheRevanite1018",
+              "score": 2045,
+              "kills": 4,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 2,
+              "cap_ship_damage": 50268
+            },
+            {
+              "position": "Titan Three",
+              "player": "Shmeledran",
+              "score": 1945,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 82402
+            },
+            {
+              "position": "Titan Two",
+              "player": "Gucchi",
+              "score": 1550,
+              "kills": 3,
+              "deaths": 3,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 46256
+            },
+            {
+              "position": "Titan Five",
+              "player": "Staffycat",
+              "score": 1455,
+              "kills": 0,
+              "deaths": 4,
+              "assists": 0,
+              "ai_kills": 16,
+              "cap_ship_damage": 78433
+            },
+            {
+              "position": "Titan Four",
+              "player": "Solhawk",
+              "score": 1006,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 339
+            }
+          ]
+        }
+      }
+    },
+    "NWS_vs_KE_G3_02-08-24.PNG": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Four",
+              "player": "NiWi-Side_Stack",
+              "score": 2040,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 29,
+              "cap_ship_damage": 58862
+            },
+            {
+              "position": "Vanguard One",
+              "player": "NiWi-Slacks",
+              "score": 1660,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 27,
+              "cap_ship_damage": 74385
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "NiWi-Ska_ftc",
+              "score": 1650,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 53650
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "NiWi-Pseudo_nine",
+              "score": 1484,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 2205
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "NiWi-ProfAutumn",
+              "score": 915,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 24880
+            }
+          ]
+        },
+        "empire": {
+          "players": [
+            {
+              "position": "Titan Five",
+              "player": "Shmeledran",
+              "score": 1485,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 37,
+              "cap_ship_damage": 64100
+            },
+            {
+              "position": "Titan Three",
+              "player": "BIKER_BUGGS",
+              "score": 1290,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 63641
+            },
+            {
+              "position": "Titan Two",
+              "player": "Solhawk",
+              "score": 1128,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 149
+            },
+            {
+              "position": "Titan Four",
+              "player": "Gucchi",
+              "score": 1055,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 36589
+            },
+            {
+              "position": "Titan One",
+              "player": "TheRevanite1018",
+              "score": 935,
+              "kills": 5,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 3950
+            }
+          ]
+        }
+      }
+    },
+    "NWS_vs_KE_G4_02-08-24.PNG": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "NiWi-Slacks",
+              "score": 1810,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 45,
+              "cap_ship_damage": 92744
+            },
+            {
+              "position": "Titan Three",
+              "player": "NiWi-ProfAutumn",
+              "score": 1480,
+              "kills": 3,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 38841
+            },
+            {
+              "position": "Titan Five",
+              "player": "NiWi-Side_Stack",
+              "score": 1000,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 23,
+              "cap_ship_damage": 61952
+            },
+            {
+              "position": "Titan Two",
+              "player": "NiWi-Pseudo_nine",
+              "score": 891,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 138
+            },
+            {
+              "position": "Titan Four",
+              "player": "NiWi-JC",
+              "score": 680,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 1068
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Four",
+              "player": "TheRevanite1018",
+              "score": 2040,
+              "kills": 3,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 3,
+              "cap_ship_damage": 83864
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Gucchi",
+              "score": 1955,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 3,
+              "cap_ship_damage": 73521
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Rita_Soul",
+              "score": 1525,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 22,
+              "cap_ship_damage": 57388
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Staffycat",
+              "score": 1460,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 27,
+              "cap_ship_damage": 39484
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Solhawk",
+              "score": 1317,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 848
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_GMT_G1_Finals_17-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "rod409",
+              "score": 1550,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 36,
+              "cap_ship_damage": 61741
+            },
+            {
+              "position": "Titan Two",
+              "player": "Hail x Sagan",
+              "score": 1280,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 69276
+            },
+            {
+              "position": "Titan Five",
+              "player": "RaineyDaze",
+              "score": 1245,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 32,
+              "cap_ship_damage": 46516
+            },
+            {
+              "position": "Titan Four",
+              "player": "iLorhin",
+              "score": 1073,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 494
+            },
+            {
+              "position": "Titan Three",
+              "player": "DiscoDino",
+              "score": 1020,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 58122
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Four",
+              "player": "OSQ_Dalek",
+              "score": 1855,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 78711
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Lions",
+              "score": 1825,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 75376
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Shmeledran",
+              "score": 1800,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 17,
+              "cap_ship_damage": 48542
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "FOCA101",
+              "score": 1574,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 463
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "GMT_ERiSi",
+              "score": 1510,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 76429
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_GMT_G2_Finals_17-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "DiscoDino",
+              "score": 1715,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 87307
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Revenge",
+              "score": 1605,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 32,
+              "cap_ship_damage": 66623
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "rod409",
+              "score": 1350,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 24,
+              "cap_ship_damage": 45582
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Hail x Sagan",
+              "score": 1310,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 48098
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "iLorhin",
+              "score": 1228,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 704
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "lions",
+              "score": 1660,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 38,
+              "cap_ship_damage": 61000
+            },
+            {
+              "position": "Titan Four",
+              "player": "GMT_ERiSi",
+              "score": 1190,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 48964
+            },
+            {
+              "position": "Titan Three",
+              "player": "OSQ_Dalek",
+              "score": 1190,
+              "kills": 2,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 35660
+            },
+            {
+              "position": "Titan Two",
+              "player": "Fabian",
+              "score": 1030,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 31,
+              "cap_ship_damage": 61203
+            },
+            {
+              "position": "Titan Five",
+              "player": "FOCA101",
+              "score": 1007,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 112
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_GMT_G3_Finals_17-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Five",
+              "player": "RaineyDaze",
+              "score": 1725,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 47,
+              "cap_ship_damage": 43228
+            },
+            {
+              "position": "Titan Two",
+              "player": "DiscoDino",
+              "score": 1555,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 62700
+            },
+            {
+              "position": "Titan One",
+              "player": "rod409",
+              "score": 1490,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 42,
+              "cap_ship_damage": 58733
+            },
+            {
+              "position": "Titan Four",
+              "player": "Hail x Sagan",
+              "score": 1280,
+              "kills": 2,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 58209
+            },
+            {
+              "position": "Titan Three",
+              "player": "iLorhin",
+              "score": 1049,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 105
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "Lionc",
+              "score": 1995,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 50,
+              "cap_ship_damage": 70401
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "FOCA101",
+              "score": 1982,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 2214
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Shmeledran",
+              "score": 1660,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 33762
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "OSQ_Dalek",
+              "score": 1610,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 90983
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "GMT_ERiSi",
+              "score": 1470,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 61915
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_GMT_G4_Finals_17-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Five",
+              "player": "iLorhin",
+              "score": 1967,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 3180
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "rod409",
+              "score": 1765,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 35,
+              "cap_ship_damage": 60407
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Revenge",
+              "score": 1745,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 29,
+              "cap_ship_damage": 38547
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "DiscoDino",
+              "score": 1435,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 88760
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Hail x Sagan",
+              "score": 1435,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 63911
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "Lions",
+              "score": 1280,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 39,
+              "cap_ship_damage": 65500
+            },
+            {
+              "position": "Titan Four",
+              "player": "Shmeledran",
+              "score": 1170,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 39,
+              "cap_ship_damage": 47106
+            },
+            {
+              "position": "Titan Five",
+              "player": "FOCA101",
+              "score": 812,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 471
+            },
+            {
+              "position": "Titan Two",
+              "player": "OSQ_Dalek",
+              "score": 730,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 33518
+            },
+            {
+              "position": "Titan Three",
+              "player": "GMT_ERiSi",
+              "score": 495,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 28289
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_GMT_G5_Finals_17-08-24.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "DiscoDin0",
+              "score": 1225,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 13564
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Hail x Sagan",
+              "score": 1175,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 155968
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "rod409",
+              "score": 1150,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 30,
+              "cap_ship_damage": 46262
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Revenge",
+              "score": 1055,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 30,
+              "cap_ship_damage": 38477
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "iLorhin",
+              "score": 984,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 204
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Five",
+              "player": "Hod",
+              "score": 1910,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 59086
+            },
+            {
+              "position": "Titan Four",
+              "player": "Shmeledran",
+              "score": 1830,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 29,
+              "cap_ship_damage": 55646
+            },
+            {
+              "position": "Titan One",
+              "player": "Lions",
+              "score": 1720,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 40,
+              "cap_ship_damage": 99701
+            },
+            {
+              "position": "Titan Five",
+              "player": "FOCA101",
+              "score": 1594,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 2271
+            },
+            {
+              "position": "Titan Four",
+              "player": "OSQ_Dalek",
+              "score": 1360,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 59169
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_NWS_G1_09-08-24.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "rod409",
+              "score": 2380,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 72375
+            },
+            {
+              "position": "Titan One",
+              "player": "DiscoDin0",
+              "score": 2060,
+              "kills": 3,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 99488
+            },
+            {
+              "position": "Titan Four",
+              "player": "Hail x Sagan",
+              "score": 1665,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 70771
+            },
+            {
+              "position": "Titan Five",
+              "player": "Hobbes_AU",
+              "score": 1200,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 23,
+              "cap_ship_damage": 42965
+            },
+            {
+              "position": "Titan Two",
+              "player": "iLorhin",
+              "score": 862,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Two",
+              "player": "NiWi-Ska_fLc",
+              "score": 1405,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 3,
+              "cap_ship_damage": 56519
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "KitstersRite",
+              "score": 1320,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 11,
+              "cap_ship_damage": 57887
+            },
+            {
+              "position": "Vanguard One",
+              "player": "NiWi-Slacks",
+              "score": 1210,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 38,
+              "cap_ship_damage": 47279
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "NiWi-ProfAutumn",
+              "score": 870,
+              "kills": 2,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 3161
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "NiWi-Pseudo_nine",
+              "score": 431,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 21
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_NWS_G2_09-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "DiscoDin0",
+              "score": 2105,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 95026
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Hail x Sagan",
+              "score": 1820,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 65810
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Hobbes_AU",
+              "score": 1740,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 27,
+              "cap_ship_damage": 45747
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "rod409",
+              "score": 1645,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 25,
+              "cap_ship_damage": 52835
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "iLorhin",
+              "score": 1336,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 887
+            }
+          ]
+        },
+        "empire": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "NiWi-Slacks",
+              "score": 1690,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 38,
+              "cap_ship_damage": 73755
+            },
+            {
+              "position": "Titan Four",
+              "player": "KitstersRite",
+              "score": 1279,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 4,
+              "ai_kills": 1,
+              "cap_ship_damage": 251
+            },
+            {
+              "position": "Titan Two",
+              "player": "NiWi-Side_Stack",
+              "score": 1265,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 15,
+              "cap_ship_damage": 70138
+            },
+            {
+              "position": "Titan One",
+              "player": "NiWi-Ska_flc",
+              "score": 1110,
+              "kills": 4,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 30671
+            },
+            {
+              "position": "Titan Five",
+              "player": "NiWi-ProfAutumn",
+              "score": 1010,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 1,
+              "cap_ship_damage": 29063
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_NWS_G3_09-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Two",
+              "player": "iLorhin",
+              "score": 1931,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 2252
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Hobbes_AU",
+              "score": 1770,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 22,
+              "cap_ship_damage": 52426
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "rod409",
+              "score": 1685,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 35,
+              "cap_ship_damage": 46773
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Hail x Sagan",
+              "score": 1665,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 95435
+            },
+            {
+              "position": "Vanguard One",
+              "player": "DiscoDino",
+              "score": 1655,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 65887
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "NiWi-Slacks",
+              "score": 2030,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 33,
+              "cap_ship_damage": 119150
+            },
+            {
+              "position": "Titan Two",
+              "player": "NiWi-Side_Stack",
+              "score": 1565,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 39,
+              "cap_ship_damage": 69386
+            },
+            {
+              "position": "Titan Four",
+              "player": "KitstersRite",
+              "score": 1497,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 152
+            },
+            {
+              "position": "Titan One",
+              "player": "NiWi-Ska_flc",
+              "score": 880,
+              "kills": 2,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 6186
+            },
+            {
+              "position": "Titan Five",
+              "player": "NiWi-ProfAutumn",
+              "score": 675,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 36677
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_NWS_G4_09-08-24.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "rod409",
+              "score": 1995,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 43,
+              "cap_ship_damage": 75849
+            },
+            {
+              "position": "Titan One",
+              "player": "DiscoDin0",
+              "score": 1610,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 77916
+            },
+            {
+              "position": "Titan Two",
+              "player": "Hail x Sagan",
+              "score": 1410,
+              "kills": 4,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 63671
+            },
+            {
+              "position": "Titan Five",
+              "player": "Hobbes_AU",
+              "score": 1275,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 17,
+              "cap_ship_damage": 75309
+            },
+            {
+              "position": "Titan Four",
+              "player": "iLorhin",
+              "score": 1166,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 1798
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "NiWi-Slacks",
+              "score": 1240,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 49,
+              "cap_ship_damage": 30364
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "NiWi-Ska_flc",
+              "score": 1105,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 20,
+              "cap_ship_damage": 67464
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "NiWi-Pseudo_nine",
+              "score": 851,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 202
+            },
+            {
+              "position": "Vanguard One",
+              "player": "KitstersRite",
+              "score": 825,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 14,
+              "cap_ship_damage": 27711
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "NiWi-Side_Stack",
+              "score": 740,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 16544
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_TBD_G1_03-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "Hail x Sagan",
+              "score": 1995,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 66219
+            },
+            {
+              "position": "Titan One",
+              "player": "rod409",
+              "score": 1870,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 84793
+            },
+            {
+              "position": "Titan Three",
+              "player": "iLorhin",
+              "score": 1594,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 1888
+            },
+            {
+              "position": "Titan Two",
+              "player": "Neville Schlong...",
+              "score": 1460,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 0,
+              "ai_kills": 31,
+              "cap_ship_damage": 37586
+            },
+            {
+              "position": "Titan Five",
+              "player": "DiscoDino",
+              "score": 1205,
+              "kills": 0,
+              "deaths": 4,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 80166
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Four",
+              "player": "Not Tom",
+              "score": 2570,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 25,
+              "cap_ship_damage": 111503
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Cosmokaze",
+              "score": 2103,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 7,
+              "ai_kills": 0,
+              "cap_ship_damage": 2510
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "zyphaz",
+              "score": 1785,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 41,
+              "cap_ship_damage": 64766
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "beach-89",
+              "score": 1740,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 5,
+              "cap_ship_damage": 56783
+            },
+            {
+              "position": "Vanguard One",
+              "player": "WhatsUpDock",
+              "score": 1105,
+              "kills": 5,
+              "deaths": 1,
+              "assists": 6,
+              "ai_kills": 1,
+              "cap_ship_damage": 47
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_TBD_G2_03-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Four",
+              "player": "rod409",
+              "score": 1420,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 1,
+              "ai_kills": 4,
+              "cap_ship_damage": 93233
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "iLorhin",
+              "score": 1389,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 9423
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "DiscoDino",
+              "score": 975,
+              "kills": 7,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 68
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Hobbes_AU",
+              "score": 785,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 10,
+              "cap_ship_damage": 48202
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Hail x Sagan",
+              "score": 780,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 35055
+            }
+          ]
+        },
+        "empire": {
+          "players": [
+            {
+              "position": "Titan Two",
+              "player": "Cosmokaze",
+              "score": 804,
+              "kills": 2,
+              "deaths": 2,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 390
+            },
+            {
+              "position": "Titan Three",
+              "player": "zyphaz",
+              "score": 688,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 6,
+              "ai_kills": 1,
+              "cap_ship_damage": 6771
+            },
+            {
+              "position": "Titan Four",
+              "player": "WhatsUpDock",
+              "score": 670,
+              "kills": 3,
+              "deaths": 0,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 176
+            },
+            {
+              "position": "Titan One",
+              "player": "Not Tom",
+              "score": 535,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 4092
+            },
+            {
+              "position": "Titan Five",
+              "player": "beach-89",
+              "score": 490,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 104
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_TBD_G3_03-08-24.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "rod409",
+              "score": 2250,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 58,
+              "cap_ship_damage": 82429
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "iLorhin",
+              "score": 1845,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 2226
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Hobbes_AU",
+              "score": 1835,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 33,
+              "cap_ship_damage": 49328
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Hail x Sagan",
+              "score": 1545,
+              "kills": 4,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 39266
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "DiscoDino",
+              "score": 1280,
+              "kills": 4,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 55722
+            }
+          ]
+        },
+        "empire": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "Not Tom",
+              "score": 2080,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 50,
+              "cap_ship_damage": 114328
+            },
+            {
+              "position": "Titan Five",
+              "player": "zyphaz",
+              "score": 1725,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 35,
+              "cap_ship_damage": 95830
+            },
+            {
+              "position": "Titan Two",
+              "player": "WhatsUpDock",
+              "score": 1290,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 28575
+            },
+            {
+              "position": "Titan Four",
+              "player": "beach-89",
+              "score": 910,
+              "kills": 2,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 40634
+            },
+            {
+              "position": "Titan Three",
+              "player": "Cosmokaze",
+              "score": 837,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 338
+            }
+          ]
+        }
+      }
+    },
+    "RND_vs_TBD_G4_03-08-24.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "Hail x Sagan",
+              "score": 2180,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 56260
+            },
+            {
+              "position": "Titan One",
+              "player": "rod409",
+              "score": 2075,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 33,
+              "cap_ship_damage": 73955
+            },
+            {
+              "position": "Titan Three",
+              "player": "DiscoDino",
+              "score": 1880,
+              "kills": 2,
+              "deaths": 0,
+              "assists": 2,
+              "ai_kills": 1,
+              "cap_ship_damage": 89067
+            },
+            {
+              "position": "Titan Five",
+              "player": "Hobbes_AU",
+              "score": 1555,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 26,
+              "cap_ship_damage": 74324
+            },
+            {
+              "position": "Titan Two",
+              "player": "iLorhin",
+              "score": 700,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 64
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "Not Tom",
+              "score": 1640,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 48,
+              "cap_ship_damage": 41691
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "zyphaz",
+              "score": 1230,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 28,
+              "cap_ship_damage": 36368
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Cosmokaze",
+              "score": 571,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 130
+            },
+            {
+              "position": "Vanguard One",
+              "player": "WhatsUpDock",
+              "score": 570,
+              "kills": 3,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 1805
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "beach-89",
+              "score": 570,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 1,
+              "cap_ship_damage": 43161
+            }
+          ]
+        }
+      }
+    }
+  }
+}

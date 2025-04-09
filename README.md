@@ -97,17 +97,23 @@ Star Wars Squadrons Score Reader
    python -m score_extractor.season_processor --base-dir ../Screenshots --output-dir "Extracted Results"
    ```
 
-3. **Populate the reference database**:
+3. **Populate and manage the reference database**:
    ```bash
+   # First populate the reference database with player names
    python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/all_seasons_data.json"
+   
+   # Then set primary teams for players using the interactive tool
+   python -m stats_reader.reference_manager --db squadrons_reference.db --manage
    ```
+   This second step opens an interactive tool where you can assign primary teams to players. This is important for tracking substitute appearances - when a player plays for a team other than their primary team, the system will prompt you to confirm if they're subbing.  This only matters
+   for player stats, because for the team ELO ladder, subs count as a regular team player towards that teams ELO, and for the pickup and FNF/ranked ELO ladders there are no team ids anyway
 
 4. **Process data into database**:
    ```bash
    python -m stats_reader.stats_db_processor --input "Extracted Results/all_seasons_data.json" --reference-db squadrons_reference.db
    ```
 
-5. **Fix pickup team IDs** (only if you have pickup matches):
+5. **Fix pickup team IDs** (only if you're processing pickup or ranked matches rather than teams matches):
    ```bash
    python -m stats_reader.fix_pickup_team_ids
    ```
@@ -127,10 +133,15 @@ If you want to process only a specific folder of screenshots (e.g., just for tes
    ```
    This will process only the screenshots in the specified folder (TEST in this example) and save the results.
 
-2. **Populate the reference database** from the extracted data:
+2. **Populate and manage the reference database** from the extracted data:
    ```bash
+   # First populate the reference database with player names
    python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/TEST/TEST_results.json"
+   
+   # Then set primary teams for players using the interactive tool
+   python -m stats_reader.reference_manager --db squadrons_reference.db --manage
    ```
+   Setting primary teams for players allows the system to detect substitute appearances during processing.
 
 3. **Process the extracted data into the stats database**:
    ```bash
@@ -154,7 +165,8 @@ Each step in the workflow corresponds to specific components in the project:
 | Step | Component | Description |
 |------|-----------|-------------|
 | 1. Process Screenshots | `score_extractor/season_processor.py` | Extracts match data from screenshots using Claude API |
-| 2. Populate Reference DB | `stats_reader/reference_manager.py` | Creates and manages the reference database for consistent player/team naming |
+| 2a. Populate Reference DB | `stats_reader/reference_manager.py` | Creates the reference database with player names from extracted data |
+| 2b. Manage Reference DB | `stats_reader/reference_manager.py --manage` | Interactive tool for setting player primary teams and tracking substitutes |
 | 3. Process Data | `stats_reader/stats_db_processor.py` | Adds the extracted match data to the stats database |
 | 4. Fix Pickup Team IDs | `stats_reader/fix_pickup_team_ids.py` | Sets team_id to NULL for pickup matches |
 | 5. Generate ELO Ladder | `stats_reader/elo_ladder.py` | Calculates ELO ratings and generates ladders |
