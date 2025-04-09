@@ -96,37 +96,44 @@ Star Wars Squadrons Score Reader
    ```bash
    python -m score_extractor.season_processor --base-dir ../Screenshots --output-dir "Extracted Results"
    ```
+   This generates `Extracted Results/all_seasons_data.json`.
 
-3. **Populate and manage the reference database**:
+3. **Clean the extracted data** (Recommended):
    ```bash
-   # Start fresh by deleting any existing reference database
-   del squadrons_reference.db
+   python -m stats_reader clean --input "Extracted Results/all_seasons_data.json" --output "Extracted Results/all_seasons_data_cleaned.json"
+   ```
+   This launches an interactive tool to review and correct potential AI extraction errors (scores, team names, results) by comparing against the original screenshots. Don't worry about slightly different player names for the same person here; that's handled in the next step.
+
+4. **Populate and manage the reference database**:
+   ```bash
+   # Start fresh by deleting any existing reference database if needed
+   # del squadrons_reference.db
    
-   # Populate the reference database with player names
-   python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/all_seasons_data.json"
+   # Populate the reference database with player names from the CLEANED data
+   python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/all_seasons_data_cleaned.json"
    
    # Then manage teams and players using the interactive tool
    python -m stats_reader.reference_manager --db squadrons_reference.db --manage
    ```
    
    When using the management interface:
-   1. Choose "Team Management" to first create any teams you need
-   2. Then select "Player Management" to assign players to their primary teams and remove any unwanted duplicates
+   1. Choose "Team Management" to first create any teams you need.
+   2. Then select "Player Management" to assign players to their primary teams and use "Resolve Duplicate Player IDs" to merge different names for the same player (e.g., "PlayerA" and "Player A") into a single canonical entry. This also updates the `_cleaned.json` file for consistency.
    
-   This step is important for tracking substitute appearances - when a player plays for a team other than their primary team, the system will prompt you to confirm if they're subbing.  This only matters
-   for player stats, because for the team ELO ladder, subs count as a regular team player towards that teams ELO, and for the pickup and FNF/ranked ELO ladders there are no team ids anyway
+   Setting primary teams is important for tracking substitute appearances.
 
-4. **Process data into database**:
+5. **Process data into database**:
    ```bash
-   python -m stats_reader.stats_db_processor --input "Extracted Results/all_seasons_data.json" --reference-db squadrons_reference.db
+   # Use the CLEANED data as input
+   python -m stats_reader.stats_db_processor --input "Extracted Results/all_seasons_data_cleaned.json" --reference-db squadrons_reference.db
    ```
 
-5. **Fix pickup team IDs** (only if you're processing pickup or ranked matches rather than teams matches):
+6. **Fix pickup team IDs** (only if processing pickup/ranked matches):
    ```bash
    python -m stats_reader.fix_pickup_team_ids
    ```
 
-6. **Generate ELO ladder**:
+7. **Generate ELO ladder**:
    ```bash
    python -m stats_reader.elo_ladder
    ```
@@ -137,39 +144,46 @@ If you want to process only a specific folder of screenshots (e.g., just for tes
 
 1. **Process screenshots from a specific folder**:
    ```bash
+   # Example using TEST folder
    python -m score_extractor.season_processor --base-dir ../Screenshots --season TEST --output-dir "Extracted Results"
    ```
-   This will process only the screenshots in the specified folder (TEST in this example) and save the results.
+   This processes only the `TEST` folder and saves results to `Extracted Results/TEST/TEST_results.json`.
 
-2. **Populate and manage the reference database** from the extracted data:
+2. **Clean the extracted data** (Recommended):
    ```bash
-   # Start fresh if necessary by deleting any existing reference database - potentially we will share one once it is canonical - TBU**
-   del squadrons_reference.db
+   # Example using TEST folder output
+   python -m stats_reader clean --input "Extracted Results/TEST/TEST_results.json" --output "Extracted Results/TEST/TEST_results_cleaned.json"
+   ```
+   Review and correct potential AI extraction errors (scores, team names, results) against the screenshots for this specific folder. Don't worry about slightly different player names for the same person here.
+
+3. **Populate and manage the reference database**:
+   ```bash
+   # Start fresh if necessary by deleting any existing reference database
+   # del squadrons_reference.db
    
-   # Populate the reference database with player names
-   python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/TEST/TEST_results.json"
+   # Populate the reference database with player names from the CLEANED data
+   python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/TEST/TEST_results_cleaned.json"
    
    # Then manage teams and players using the interactive tool
    python -m stats_reader.reference_manager --db squadrons_reference.db --manage
    ```
    
    When using the management interface:
-   1. Choose "Team Management" to first create any teams you need
-   2. Then select "Player Management" to assign players to their primary teams and remove any unwanted duplicate players
-   
-   Setting primary teams for players allows the system to detect substitute appearances during processing.
+   1. Create teams if needed.
+   2. Assign primary teams and use "Resolve Duplicate Player IDs" to merge different names for the same player. This also updates the `_cleaned.json` file.
 
-3. **Process the extracted data into the stats database**:
+4. **Process the extracted data into the stats database**:
    ```bash
-   python -m stats_reader.stats_db_processor --input "Extracted Results/TEST/TEST_results.json" --reference-db squadrons_reference.db
+   # Use the CLEANED data as input
+   python -m stats_reader.stats_db_processor --input "Extracted Results/TEST/TEST_results_cleaned.json" --reference-db squadrons_reference.db
    ```
 
-4. **Fix team IDs for pickup matches** (if needed):
+5. **Fix team IDs for pickup matches** (if needed):
    ```bash
    python -m stats_reader.fix_pickup_team_ids
    ```
 
-5. **Generate ELO ladder** (this will include only matches from the processed folder):
+6. **Generate ELO ladder** (will include only matches from the processed folder):
    ```bash
    python -m stats_reader.elo_ladder
    ```
@@ -181,11 +195,12 @@ Each step in the workflow corresponds to specific components in the project:
 | Step | Component | Description |
 |------|-----------|-------------|
 | 1. Process Screenshots | `score_extractor/season_processor.py` | Extracts match data from screenshots using Claude API |
-| 2a. Populate Reference DB | `stats_reader/reference_manager.py` | Creates the reference database with player names from extracted data |
-| 2b. Manage Reference DB | `stats_reader/reference_manager.py --manage` | Interactive tool for setting player primary teams and tracking substitutes |
-| 3. Process Data | `stats_reader/stats_db_processor.py` | Adds the extracted match data to the stats database |
-| 4. Fix Pickup Team IDs | `stats_reader/fix_pickup_team_ids.py` | Sets team_id to NULL for pickup matches |
-| 5. Generate ELO Ladder | `stats_reader/elo_ladder.py` | Calculates ELO ratings and generates ladders |
+| 2. Clean Extracted Data | `stats_reader clean` | Interactive tool to correct AI extraction errors (scores, teams, results) |
+| 3a. Populate Reference DB | `stats_reader/reference_manager.py` | Creates the reference database with player names from cleaned data |
+| 3b. Manage Reference DB | `stats_reader/reference_manager.py --manage` | Interactive tool for setting player primary teams and resolving duplicate player names |
+| 4. Process Data | `stats_reader/stats_db_processor.py` | Adds the cleaned match data to the stats database |
+| 5. Fix Pickup Team IDs | `stats_reader/fix_pickup_team_ids.py` | Sets team_id to NULL for pickup matches |
+| 6. Generate ELO Ladder | `stats_reader/elo_ladder.py` | Calculates ELO ratings and generates ladders |
 
 ## Reference Database
 
