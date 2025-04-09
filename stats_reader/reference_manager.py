@@ -36,6 +36,7 @@ class ReferenceDatabase:
             name TEXT UNIQUE,
             primary_team_id INTEGER,
             alias TEXT,     -- Comma-separated list of alternative names
+            source_file TEXT, -- Path to the JSON file this player was added from
             FOREIGN KEY (primary_team_id) REFERENCES ref_teams(id)
         )
         ''')
@@ -64,14 +65,14 @@ class ReferenceDatabase:
             result = cursor.fetchone()
             return result[0] if result else None
     
-    def add_player(self, name, primary_team_id=None, alias=None):
+    def add_player(self, name, primary_team_id=None, alias=None, source_file=None):
         """Add a player to the reference database"""
         try:
             cursor = self.conn.cursor()
             alias_text = ",".join(alias) if alias and isinstance(alias, list) else alias
             cursor.execute(
-                "INSERT INTO ref_players (name, primary_team_id, alias) VALUES (?, ?, ?)",
-                (name, primary_team_id, alias_text)
+                "INSERT INTO ref_players (name, primary_team_id, alias, source_file) VALUES (?, ?, ?, ?)",
+                (name, primary_team_id, alias_text, source_file)
             )
             self.conn.commit()
             return cursor.lastrowid
@@ -368,7 +369,8 @@ class ReferenceDatabase:
                     self.add_player(
                         name=player.get('name'),
                         primary_team_id=player.get('team_id', team_id),
-                        alias=player.get('alias')
+                        alias=player.get('alias'),
+                        source_file=json_file # Pass the source file path
                     )
             
             return True
@@ -391,6 +393,170 @@ class ReferenceDatabase:
         except Exception as e:
             print(f"Error exporting to JSON: {e}")
             return False
+
+    def resolve_duplicate_ids(self):
+        """
+        Handles merging duplicate player IDs based on user input.
+        1. Prompts user for comma-separated IDs (correct first).
+        2. Fetches correct name and incorrect names/source files from DB.
+        3. Iterates through source JSON files associated with incorrect IDs.
+        4. Replaces occurrences of incorrect names with the correct name in JSONs.
+        5. Deletes all incorrect ID entries from the reference database.
+        """
+        ids_input = input("Enter comma-separated duplicate Player IDs, with the correct ID first (e.g., 1,4,7): ").strip()
+        if not ids_input:
+            print("No IDs entered.")
+            return
+
+        try:
+            ids = [int(id_str.strip()) for id_str in ids_input.split(',')]
+            if len(ids) < 2:
+                raise ValueError("Please provide at least two IDs (correct ID followed by duplicates).")
+        except ValueError as e:
+            print(f"Invalid input: {e}. Please enter comma-separated numbers.")
+            return
+
+        correct_id = ids[0]
+        incorrect_ids = ids[1:]
+
+        cursor = self.conn.cursor()
+
+        # --- 1. Get Correct Player Name ---
+        cursor.execute("SELECT name FROM ref_players WHERE id = ?", (correct_id,))
+        result = cursor.fetchone()
+        if not result:
+            print(f"Error: Correct Player ID {correct_id} not found in the database.")
+            return
+        correct_name = result[0]
+        print(f"\nCorrect player identified: ID={correct_id}, Name='{correct_name}'")
+
+        # --- 2. Get Incorrect Player Details (ID, Name, Source File) ---
+        incorrect_player_details = {} # {incorrect_id: {'name': name, 'source_file': source_file}}
+        placeholders = ','.join('?' * len(incorrect_ids))
+        cursor.execute(f"SELECT id, name, source_file FROM ref_players WHERE id IN ({placeholders})", incorrect_ids)
+        rows = cursor.fetchall()
+
+        found_incorrect_ids = set()
+        source_files_to_process = {} # {source_file_path: [list of incorrect IDs in this file]}
+        ids_without_source = [] # IDs that are manual or have no source recorded
+
+        for incorrect_id, incorrect_name, source_file in rows:
+            found_incorrect_ids.add(incorrect_id)
+            incorrect_player_details[incorrect_id] = {'name': incorrect_name, 'source_file': source_file}
+
+            if not source_file:
+                print(f"Info: Player ID {incorrect_id} (Name: '{incorrect_name}') has no source file recorded.")
+                ids_without_source.append(incorrect_id)
+            elif source_file == "manual_entry":
+                print(f"Info: Player ID {incorrect_id} (Name: '{incorrect_name}') was added manually.")
+                ids_without_source.append(incorrect_id)
+            else:
+                # Group IDs by source file for processing
+                if source_file not in source_files_to_process:
+                    source_files_to_process[source_file] = []
+                source_files_to_process[source_file].append(incorrect_id)
+
+        # Report any requested incorrect IDs that were not found in the DB
+        missing_ids = set(incorrect_ids) - found_incorrect_ids
+        if missing_ids:
+            print(f"Warning: The following requested incorrect Player IDs were not found in DB: {missing_ids}")
+
+        if not found_incorrect_ids:
+            print("None of the specified incorrect IDs were found in the database. No action taken.")
+            return
+
+        # --- 3. Process Source JSON Files ---
+        all_json_updates_successful = True
+        if source_files_to_process:
+            print("\nProcessing source JSON files for cleaning:")
+            for source_file, ids_in_file in source_files_to_process.items():
+                print(f"- Cleaning {source_file}...")
+                file_changed = False
+                # Get the set of incorrect names relevant to *this* file and these IDs
+                names_to_replace = {
+                    details['name']
+                    for inc_id, details in incorrect_player_details.items()
+                    if inc_id in ids_in_file
+                }
+                if not names_to_replace:
+                     print(f"  - No corresponding incorrect names found for IDs {ids_in_file}. Skipping file.")
+                     continue
+
+                print(f"  - Replacing names: {names_to_replace} with '{correct_name}'")
+
+                try:
+                    if not os.path.exists(source_file):
+                        raise FileNotFoundError(f"File not found: {source_file}")
+
+                    with open(source_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+
+                    # Iterate through the nested structure to find and replace names
+                    for season_name, season_matches in data.items():
+                        for filename, match_data in season_matches.items():
+                            teams_data = match_data.get("teams", {})
+                            for team_key, team_info in teams_data.items():
+                                players = []
+                                if isinstance(team_info, dict):
+                                    players = team_info.get("players", [])
+                                elif isinstance(team_info, list):
+                                    players = team_info
+
+                                for player_entry in players:
+                                    if isinstance(player_entry, dict):
+                                        current_player_name = player_entry.get("player")
+                                        # Check if the current name is one we need to replace
+                                        if current_player_name in names_to_replace:
+                                            if player_entry["player"] != correct_name: # Avoid unnecessary writes
+                                                player_entry["player"] = correct_name
+                                                file_changed = True
+
+                    # Save the file only if changes were actually made
+                    if file_changed:
+                        with open(source_file, 'w', encoding='utf-8') as f:
+                            json.dump(data, f, indent=2)
+                        print(f"  - Successfully updated and saved {source_file}")
+                    else:
+                        print(f"  - No instances of specified incorrect names found needing replacement in {source_file}.")
+
+                except FileNotFoundError:
+                    print(f"  - Error: Source file not found: {source_file}")
+                    all_json_updates_successful = False
+                except json.JSONDecodeError:
+                    print(f"  - Error: Invalid JSON format in {source_file}")
+                    all_json_updates_successful = False
+                except Exception as e:
+                    print(f"  - Error processing JSON file {source_file}: {e}")
+                    all_json_updates_successful = False
+        else:
+            print("\nNo source JSON files needed processing for the specified incorrect IDs.")
+
+        # --- 4. Delete Incorrect IDs from Reference DB ---
+        ids_to_delete = list(found_incorrect_ids) # Delete all incorrect IDs found in DB
+
+        if not ids_to_delete:
+             print("\nNo incorrect IDs found in the database to delete.")
+             return # Should have already exited if found_incorrect_ids was empty, but safety check
+
+        print(f"\nAttempting to delete {len(ids_to_delete)} incorrect player entries from reference database...")
+        if not all_json_updates_successful:
+            proceed = input("Warning: Some JSON cleaning steps failed or were skipped. Still delete incorrect IDs from DB? (y/N): ").strip().lower()
+            if proceed != 'y':
+                print("Database deletion aborted by user.")
+                return
+
+        try:
+            placeholders = ','.join('?' * len(ids_to_delete))
+            cursor.execute(f"DELETE FROM ref_players WHERE id IN ({placeholders})", ids_to_delete)
+            self.conn.commit()
+            deleted_count = cursor.rowcount
+            print(f"Successfully deleted {deleted_count} incorrect player entries from the database.")
+        except Exception as e:
+            print(f"Error deleting incorrect player IDs from database: {e}")
+            self.conn.rollback() # Rollback if deletion fails
+
+        print("\nDuplicate resolution process finished.")
+
 
 def interactive_team_management(ref_db):
     """Interactive console interface for team management"""
@@ -491,9 +657,10 @@ def interactive_player_management(ref_db):
         print("3. Add a new player")
         print("4. Edit a player")
         print("5. Search for a player")
-        print("6. Return to main menu")
+        print("6. Resolve Duplicate Player IDs") # New Option
+        print("7. Return to main menu")
         
-        choice = input("\nEnter your choice (1-6): ").strip()
+        choice = input("\nEnter your choice (1-7): ").strip() # Updated range
         
         if choice == "1":
             # List all players
@@ -543,7 +710,7 @@ def interactive_player_management(ref_db):
                 team_choice = int(input("\nEnter team number: ").strip())
                 if 0 <= team_choice <= len(teams):
                     team_id = None if team_choice == 0 else teams[team_choice-1]['id']
-                    player_id = ref_db.add_player(name, team_id)
+                    player_id = ref_db.add_player(name, team_id, source_file="manual_entry") # Added source_file
                     if player_id:
                         print(f"Player added successfully! ID: {player_id}")
                     else:
@@ -633,6 +800,9 @@ def interactive_player_management(ref_db):
                 print("No matching player found.")
         
         elif choice == "6":
+            # Resolve Duplicate Player IDs
+            ref_db.resolve_duplicate_ids()
+        elif choice == "7": # Renumbered
             # Return to main menu
             break
         
@@ -731,7 +901,7 @@ def populate_players_from_json(ref_db, json_path):
     skipped_count = 0
     for player_name in sorted(list(unique_players)):
         # Add player without team or alias initially
-        player_id = ref_db.add_player(name=player_name, primary_team_id=None, alias=None)
+        player_id = ref_db.add_player(name=player_name, primary_team_id=None, alias=None, source_file=json_path) # Added source_file
         if player_id:
             # Check if it was newly added (lastrowid > 0) or already existed
             # Note: add_player returns existing ID if IntegrityError occurs
