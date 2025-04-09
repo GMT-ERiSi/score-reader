@@ -485,13 +485,23 @@ class ReferenceDatabase:
                 print(f"  - Replacing names: {names_to_replace} with '{correct_name}'")
 
                 try:
-                    if not os.path.exists(source_file):
-                        raise FileNotFoundError(f"File not found: {source_file}")
+                    # Determine input and output filenames
+                    base, ext = os.path.splitext(source_file)
+                    cleaned_filename = f"{base}_cleaned{ext}"
+                    
+                    file_to_read = cleaned_filename if os.path.exists(cleaned_filename) else source_file
+                    file_to_write = cleaned_filename # Always write to the cleaned file
 
-                    with open(source_file, 'r', encoding='utf-8') as f:
+                    print(f"  - Reading from: {file_to_read}")
+                    if not os.path.exists(file_to_read):
+                        # If neither original nor cleaned exists, it's an error
+                        raise FileNotFoundError(f"Required input file not found: {file_to_read}")
+
+                    with open(file_to_read, 'r', encoding='utf-8') as f:
                         data = json.load(f)
 
                     # Iterate through the nested structure to find and replace names
+                    replacements_made = 0
                     for season_name, season_matches in data.items():
                         for filename, match_data in season_matches.items():
                             teams_data = match_data.get("teams", {})
@@ -509,24 +519,38 @@ class ReferenceDatabase:
                                         if current_player_name in names_to_replace:
                                             if player_entry["player"] != correct_name: # Avoid unnecessary writes
                                                 player_entry["player"] = correct_name
-                                                file_changed = True
-
-                    # Save the file only if changes were actually made
-                    if file_changed:
-                        with open(source_file, 'w', encoding='utf-8') as f:
-                            json.dump(data, f, indent=2)
-                        print(f"  - Successfully updated and saved {source_file}")
+                                                file_changed = True # Mark that a change occurred in this run
+                                                replacements_made += 1
+                    
+                    # Save the potentially modified data to the cleaned file
+                    # Always save to _cleaned file if we read from it OR if changes were made reading from original
+                    if file_to_read == cleaned_filename or file_changed:
+                        if file_changed:
+                             print(f"  - Made {replacements_made} replacement(s). Saving to {file_to_write}")
+                        else:
+                             # This happens if we read from _cleaned but made no *new* changes this run
+                             print(f"  - No new replacements made. Re-saving {file_to_write} to ensure consistency.")
+                        
+                        try:
+                            with open(file_to_write, 'w', encoding='utf-8') as f:
+                                json.dump(data, f, indent=2)
+                            print(f"  - Successfully saved data to {file_to_write}")
+                        except Exception as e:
+                             print(f"  - Error saving cleaned file {file_to_write}: {e}")
+                             all_json_updates_successful = False # Mark as failed if save fails
                     else:
-                        print(f"  - No instances of specified incorrect names found needing replacement in {source_file}.")
+                         # This happens if we read the original file and made no changes
+                         print(f"  - No instances of specified incorrect names found in {file_to_read}. No cleaned file generated/updated.")
 
                 except FileNotFoundError:
-                    print(f"  - Error: Source file not found: {source_file}")
+                    # This error now specifically relates to file_to_read
+                    print(f"  - Error: Input file not found: {file_to_read}")
                     all_json_updates_successful = False
                 except json.JSONDecodeError:
-                    print(f"  - Error: Invalid JSON format in {source_file}")
+                    print(f"  - Error: Invalid JSON format in {file_to_read}")
                     all_json_updates_successful = False
                 except Exception as e:
-                    print(f"  - Error processing JSON file {source_file}: {e}")
+                    print(f"  - Error processing JSON file {file_to_read}: {e}")
                     all_json_updates_successful = False
         else:
             print("\nNo source JSON files needed processing for the specified incorrect IDs.")
