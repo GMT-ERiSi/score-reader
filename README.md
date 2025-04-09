@@ -99,13 +99,21 @@ Star Wars Squadrons Score Reader
 
 3. **Populate and manage the reference database**:
    ```bash
-   # First populate the reference database with player names
+   # Start fresh by deleting any existing reference database
+   del squadrons_reference.db
+   
+   # Populate the reference database with player names
    python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/all_seasons_data.json"
    
-   # Then set primary teams for players using the interactive tool
+   # Then manage teams and players using the interactive tool
    python -m stats_reader.reference_manager --db squadrons_reference.db --manage
    ```
-   This second step opens an interactive tool where you can assign primary teams to players. This is important for tracking substitute appearances - when a player plays for a team other than their primary team, the system will prompt you to confirm if they're subbing.  This only matters
+   
+   When using the management interface:
+   1. Choose "Team Management" to first create any teams you need
+   2. Then select "Player Management" to assign players to their primary teams and remove any unwanted duplicates
+   
+   This step is important for tracking substitute appearances - when a player plays for a team other than their primary team, the system will prompt you to confirm if they're subbing.  This only matters
    for player stats, because for the team ELO ladder, subs count as a regular team player towards that teams ELO, and for the pickup and FNF/ranked ELO ladders there are no team ids anyway
 
 4. **Process data into database**:
@@ -135,12 +143,20 @@ If you want to process only a specific folder of screenshots (e.g., just for tes
 
 2. **Populate and manage the reference database** from the extracted data:
    ```bash
-   # First populate the reference database with player names
+   # Start fresh if necessary by deleting any existing reference database - potentially we will share one once it is canonical - TBU**
+   del squadrons_reference.db
+   
+   # Populate the reference database with player names
    python -m stats_reader.reference_manager --db squadrons_reference.db --populate-from-json "Extracted Results/TEST/TEST_results.json"
    
-   # Then set primary teams for players using the interactive tool
+   # Then manage teams and players using the interactive tool
    python -m stats_reader.reference_manager --db squadrons_reference.db --manage
    ```
+   
+   When using the management interface:
+   1. Choose "Team Management" to first create any teams you need
+   2. Then select "Player Management" to assign players to their primary teams and remove any unwanted duplicate players
+   
    Setting primary teams for players allows the system to detect substitute appearances during processing.
 
 3. **Process the extracted data into the stats database**:
