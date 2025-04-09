@@ -67,11 +67,10 @@ Star Wars Squadrons Score Reader
    ```powershell
    # Run the provided setup script to configure environment
    .\env-setup.ps1
-   ```
-   
-   Or manually set up the environment:
-   ```powershell
-   # Install Python (if not already installed)
+
+   # Or manually set up the environment:  
+   # Note: These instructions assume pyenv-win is installed. If not, you can install it or use 
+   # a regular Python installation instead of 3.10.9 (if not already installed)
    pyenv install 3.10.9
    
    # Set local Python version
@@ -87,11 +86,11 @@ Star Wars Squadrons Score Reader
 
 3. Edit the .env file to add your Claude API key
 
-4. Place your screenshots in the `../Screenshots` folder (at the same level as the project folder) in appropriately named subfolders
+4. Place your screenshots in the `../Screenshots` folder (at the same level as the project folder) in the appropriately named folder
 
 ## Standard Workflow
 
-1. **Add new screenshots** to the `../Screenshots` folder
+1. **Add new screenshots** to the appropriate folder in the `../Screenshots` folder
 
 2. **Process screenshots**:
    ```bash
