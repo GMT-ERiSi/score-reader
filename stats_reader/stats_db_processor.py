@@ -589,7 +589,7 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
             prompt_message = (
                 f"Player '{canonical_name}' (Primary Team: {primary_team_name}) is playing for '{current_team_name}'. "
                 f"Team names {'DON\'T match' if suggested_subbing == 1 else 'MATCH'}. "
-                f"Suggest is_subbing={suggested_subbing}. Confirm? (Y/n): "
+                f"Suggest player IS subbing: {'Yes' if suggested_subbing == 1 else 'No'}. Confirm? (Y/n): "
             )
         # else: Player has no primary team assigned in ref db, keep suggested_subbing = 0, don't prompt
 
