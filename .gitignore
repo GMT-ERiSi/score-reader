@@ -39,6 +39,7 @@ obj/
 .idea/
 *.swp
 *.swo
+.roo/
 
 # Operating System Files
 .DS_Store
