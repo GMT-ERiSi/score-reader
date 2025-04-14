@@ -70,7 +70,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
     JOIN seasons s ON m.season_id = s.id
     WHERE m.winner IN ('IMPERIAL', 'REBEL')
     AND m.match_type = ?
-    ORDER BY m.match_date
+    ORDER BY m.match_date, m.id
     """, (match_type,))
     
     matches = [dict(row) for row in cursor.fetchall()]
@@ -330,7 +330,7 @@ def generate_elo_ladder(db_path, output_dir="stats_reports", starting_elo=1000, 
     JOIN seasons s ON m.season_id = s.id
     WHERE m.winner IN ('IMPERIAL', 'REBEL')
     AND m.match_type = ?
-    ORDER BY m.match_date
+    ORDER BY m.match_date, m.id
     """, (match_type,))
     
     matches = [dict(row) for row in cursor.fetchall()]

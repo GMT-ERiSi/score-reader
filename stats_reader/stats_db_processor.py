@@ -48,6 +48,7 @@ def create_database(db_path):
         rebel_team_id INTEGER,
         winner TEXT,
         filename TEXT,
+        match_type TEXT, -- Added to store team/pickup/ranked
         FOREIGN KEY (season_id) REFERENCES seasons(id),
         FOREIGN KEY (imperial_team_id) REFERENCES teams(id),
         FOREIGN KEY (rebel_team_id) REFERENCES teams(id)
