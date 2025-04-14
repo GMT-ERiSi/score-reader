@@ -725,12 +725,25 @@ def generate_stats_reports(db_path, output_dir):
            ROUND(AVG(ps.score), 2) as avg_score,
            SUM(ps.kills) as total_kills,
            SUM(ps.deaths) as total_deaths,
-           CASE WHEN SUM(ps.deaths) > 0 
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as deaths_per_game, -- Added Deaths Per Game
+           SUM(ps.kills) - SUM(ps.deaths) as net_kills, -- Added Net Kills
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.kills) - SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as net_kills_per_game, -- Added Net Kills Per Game
+           CASE WHEN SUM(ps.deaths) > 0
                 THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2)
                 ELSE SUM(ps.kills) END as kd_ratio,
            SUM(ps.assists) as total_assists,
            SUM(ps.ai_kills) as total_ai_kills,
-           SUM(ps.cap_ship_damage) as total_cap_ship_damage
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.ai_kills) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as ai_kills_per_game, -- Added AI Kills Per Game
+           SUM(ps.cap_ship_damage) as total_cap_ship_damage,
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.cap_ship_damage) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as damage_per_game -- Added Damage Per Game
     FROM player_stats ps
     GROUP BY ps.player_hash
     ORDER BY avg_score DESC
@@ -749,12 +762,25 @@ def generate_stats_reports(db_path, output_dir):
            ROUND(AVG(ps.score), 2) as avg_score,
            SUM(ps.kills) as total_kills,
            SUM(ps.deaths) as total_deaths,
-           CASE WHEN SUM(ps.deaths) > 0 
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as deaths_per_game, -- Added Deaths Per Game
+           SUM(ps.kills) - SUM(ps.deaths) as net_kills, -- Added Net Kills
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.kills) - SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as net_kills_per_game, -- Added Net Kills Per Game
+           CASE WHEN SUM(ps.deaths) > 0
                 THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2)
                 ELSE SUM(ps.kills) END as kd_ratio,
            SUM(ps.assists) as total_assists,
            SUM(ps.ai_kills) as total_ai_kills,
-           SUM(ps.cap_ship_damage) as total_cap_ship_damage
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.ai_kills) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as ai_kills_per_game, -- Added AI Kills Per Game
+           SUM(ps.cap_ship_damage) as total_cap_ship_damage,
+           CASE WHEN COUNT(DISTINCT ps.match_id) > 0
+                THEN ROUND(CAST(SUM(ps.cap_ship_damage) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2)
+                ELSE 0 END as damage_per_game -- Added Damage Per Game
     FROM player_stats ps
     WHERE ps.is_subbing = 0
     GROUP BY ps.player_hash
