@@ -4,6 +4,7 @@ import json
 import sqlite3
 import argparse
 import hashlib
+import re # Added for date extraction regex
 from datetime import datetime
 
 # Import the reference database module
@@ -379,6 +380,15 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
         if date_pattern:
             year, month, day = date_pattern.groups()
             match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
+    
+    # Also try pattern like "MM-DD-YY" or "MM.DD.YY"
+    if not match_date:
+        date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](\d{2})', filename)
+        if date_pattern:
+            month, day, year_short = date_pattern.groups()
+            # Assume 20xx for the year
+            year = f"20{year_short}"
+            match_date = f"{year}-{month}-{day} 12:00:00" # Default to noon
         
         # Also try pattern like "DD.MM.YYYY" common in screenshots
         if not match_date:
