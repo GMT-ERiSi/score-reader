@@ -48,6 +48,7 @@ def create_database(db_path):
         rebel_team_id INTEGER,
         winner TEXT,
         filename TEXT,
+        match_type TEXT, -- Added to store team/pickup/ranked
         FOREIGN KEY (season_id) REFERENCES seasons(id),
         FOREIGN KEY (imperial_team_id) REFERENCES teams(id),
         FOREIGN KEY (rebel_team_id) REFERENCES teams(id)
@@ -185,12 +186,14 @@ def get_or_create_player(conn, player_name, ref_db=None, cache=None):
             else:
                 print("No potential fuzzy matches found.")
 
+            # Start of the while loop block - ensuring consistent 4-space indentation
             while not resolved:
                 print("\nPlease choose an action:")
                 if fuzzy_matches:
                     print("  [Number] - Select the corresponding match above.")
                     print("  A[Number] - Add '{player_name}' as an alias to the selected match.")
                 print("  C - Create a new player entry for '{player_name}'.")
+                print(f"  AA - Add '{player_name}' as an Alias to an existing player.") # New option
                 # print("  U - Use '{player_name}' as Unknown/Temporary (no reference link).") # Option removed for simplicity, use Create New
                 print("  S - Skip this player for this match.")
                 
@@ -205,12 +208,12 @@ def get_or_create_player(conn, player_name, ref_db=None, cache=None):
                 elif choice.startswith('A') and choice[1:].isdigit() and choice[1:] in options:
                     selected_match = options[choice[1:]]
                     if ref_db.add_player_alias(selected_match['id'], player_name):
-                         print(f"Added '{player_name}' as alias for {selected_match['name']}.")
-                         ref_id = selected_match['id']
-                         canonical_name = selected_match['name']
-                         resolved = True
+                        print(f"Added '{player_name}' as alias for {selected_match['name']}.")
+                        ref_id = selected_match['id']
+                        canonical_name = selected_match['name']
+                        resolved = True
                     else:
-                         print(f"Failed to add alias. Please try again.")
+                        print(f"Failed to add alias. Please try again.")
                 elif choice == 'C':
                     # Create new player in reference DB (optional: ask for team)
                     # For now, create without team association in ref_db
@@ -221,15 +224,52 @@ def get_or_create_player(conn, player_name, ref_db=None, cache=None):
                         print(f"Created new reference player: {canonical_name} (ID: {ref_id})")
                         resolved = True
                     else:
-                         print("Failed to create new player in reference DB. It might already exist.")
-                         # Re-try exact match in case it was just created concurrently or failed previously
-                         ref_player = ref_db.get_player(player_name)
-                         if ref_player:
-                             ref_id = ref_player['id']
-                             canonical_name = ref_player['name']
-                             resolved = True
-                         else:
-                             print("Still cannot find the player. Please choose another option.")
+                        print("Failed to create new player in reference DB. It might already exist.")
+                        # Re-try exact match in case it was just created concurrently or failed previously
+                        ref_player = ref_db.get_player(player_name)
+                        if ref_player:
+                            ref_id = ref_player['id']
+                            canonical_name = ref_player['name']
+                            resolved = True
+                        else:
+                            print("Still cannot find the player. Please choose another option.")
+                # End of 'elif choice == C' block
+                
+                elif choice == 'AA':
+                    # Add as alias to existing player
+                    print("\n--- Existing Players in Reference DB ---")
+                    all_players = ref_db.list_players()
+                    if not all_players:
+                        print("No players found in reference DB to add alias to.")
+                        continue # Go back to prompt
+                    
+                    player_id_map = {} # For quick lookup
+                    for p in all_players:
+                        team_name = p['team_name'] or 'No team'
+                        print(f"ID: {p['id']:<5} Name: {p['name']:<25} Team: {team_name}")
+                        player_id_map[p['id']] = p['name']
+                    print("---------------------------------------")
+                    
+                    target_id_input = input(f"Enter the ID of the player to add '{player_name}' as an alias to: ").strip()
+                    try:
+                        target_id = int(target_id_input)
+                        if target_id in player_id_map:
+                            if ref_db.add_player_alias(target_id, player_name):
+                                print(f"Added '{player_name}' as alias for {player_id_map[target_id]} (ID: {target_id}).")
+                                # Fetch the canonical details of the target player
+                                target_player_details = ref_db.get_player(player_id_map[target_id]) # Use canonical name to get full details
+                                if target_player_details:
+                                    ref_id = target_player_details['id']
+                                    canonical_name = target_player_details['name']
+                                    resolved = True
+                                else:
+                                    print("Error: Could not retrieve details for target player after adding alias.")
+                            else:
+                                print(f"Failed to add alias. Please try again.")
+                        else:
+                            print(f"Invalid target player ID: {target_id}")
+                    except ValueError:
+                        print("Invalid ID format. Please enter a number.")
 
                 # elif choice == 'U':
                 #     ref_id = None # No reference link
@@ -242,6 +282,7 @@ def get_or_create_player(conn, player_name, ref_db=None, cache=None):
                     return None, player_name, None # Indicate skipped
                 else:
                     print("Invalid choice. Please try again.")
+            # End of the while loop block
 
     # 3. Now check/create the player in the main stats DB (players table)
     # If we resolved to a reference player, check by reference_id first
@@ -521,22 +562,45 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     if canonical_name != player_name:
         print(f"Matched player '{player_name}' to canonical name '{canonical_name}'")
     
-    # Check if player is subbing for this team
-    is_subbing = False
+    # Determine if player is subbing, with interactive confirmation
+    suggested_subbing = 0 # Default suggestion is 0 (not subbing)
+    prompt_user = False # Only prompt if we have enough info
+
     if ref_db:
-        # Get player's primary team
-        # Use the resolved canonical name for checking primary team
         ref_player = ref_db.get_player(canonical_name) # Should be an exact match now
-        if ref_player and ref_player.get('team_id'):
-            # If player has a primary team and it's different from current team
-            cursor.execute("SELECT name FROM teams WHERE id = ?", (team_id,))
-            current_team_name = cursor.fetchone()[0] if cursor.fetchone() else "Unknown Team"
-            
-            if ref_player['team_id'] != team_id:
-                # Ask if player is subbing
-                sub_response = input(f"Is {canonical_name} subbing for {current_team_name}? (y/n): ").strip().lower()
-                is_subbing = sub_response.startswith('y')
-    
+        primary_team_id = ref_player.get('team_id') if ref_player else None
+        primary_team_name = ref_player.get('team_name') if ref_player else "Unknown"
+
+        # Get current team name
+        cursor.execute("SELECT name FROM teams WHERE id = ?", (team_id,))
+        fetch_result = cursor.fetchone()
+        current_team_name = fetch_result[0] if fetch_result else "Unknown Team"
+
+        if primary_team_name != "Unknown":
+            # We know the player's primary team, compare team NAMES instead of IDs
+            if primary_team_name != current_team_name:
+                # Team names don't match, suggest they're subbing
+                suggested_subbing = 1
+            else:
+                # Team names match, suggest they're not subbing
+                suggested_subbing = 0
+            prompt_user = True # We have enough info to prompt
+
+            prompt_message = (
+                f"Player '{canonical_name}' (Primary Team: {primary_team_name}) is playing for '{current_team_name}'. "
+                f"Team names {'DON\'T match' if suggested_subbing == 1 else 'MATCH'}. "
+                f"Suggest player IS subbing: {'Yes' if suggested_subbing == 1 else 'No'}. Confirm? (Y/n): "
+            )
+        # else: Player has no primary team assigned in ref db, keep suggested_subbing = 0, don't prompt
+
+    # Determine final is_subbing value
+    final_is_subbing = suggested_subbing
+    if prompt_user:
+        user_response = input(prompt_message).strip().lower()
+        if user_response == 'n':
+            final_is_subbing = 1 - suggested_subbing # Flip the suggestion
+        # If 'y' or empty, keep the suggested value (already assigned to final_is_subbing)
+
     # Insert player stats with name, hash, and subbing status
     cursor.execute("""
     INSERT INTO player_stats (
@@ -545,7 +609,7 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         match_id, player_id, canonical_name, player_hash, team_id, faction, position,
-        score, kills, deaths, assists, ai_kills, cap_ship_damage, 1 if is_subbing else 0
+        score, kills, deaths, assists, ai_kills, cap_ship_damage, final_is_subbing # Use final_is_subbing here
     ))
 
 def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):

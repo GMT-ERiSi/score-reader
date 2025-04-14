@@ -746,6 +746,17 @@ def interactive_player_management(ref_db):
         
         elif choice == "4":
             # Edit a player
+            # --- Display list of players first ---
+            print("\n--- Players in Reference Database ---")
+            players = ref_db.list_players()
+            if not players:
+                print("No players found in the reference database.")
+                continue # Go back to player menu if no players exist
+            for player in players:
+                team_name = player['team_name'] or 'No team'
+                print(f"ID: {player['id']:<5} Name: {player['name']:<25} Team: {team_name}")
+            print("------------------------------------")
+            # --- Now ask for the ID ---
             player_id_input = input("Enter player ID to edit: ").strip()
             try:
                 player_id = int(player_id_input)
@@ -775,30 +786,55 @@ def interactive_player_management(ref_db):
                 name = name if name else None
                 
                 # Select team
-                print("\nSelect player's new primary team (or leave empty to keep current):")
-                print("0. No team")
-                teams = ref_db.list_teams()
-                for i, team in enumerate(teams):
-                    print(f"{i+1}. {team['name']}")
-                
-                team_choice = input("Enter team number: ").strip()
-                team_id = None
-                if team_choice:
-                    try:
-                        team_choice = int(team_choice)
-                        if 0 <= team_choice <= len(teams):
-                            team_id = None if team_choice == 0 else teams[team_choice-1]['id']
+                team_input = input(f"Enter new Team ID, Name, or Alias (or '0' for No Team, leave empty to keep current): ").strip()
+                team_id_to_update = None # Flag to indicate if we should update
+                new_team_selected = False # Flag to track if a valid new selection was made
+
+                if team_input:
+                    if team_input == '0':
+                        team_id = None
+                        new_team_selected = True
+                        print("Selected: No Team")
+                    else:
+                        # Try finding team by ID first
+                        found_team = None
+                        try:
+                            potential_id = int(team_input)
+                            cursor = ref_db.conn.cursor()
+                            cursor.execute("SELECT id, name FROM ref_teams WHERE id = ?", (potential_id,))
+                            result = cursor.fetchone()
+                            if result:
+                                found_team = {"id": result[0], "name": result[1]}
+                        except ValueError:
+                            # Input wasn't an integer, try finding by name/alias
+                            pass
+
+                        # If not found by ID, try by name/alias (exact match)
+                        if not found_team:
+                            found_team = ref_db.get_team(team_input, fuzzy_match=False) # Use exact match for name/alias
+
+                        if found_team:
+                            team_id = found_team['id']
+                            new_team_selected = True
+                            print(f"Selected Team: {found_team['name']} (ID: {team_id})")
                         else:
-                            print("Invalid team number, keeping current team.")
-                            team_id = current_team_id
-                    except ValueError:
-                        print("Invalid team number, keeping current team.")
-                        team_id = current_team_id
-                
+                            print(f"Team '{team_input}' not found. Keeping current team.")
+                            team_id = current_team_id # Revert to current if not found
+                else:
+                    # Input was empty, keep current team
+                    team_id = current_team_id
+                    print("Keeping current team.")
+
+                # Only set the ID to update if a new selection was explicitly made
+                if new_team_selected:
+                    team_id_to_update = team_id
+                else:
+                    team_id_to_update = None # Don't update if input was empty or invalid
+
                 aliases_input = input(f"Enter new aliases (comma-separated, or leave empty to keep current): ").strip()
                 aliases = [a.strip() for a in aliases_input.split(',')] if aliases_input else None
                 
-                if ref_db.update_player(player_id, name, team_id, aliases):
+                if ref_db.update_player(player_id, name, team_id_to_update, aliases): # Use team_id_to_update
                     print("Player updated successfully!")
                 else:
                     print("No changes were made.")

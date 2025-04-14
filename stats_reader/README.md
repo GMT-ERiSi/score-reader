@@ -120,7 +120,7 @@ The SQLite database contains the following tables:
 - `teams`: Team names with win/loss records and reference IDs
 - `matches`: Individual match records with winner information
 - `players`: Player identification with consistent hashing and reference IDs
-- `player_stats`: Detailed per-match player statistics
+- `player_stats`: Detailed per-match player statistics with subbing information (is_subbing flag)
 
 The reference database contains:
 - `ref_teams`: Canonical team information with aliases
@@ -131,12 +131,14 @@ The reference database contains:
 The module generates the following JSON reports:
 
 1. `team_standings.json`: Win/loss records for all teams
-2. `player_performance.json`: Detailed player statistics
-3. `faction_win_rates.json`: Win percentages for IMPERIAL vs REBEL
-4. `season_summary.json`: Match counts by season
-5. `player_teams.json`: History of which players played for which teams
-6. `elo_ladder.json`: Team rankings based on ELO ratings
-7. `elo_history.json`: Full history of ELO changes for each match
+2. `player_performance.json`: Detailed player statistics (includes all appearances)
+3. `player_performance_no_subs.json`: Player statistics excluding substitute appearances
+4. `faction_win_rates.json`: Win percentages for IMPERIAL vs REBEL
+5. `season_summary.json`: Match counts by season
+6. `player_teams.json`: History of which players played for which teams
+7. `subbing_report.json`: Statistics for players' substitute appearances only
+8. `elo_ladder.json`: Team rankings based on ELO ratings
+9. `elo_history.json`: Full history of ELO changes for each match
 
 ## Understanding ELO Ratings
 
@@ -165,6 +167,45 @@ This system helps maintain consistent statistics even when:
 - Player names have typos or variations
 - Teams use different abbreviations or formats
 - Players move between teams over time
+
+## Player Subbing System
+
+The module tracks whether players are appearing for their primary team or acting as substitutes for another team:
+
+### How Subbing Works
+
+1. **Primary Team Assignment**: Each player in the reference database can have a primary team assigned.
+
+2. **Subbing Detection**: During data processing (`stats_db_processor.py`), the system compares:
+   - The player's primary team in the reference database
+   - The team they're playing for in the current match
+
+3. **Interactive Confirmation**: If these teams don't match, the system suggests the player is subbing, but allows you to confirm or reject this suggestion:
+   ```
+   Player 'PlayerName' (Primary Team: TeamA) is playing for 'TeamB'.
+   Team names DON'T match.
+   Suggest player IS subbing: Yes. Confirm? (Y/n):
+   ```
+
+4. **Permanent Storage**: Once confirmed, the subbing status (is_subbing flag) is stored permanently in the database for that player's match stats.
+
+### Important Note: Player Transfers
+
+If a player changes teams permanently:
+
+1. Update their primary team in the reference database using the reference manager.
+2. For historical matches, manually confirm/reject the subbing status during import to reflect the historical reality.
+
+The crucial detail is that **subbing status is determined and fixed during import**, not dynamically recalculated. The reference database only provides suggestions during import.
+
+### How Stats Reports Handle Subbing
+
+Several reports utilize the subbing information differently:
+
+- `player_performance.json`: Includes ALL appearances regardless of subbing status
+- `player_performance_no_subs.json`: Only includes games where is_subbing = 0 (regular team appearances)
+- `subbing_report.json`: Only includes games where is_subbing = 1 (substitute appearances)
+- `player_teams.json`: Shows both regular and subbing appearances for each team
 
 ## Example Complete Workflow
 

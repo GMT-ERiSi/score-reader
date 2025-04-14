@@ -212,6 +212,44 @@ python -m stats_reader.reference_manager --manage
 
 This opens an interactive tool for managing canonical team and player names.
 
+## Player Subbing System
+
+The project tracks whether players are 'subbing' (playing for a team that is not their primary team) to differentiate between regular team appearances and substitute appearances. Here's how it works:
+
+### How Subbing is Determined
+
+1. **During Import**: The subbing status (is_subbing = 0 or 1) is determined and stored when match data is imported via `stats_db_processor.py`.
+
+2. **Reference-Based Suggestion**: When importing match data, the system compares:
+   - The player's primary team in the reference database
+   - The team they're playing for in the current match
+
+3. **User Confirmation**: The system suggests a subbing status (Yes/No) based on team name comparison, but you can override this suggestion during import by answering Yes/No to the prompt.
+
+4. **Permanent Storage**: Once confirmed, the subbing status is permanently stored in the database with that player's stats for that match. It is not recalculated later.
+
+### Important Note About Player Transfers
+
+If a player changes teams between seasons:
+
+- **Option 1**: Update their primary team in the reference database using `reference_manager`.
+  ```bash
+  python -m stats_reader.reference_manager --db squadrons_reference.db --manage
+  ```
+  Then select Player Management → Edit Player → Update Primary Team.
+
+- **Option 2**: During import, simply reject the suggested subbing status if it doesn't reflect the historical reality of whether they were subbing at that time.
+
+The crucial detail is that **subbing status is determined and fixed at import time**, not dynamically recalculated based on the current reference database. The reference database only provides default suggestions during import.
+
+### How Subbing Affects Reports
+
+The system generates several reports that use the subbing status differently:
+
+- `player_performance.json`: Includes ALL games, regardless of subbing status
+- `player_performance_no_subs.json`: Only includes games where is_subbing = 0 (regular team appearances)
+- `subbing_report.json`: Only shows games where is_subbing = 1 (substitute appearances)
+
 ## Additional Tools
 
 - **Stats Processing**: More details in `stats_reader/README.md`
