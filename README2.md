@@ -184,7 +184,7 @@ For processing pickup or ranked matches (where players are not representing esta
 
 ## Processing a Single Folder
 
-If you want to process only a specific folder of screenshots (e.g., just for testing):
+If you want to process only a specific folder of screenshots (e.g., for a season of team games or a batch of pickup games or just for testing):
 
 1. **Process screenshots from a specific folder**:
    ```bash
