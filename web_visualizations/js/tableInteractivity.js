@@ -32,7 +32,8 @@ function makeTableSortable(tableId) {
             // Reset all headers
             headers.forEach(h => {
                 h.dataset.sortDirection = 'none';
-                h.querySelector('.sort-icon')?.textContent = '⇵';
+                const icon = h.querySelector('.sort-icon');
+                if (icon) { icon.textContent = '⇵'; }
             });
             
             // Set new direction for clicked header
