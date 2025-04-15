@@ -84,7 +84,7 @@ function enhanceChartInteractivity(chartInstance) {
     }
 }
 
-// Filter chart data to show only selected team/player
+// Filter chart data to show only selected team(s)/player(s)
 function filterChartByName(chartInstance, nameToFilter) {
     if (!chartInstance) {
         console.warn('Cannot filter: Chart instance not provided');
@@ -92,8 +92,6 @@ function filterChartByName(chartInstance, nameToFilter) {
     }
     
     try {
-        console.log(`Filtering chart to ${nameToFilter ? `show only: ${nameToFilter}` : 'show all data'}`);
-        
         // Store original datasets if not already stored
         if (!chartInstance._originalDatasets) {
             chartInstance._originalDatasets = [...chartInstance.data.datasets];
@@ -106,13 +104,18 @@ function filterChartByName(chartInstance, nameToFilter) {
             return;
         }
         
-        // Filter datasets to show only the selected name
+        // Convert to array if it's not already (handle both single name and array of names)
+        const namesToFilter = Array.isArray(nameToFilter) ? nameToFilter : [nameToFilter];
+        
+        console.log(`Filtering chart to show: ${namesToFilter.join(', ')}`);
+        
+        // Filter datasets to show only the selected names
         const filteredDatasets = chartInstance._originalDatasets.filter(dataset => 
-            dataset.label === nameToFilter
+            namesToFilter.includes(dataset.label)
         );
         
         if (filteredDatasets.length === 0) {
-            console.warn(`No dataset found with label '${nameToFilter}'`);
+            console.warn(`No datasets found matching the selected names`);
             return;
         }
         

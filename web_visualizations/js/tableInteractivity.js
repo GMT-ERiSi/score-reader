@@ -181,7 +181,7 @@ function filterTable(table, filterText) {
     }
 }
 
-// Make a table row clickable to filter the chart
+// Make a table row clickable to filter the chart - allows multiple selections
 function enableTableRowSelection(tableId, chartFilterCallback) {
     const table = document.getElementById(tableId);
     if (!table) {
@@ -195,6 +195,9 @@ function enableTableRowSelection(tableId, chartFilterCallback) {
         return;
     }
     
+    // Track selected items
+    const selectedNames = new Set();
+    
     // Add selection capability to rows
     tbody.addEventListener('click', (e) => {
         const row = e.target.closest('tr');
@@ -204,41 +207,70 @@ function enableTableRowSelection(tableId, chartFilterCallback) {
         if (row.classList.contains('selected')) {
             // Deselect this row
             row.classList.remove('selected');
-            chartFilterCallback(null); // Reset filter
-        } else {
-            // Deselect any previously selected rows
-            tbody.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
             
-            // Select clicked row
-            row.classList.add('selected');
-            
-            // Get name (assuming it's in the second column)
+            // Get name and remove from selected set
             const name = row.cells[1]?.textContent;
             if (name) {
-                chartFilterCallback(name);
+                selectedNames.delete(name);
+            }
+        } else {
+            // Select clicked row (without deselecting others)
+            row.classList.add('selected');
+            
+            // Get name and add to selected set
+            const name = row.cells[1]?.textContent;
+            if (name) {
+                selectedNames.add(name);
             }
         }
+        
+        // Update chart with all selected names
+        chartFilterCallback(selectedNames.size > 0 ? Array.from(selectedNames) : null);
     });
     
-    // Add a "Show All" button above the table
+    // Add control buttons
+    const buttonContainer = document.createElement('div');
+    buttonContainer.className = 'chart-controls';
+    
+    // Show All button
     const showAllButton = document.createElement('button');
     showAllButton.textContent = 'Show All in Chart';
     showAllButton.className = 'show-all-button';
     showAllButton.addEventListener('click', () => {
         // Remove all selections
         tbody.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
+        selectedNames.clear();
         chartFilterCallback(null); // Reset chart to show all
     });
     
-    // Add the button above the table
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'chart-controls';
+    // Select All button
+    const selectAllButton = document.createElement('button');
+    selectAllButton.textContent = 'Select All Rows';
+    selectAllButton.className = 'select-all-button';
+    selectAllButton.addEventListener('click', () => {
+        const rows = tbody.querySelectorAll('tr');
+        const allNames = [];
+        
+        rows.forEach(row => {
+            row.classList.add('selected');
+            const name = row.cells[1]?.textContent;
+            if (name) {
+                selectedNames.add(name);
+                allNames.push(name);
+            }
+        });
+        
+        chartFilterCallback(allNames);
+    });
+    
+    // Add buttons to container
+    buttonContainer.appendChild(selectAllButton);
     buttonContainer.appendChild(showAllButton);
     
     // Add tooltip for user guidance
     const tooltip = document.createElement('div');
     tooltip.className = 'tooltip';
-    tooltip.textContent = 'Click on a row to filter the chart';
+    tooltip.textContent = 'Click on rows to filter the chart (multiple selections allowed)';
     buttonContainer.appendChild(tooltip);
     
     table.parentNode.insertBefore(buttonContainer, table);
