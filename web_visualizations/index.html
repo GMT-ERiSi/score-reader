@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squadrons Stats Visualizations</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <h1>Star Wars: Squadrons - Stats Visualizations</h1>
+
+    <section id="team-section">
+        <h2>Team ELO</h2>
+        <div class="chart-container">
+            <canvas id="teamEloChart"></canvas>
+        </div>
+        <h3>Team ELO Ladder</h3>
+        <table id="teamEloTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Team Name</th>
+                    <th>ELO Rating</th>
+                    <th>W-L</th>
+                    <th>Win Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Team ELO data will be populated here -->
+            </tbody>
+        </table>
+    </section>
+
+    <section id="pickup-section">
+        <h2>Pickup Player ELO</h2>
+        <div class="chart-container">
+            <canvas id="pickupEloChart"></canvas>
+        </div>
+        <h3>Pickup Player ELO Ladder</h3>
+        <table id="pickupEloTable">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player Name</th>
+                    <th>ELO Rating</th>
+                    <th>W-L</th>
+                    <th>Win Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Pickup Player ELO data will be populated here -->
+            </tbody>
+        </table>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
