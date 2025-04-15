@@ -1,64 +1,191 @@
-// Data storage
+// --- Dummy Data Generation ---
+
+const k_factor = 32; // Standard K-factor
+
+// --- Team Data Generation ---
+let dummyTeamEloLadder = [];
+let dummyTeamEloHistory = [];
+let team_ratings = { 1: 1000, 2: 1000, 3: 1000, 4: 1000 }; // Alpha, Bravo, Charlie, Delta
+const team_names = { 1: "Team Alpha", 2: "Team Bravo", 3: "Team Charlie", 4: "Team Delta" };
+let team_stats = {
+    1: { played: 0, won: 0, lost: 0 }, 2: { played: 0, won: 0, lost: 0 },
+    3: { played: 0, won: 0, lost: 0 }, 4: { played: 0, won: 0, lost: 0 }
+};
+
+// Simulate 10 team matches with varied outcomes
+const team_matches = [
+    { imp: 1, reb: 2, winner: 'IMPERIAL' }, // Alpha wins
+    { imp: 3, reb: 4, winner: 'IMPERIAL' }, // Charlie wins
+    { imp: 1, reb: 3, winner: 'IMPERIAL' }, // Alpha wins
+    { imp: 2, reb: 4, winner: 'IMPERIAL' }, // Bravo wins
+    { imp: 1, reb: 4, winner: 'IMPERIAL' }, // Alpha wins
+    { imp: 2, reb: 3, winner: 'REBEL' },    // Charlie wins
+    { imp: 1, reb: 2, winner: 'REBEL' },    // Bravo wins
+    { imp: 3, reb: 4, winner: 'IMPERIAL' }, // Charlie wins
+    { imp: 1, reb: 3, winner: 'IMPERIAL' }, // Alpha wins
+    { imp: 2, reb: 4, winner: 'IMPERIAL' }  // Bravo wins
+];
+
+team_matches.forEach((match, index) => {
+    const match_id = 101 + index;
+    const match_date = `2024-04-${String(index + 1).padStart(2, '0')} 10:00:00`;
+    const imp_id = match.imp;
+    const reb_id = match.reb;
+
+    let imp_r = team_ratings[imp_id];
+    let reb_r = team_ratings[reb_id];
+
+    let imp_expected = 1.0 / (1.0 + 10 ** ((reb_r - imp_r) / 400));
+    let reb_expected = 1.0 - imp_expected;
+
+    let imp_actual = (match.winner === 'IMPERIAL') ? 1.0 : 0.0;
+    let reb_actual = (match.winner === 'REBEL') ? 1.0 : 0.0;
+
+    let new_imp_r = imp_r + k_factor * (imp_actual - imp_expected);
+    let new_reb_r = reb_r + k_factor * (reb_actual - reb_expected);
+
+    dummyTeamEloHistory.push({
+        match_id: match_id, match_date: match_date, season: "DUMMY_TEAM",
+        imperial: { team_id: imp_id, team_name: team_names[imp_id], old_rating: imp_r, new_rating: new_imp_r, rating_change: new_imp_r - imp_r },
+        rebel: { team_id: reb_id, team_name: team_names[reb_id], old_rating: reb_r, new_rating: new_reb_r, rating_change: new_reb_r - reb_r },
+        winner: match.winner
+    });
+
+    team_ratings[imp_id] = new_imp_r;
+    team_ratings[reb_id] = new_reb_r;
+
+    team_stats[imp_id].played++;
+    team_stats[reb_id].played++;
+    if (match.winner === 'IMPERIAL') {
+        team_stats[imp_id].won++;
+        team_stats[reb_id].lost++;
+    } else {
+        team_stats[reb_id].won++;
+        team_stats[imp_id].lost++;
+    }
+});
+
+// Generate final team ladder
+dummyTeamEloLadder = Object.keys(team_ratings).map(id_str => {
+    const id = parseInt(id_str);
+    const stats = team_stats[id];
+    const win_rate = stats.played > 0 ? Math.round((stats.won / stats.played) * 1000) / 10 : 0;
+    return {
+        team_id: id, team_name: team_names[id], elo_rating: Math.round(team_ratings[id]),
+        matches_played: stats.played, matches_won: stats.won, matches_lost: stats.lost, win_rate: win_rate
+    };
+});
+dummyTeamEloLadder.sort((a, b) => b.elo_rating - a.elo_rating);
+dummyTeamEloLadder.forEach((t, index) => t.rank = index + 1);
+
+
+// --- Pickup Player Data Generation ---
+let dummyPickupEloLadder = [];
+let dummyPickupEloHistory = [];
+let p_ratings = { 1: 1000, 2: 1000, 3: 1000, 4: 1000, 5: 1000, 6: 1000, 7: 1000, 8: 1000, 9: 1000, 10: 1000 };
+let p_stats = {};
+for (let i = 1; i <= 10; i++) { p_stats[i] = { played: 0, won: 0, lost: 0 }; }
+
+// Helper function to shuffle an array (Fisher-Yates algorithm)
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    }
+}
+
+// Simulate 10 pickup matches with shuffled teams
+const all_player_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+for (let i = 1; i <= 10; i++) {
+    const match_id = 201 + i;
+    const match_date = `2024-04-${String(i).padStart(2, '0')} 15:00:00`;
+
+    // Shuffle players for this match
+    shuffleArray(all_player_ids);
+    const imp_players_ids = all_player_ids.slice(0, 5);
+    const reb_players_ids = all_player_ids.slice(5, 10);
+
+    // Calculate average ELOs for the shuffled teams
+    let imp_avg_elo = imp_players_ids.reduce((sum, id) => sum + p_ratings[id], 0) / imp_players_ids.length;
+    let reb_avg_elo = reb_players_ids.reduce((sum, id) => sum + p_ratings[id], 0) / reb_players_ids.length;
+
+    // Calculate expected outcomes
+    let imp_expected = 1.0 / (1.0 + 10 ** ((reb_avg_elo - imp_avg_elo) / 400));
+    let reb_expected = 1.0 - imp_expected;
+
+    // Determine winner (Imp wins first 7, Reb wins last 3)
+    let winner, imp_actual, reb_actual;
+    if (i <= 7) {
+        winner = "IMPERIAL"; imp_actual = 1.0; reb_actual = 0.0;
+    } else {
+        winner = "REBEL"; imp_actual = 0.0; reb_actual = 1.0;
+    }
+
+    // Calculate and record history/stats
+    let imp_history = [];
+    let reb_history = [];
+
+    imp_players_ids.forEach(id => {
+        let old_r = p_ratings[id];
+        let new_r = old_r + k_factor * (imp_actual - imp_expected);
+        imp_history.push({ player_id: id, player_name: `Player ${id}`, old_rating: old_r, new_rating: new_r, rating_change: new_r - old_r });
+        p_ratings[id] = new_r; // Update rating for next calculation within this loop
+        p_stats[id].played++;
+        if (winner === 'IMPERIAL') p_stats[id].won++; else p_stats[id].lost++;
+    });
+
+    reb_players_ids.forEach(id => {
+        let old_r = p_ratings[id];
+        let new_r = old_r + k_factor * (reb_actual - reb_expected);
+        reb_history.push({ player_id: id, player_name: `Player ${id}`, old_rating: old_r, new_rating: new_r, rating_change: new_r - old_r });
+        p_ratings[id] = new_r; // Update rating for next calculation within this loop
+        p_stats[id].played++;
+        if (winner === 'REBEL') p_stats[id].won++; else p_stats[id].lost++;
+    });
+
+    // Add match to history
+    dummyPickupEloHistory.push({
+        match_id: match_id, match_date: match_date, season: "DUMMY_PICKUP",
+        imperial_players: imp_history, rebel_players: reb_history, winner: winner
+    });
+}
+
+// Generate final pickup ladder
+dummyPickupEloLadder = Object.keys(p_ratings).map(id_str => {
+    const id = parseInt(id_str);
+    const stats = p_stats[id];
+    const win_rate = stats.played > 0 ? Math.round((stats.won / stats.played) * 1000) / 10 : 0;
+    return {
+        player_id: id, player_name: `Player ${id}`, elo_rating: Math.round(p_ratings[id]),
+        matches_played: stats.played, matches_won: stats.won, matches_lost: stats.lost, win_rate: win_rate
+    };
+});
+dummyPickupEloLadder.sort((a, b) => b.elo_rating - a.elo_rating);
+dummyPickupEloLadder.forEach((p, index) => p.rank = index + 1);
+
+
+// --- End Dummy Data Generation ---
+
+
+// Data storage (will be overwritten by dummy data)
 let teamEloHistory = [];
 let teamEloLadder = [];
 let pickupEloHistory = [];
 let pickupEloLadder = [];
 
-// DOM Elements (optional, can get them inside functions too)
+// DOM Elements
 const teamEloChartCtx = document.getElementById('teamEloChart')?.getContext('2d');
 const pickupEloChartCtx = document.getElementById('pickupEloChart')?.getContext('2d');
 const teamEloTableBody = document.getElementById('teamEloTable')?.querySelector('tbody');
 const pickupEloTableBody = document.getElementById('pickupEloTable')?.querySelector('tbody');
 
-// --- Data Fetching ---
+// --- Data Fetching (Commented out to use dummy data) ---
+/*
 async function fetchData() {
-    console.log("Fetching data...");
-    try {
-        // Use Promise.all to fetch data concurrently
-        const [
-            teamHistoryRes,
-            teamLadderRes,
-            pickupHistoryRes,
-            pickupLadderRes
-        ] = await Promise.all([
-            fetch('../stats_reports/elo_history_team.json'), // Relative path from index.html
-            fetch('../stats_reports/elo_ladder_team.json'),
-            fetch('../elo_reports_pickup/pickup_player_elo_history.json'),
-            fetch('../elo_reports_pickup/pickup_player_elo_ladder.json')
-        ]);
-
-        // Check responses
-        if (!teamHistoryRes.ok) throw new Error(`Failed to fetch team history: ${teamHistoryRes.statusText}`);
-        if (!teamLadderRes.ok) throw new Error(`Failed to fetch team ladder: ${teamLadderRes.statusText}`);
-        if (!pickupHistoryRes.ok) throw new Error(`Failed to fetch pickup history: ${pickupHistoryRes.statusText}`);
-        if (!pickupLadderRes.ok) throw new Error(`Failed to fetch pickup ladder: ${pickupLadderRes.statusText}`);
-
-        // Parse JSON data
-        teamEloHistory = await teamHistoryRes.json();
-        teamEloLadder = await teamLadderRes.json();
-        pickupEloHistory = await pickupHistoryRes.json();
-        pickupEloLadder = await pickupLadderRes.json();
-
-        console.log("Data fetched successfully:", { teamEloHistory, teamEloLadder, pickupEloHistory, pickupEloLadder });
-
-        // Once data is loaded, render the visualizations
-        renderVisualizations();
-
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        // Display error message to the user (optional)
-        const body = document.querySelector('body');
-        if (body) {
-            const errorDiv = document.createElement('div');
-            errorDiv.textContent = `Error loading data: ${error.message}. Please ensure report files exist in the correct locations ('stats_reports/' and 'elo_reports_pickup/').`;
-            errorDiv.style.color = 'red';
-            errorDiv.style.padding = '10px';
-            errorDiv.style.border = '1px solid red';
-            errorDiv.style.marginTop = '20px';
-            body.insertBefore(errorDiv, body.firstChild);
-        }
-    }
+    // ... (original fetch code remains here but is inactive)
 }
+*/
 
 // --- Rendering Functions ---
 function renderTeamEloChart() {
@@ -430,5 +557,15 @@ function renderVisualizations() {
 }
 
 // --- Initialization ---
-// Add event listener to run fetchData when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', fetchData);
+// Use dummy data instead of fetching
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("Using dummy data for visualization.");
+    // Assign dummy data to global variables
+    teamEloHistory = dummyTeamEloHistory;
+    teamEloLadder = dummyTeamEloLadder;
+    pickupEloHistory = dummyPickupEloHistory;
+    pickupEloLadder = dummyPickupEloLadder;
+
+    // Render visualizations with dummy data
+    renderVisualizations();
+});
