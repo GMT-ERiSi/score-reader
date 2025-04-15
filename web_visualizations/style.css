@@ -1,0 +1,99 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #0056b3; /* A blue tone */
+}
+
+h1 {
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+section {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container {
+    position: relative;
+    height: 40vh; /* Adjust height as needed */
+    width: 80vw;  /* Adjust width as needed */
+    max-width: 800px; /* Max width for larger screens */
+    margin: 20px auto; /* Center the chart */
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #e9ecef; /* Light grey header */
+    color: #495057;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f8f9fa; /* Zebra striping */
+}
+
+tbody tr:hover {
+    background-color: #dee2e6; /* Hover effect */
+}
+
+/* Basic Responsive */
+@media (max-width: 768px) {
+    .chart-container {
+        width: 95vw;
+        height: 50vh; /* Adjust height for mobile */
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+    h2 {
+        font-size: 1.4em;
+    }
+    table, th, td {
+        font-size: 0.9em; /* Slightly smaller font on mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        margin: 10px;
+    }
+    section {
+        padding: 15px;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 1.2em;
+    }
+    th, td {
+        padding: 5px;
+    }
+}

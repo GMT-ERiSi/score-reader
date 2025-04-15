@@ -4,6 +4,7 @@ import json
 import sqlite3
 import argparse
 import hashlib
+import re # Added for date extraction regex
 from datetime import datetime
 
 # Import the reference database module
@@ -271,11 +272,6 @@ def get_or_create_player(conn, player_name, ref_db=None, cache=None):
                     except ValueError:
                         print("Invalid ID format. Please enter a number.")
 
-                # elif choice == 'U':
-                #     ref_id = None # No reference link
-                #     canonical_name = player_name # Use the name as is
-                #     print(f"Using '{player_name}' as temporary name.")
-                #     resolved = True
                 elif choice == 'S':
                     print(f"Skipping player '{player_name}' for this match.")
                     cache[player_name] = (None, player_name, None)
@@ -366,7 +362,6 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
         winner = "UNKNOWN"
         
     # Try to extract date from filename
-    import re
     match_date = None
     
     # First check if match_data already has a date (from season_processor)
@@ -380,12 +375,21 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
             year, month, day = date_pattern.groups()
             match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
         
-        # Also try pattern like "DD.MM.YYYY" common in screenshots
+        # Also try pattern like "MM-DD-YY" or "MM.DD.YY"
         if not match_date:
-            date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
+            date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](\d{2})', filename)
             if date_pattern:
-                day, month, year = date_pattern.groups()
-                match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
+                month, day, year_short = date_pattern.groups()
+                # Assume 20xx for the year
+                year = f"20{year_short}"
+                match_date = f"{year}-{month}-{day} 12:00:00" # Default to noon
+            
+            # Also try pattern like "DD.MM.YYYY" common in screenshots
+            if not match_date:
+                date_pattern = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})', filename)
+                if date_pattern:
+                    day, month, year = date_pattern.groups()
+                    match_date = f"{year}-{month}-{day} 12:00:00"  # Default to noon
     
     # Get teams data - handle different possible structures in the JSON
     teams_data = match_data.get("teams", {})
@@ -408,85 +412,13 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
     else:
         rebel_players = rebel_data if isinstance(rebel_data, list) else []
     
-    # Ask user for team names
+    # Process basic match info
     print(f"\nProcessing match: {filename}")
     print(f"Match result: {match_result}")
     print(f"Match date (YYYY-MM-DD HH:MM:SS): {match_date or 'Not detected from filename'}")
     user_date = input("Enter match date or press Enter to accept/use current time: ").strip()
     if user_date:
         match_date = user_date
-    
-    # Display imperial players
-    print("\nIMPERIAL players:")
-    if imperial_players:
-        for player in imperial_players:
-            if isinstance(player, dict):
-                print(f"  - {player.get('player', 'Unknown')}")
-            else:
-                print(f"  - {player}")
-    else:
-        print("  No IMPERIAL players found in data")
-        # Dump the first level of JSON structure to debug
-        print(f"  Debug - Teams data structure: {json.dumps(teams_data, indent=2)[:200]}...")
-    
-    # If using reference DB, suggest team names
-    imperial_team_suggestion = ""
-    if ref_db and imperial_players:
-        # Try to suggest team based on first player's primary team
-        first_player_name = imperial_players[0].get('player', imperial_players[0]) if isinstance(imperial_players[0], dict) else imperial_players[0]
-        ref_player = ref_db.get_player(first_player_name) # Exact match only for suggestion
-        if ref_player and ref_player.get('team_name'):
-            imperial_team_suggestion = f" (Suggested: {ref_player['team_name']})"
-    
-    imperial_team_name = input(f"\nIMPERIAL Team Name{imperial_team_suggestion}: ").strip()
-    if not imperial_team_name and imperial_team_suggestion:
-        # Use the suggestion if provided and no input given
-        imperial_team_name = imperial_team_suggestion.strip(" (Suggested: ").strip(")")
-    
-    if not imperial_team_name:
-        imperial_team_name = "Unknown IMPERIAL Team"
-    
-    # Display rebel players
-    print("\nREBEL players:")
-    if rebel_players:
-        for player in rebel_players:
-            if isinstance(player, dict):
-                print(f"  - {player.get('player', 'Unknown')}")
-            else:
-                print(f"  - {player}")
-    else:
-        print("  No REBEL players found in data")
-        # Dump the first level of JSON structure to debug
-        print(f"  Debug - Teams data structure: {json.dumps(teams_data, indent=2)[:200]}...")
-    
-    # If using reference DB, suggest team names
-    rebel_team_suggestion = ""
-    if ref_db and rebel_players:
-        # Try to suggest team based on first player's primary team
-        first_player_name = rebel_players[0].get('player', rebel_players[0]) if isinstance(rebel_players[0], dict) else rebel_players[0]
-        ref_player = ref_db.get_player(first_player_name) # Exact match only for suggestion
-        if ref_player and ref_player.get('team_name'):
-            rebel_team_suggestion = f" (Suggested: {ref_player['team_name']})"
-    
-    rebel_team_name = input(f"\nREBEL Team Name{rebel_team_suggestion}: ").strip()
-    if not rebel_team_name and rebel_team_suggestion:
-        # Use the suggestion if provided and no input given
-        rebel_team_name = rebel_team_suggestion.strip(" (Suggested: ").strip(")")
-    
-    if not rebel_team_name:
-        rebel_team_name = "Unknown REBEL Team"
-    
-    # Get or create teams
-    imperial_team_id = get_or_create_team(conn, imperial_team_name, ref_db)
-    rebel_team_id = get_or_create_team(conn, rebel_team_name, ref_db)
-    
-    # Update win/loss records
-    if winner == "IMPERIAL":
-        cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (imperial_team_id,))
-        cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (rebel_team_id,))
-    elif winner == "REBEL":
-        cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (rebel_team_id,))
-        cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (imperial_team_id,))
     
     # Ask for match type if not provided
     if match_type is None:
@@ -501,6 +433,92 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
             match_type = "ranked"
         else:
             match_type = "team"  # Default to 'team' if not explicitly specified
+    
+    # Display imperial players
+    print("\nIMPERIAL players:")
+    if imperial_players:
+        for player in imperial_players:
+            if isinstance(player, dict):
+                print(f"  - {player.get('player', 'Unknown')}")
+            else:
+                print(f"  - {player}")
+    else:
+        print("  No IMPERIAL players found in data")
+        # Dump the first level of JSON structure to debug
+        print(f"  Debug - Teams data structure: {json.dumps(teams_data, indent=2)[:200]}...")
+    
+    # Display rebel players
+    print("\nREBEL players:")
+    if rebel_players:
+        for player in rebel_players:
+            if isinstance(player, dict):
+                print(f"  - {player.get('player', 'Unknown')}")
+            else:
+                print(f"  - {player}")
+    else:
+        print("  No REBEL players found in data")
+        # Dump the first level of JSON structure to debug
+        print(f"  Debug - Teams data structure: {json.dumps(teams_data, indent=2)[:200]}...")
+    
+    # Get team names based on match type
+    if match_type == "team":
+        # Only prompt for team names for team matches
+        
+        # If using reference DB, suggest team names for Imperial
+        imperial_team_suggestion = ""
+        if ref_db and imperial_players:
+            # Try to suggest team based on first player's primary team
+            first_player_name = imperial_players[0].get('player', imperial_players[0]) if isinstance(imperial_players[0], dict) else imperial_players[0]
+            ref_player = ref_db.get_player(first_player_name) # Exact match only for suggestion
+            if ref_player and ref_player.get('team_name'):
+                imperial_team_suggestion = f" (Suggested: {ref_player['team_name']})"
+        
+        imperial_team_name = input(f"\nIMPERIAL Team Name{imperial_team_suggestion}: ").strip()
+        if not imperial_team_name and imperial_team_suggestion:
+            # Use the suggestion if provided and no input given
+            imperial_team_name = imperial_team_suggestion.strip(" (Suggested: ").strip(")")
+        
+        if not imperial_team_name:
+            imperial_team_name = "Unknown IMPERIAL Team"
+        
+        # If using reference DB, suggest team names for Rebel
+        rebel_team_suggestion = ""
+        if ref_db and rebel_players:
+            # Try to suggest team based on first player's primary team
+            first_player_name = rebel_players[0].get('player', rebel_players[0]) if isinstance(rebel_players[0], dict) else rebel_players[0]
+            ref_player = ref_db.get_player(first_player_name) # Exact match only for suggestion
+            if ref_player and ref_player.get('team_name'):
+                rebel_team_suggestion = f" (Suggested: {ref_player['team_name']})"
+        
+        rebel_team_name = input(f"\nREBEL Team Name{rebel_team_suggestion}: ").strip()
+        if not rebel_team_name and rebel_team_suggestion:
+            # Use the suggestion if provided and no input given
+            rebel_team_name = rebel_team_suggestion.strip(" (Suggested: ").strip(")")
+        
+        if not rebel_team_name:
+            rebel_team_name = "Unknown REBEL Team"
+    else:
+        # For pickup and ranked matches, use automatic team names
+        if match_type == "pickup":
+            imperial_team_name = "Imp_pickup_team"
+            rebel_team_name = "NR_pickup_team"
+            print(f"\nUsing auto-assigned team names for pickup match: {imperial_team_name} vs {rebel_team_name}")
+        else:  # ranked
+            imperial_team_name = "Imperial_ranked_team"
+            rebel_team_name = "NR_ranked_team"
+            print(f"\nUsing auto-assigned team names for ranked match: {imperial_team_name} vs {rebel_team_name}")
+    
+    # Get or create teams
+    imperial_team_id = get_or_create_team(conn, imperial_team_name, ref_db)
+    rebel_team_id = get_or_create_team(conn, rebel_team_name, ref_db)
+    
+    # Update win/loss records
+    if winner == "IMPERIAL":
+        cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (imperial_team_id,))
+        cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (rebel_team_id,))
+    elif winner == "REBEL":
+        cursor.execute("UPDATE teams SET wins = wins + 1 WHERE id = ?", (rebel_team_id,))
+        cursor.execute("UPDATE teams SET losses = losses + 1 WHERE id = ?", (imperial_team_id,))
     
     # Insert match record with date and match_type
     if match_date:
@@ -518,16 +536,16 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
     
     # Process imperial players
     for player_data in imperial_players:
-        process_player_stats(conn, match_id, imperial_team_id, "IMPERIAL", player_data, ref_db, player_resolution_cache)
+        process_player_stats(conn, match_id, imperial_team_id, "IMPERIAL", player_data, ref_db, player_resolution_cache, match_type)
     
     # Process rebel players
     for player_data in rebel_players:
-        process_player_stats(conn, match_id, rebel_team_id, "REBEL", player_data, ref_db, player_resolution_cache)
+        process_player_stats(conn, match_id, rebel_team_id, "REBEL", player_data, ref_db, player_resolution_cache, match_type)
     
     conn.commit()
     print(f"Match data processed successfully. Match ID: {match_id}")
 
-def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=None, cache=None):
+def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=None, cache=None, match_type=None):
     """Process stats for a single player"""
     cursor = conn.cursor()
     
@@ -566,36 +584,45 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     suggested_subbing = 0 # Default suggestion is 0 (not subbing)
     prompt_user = False # Only prompt if we have enough info
 
-    if ref_db:
-        ref_player = ref_db.get_player(canonical_name) # Should be an exact match now
-        primary_team_id = ref_player.get('team_id') if ref_player else None
-        primary_team_name = ref_player.get('team_name') if ref_player else "Unknown"
+    # For pickup or ranked matches, set team_id to None
+    if match_type in ['pickup', 'ranked']:
+        # Quietly set team_id to None for pickup/ranked matches
+        team_id_value = None
+        print(f"Match type is {match_type}, setting team_id to None for player {canonical_name}")
+    else:
+        # For team matches, keep the team_id as is
+        team_id_value = team_id
 
-        # Get current team name
-        cursor.execute("SELECT name FROM teams WHERE id = ?", (team_id,))
-        fetch_result = cursor.fetchone()
-        current_team_name = fetch_result[0] if fetch_result else "Unknown Team"
+        # Determine subbing status for regular team matches
+        if ref_db:
+            ref_player = ref_db.get_player(canonical_name) # Should be an exact match now
+            primary_team_id = ref_player.get('team_id') if ref_player else None
+            primary_team_name = ref_player.get('team_name') if ref_player else "Unknown"
 
-        if primary_team_name != "Unknown":
-            # We know the player's primary team, compare team NAMES instead of IDs
-            if primary_team_name != current_team_name:
-                # Team names don't match, suggest they're subbing
-                suggested_subbing = 1
-            else:
-                # Team names match, suggest they're not subbing
-                suggested_subbing = 0
-            prompt_user = True # We have enough info to prompt
+            # Get current team name
+            cursor.execute("SELECT name FROM teams WHERE id = ?", (team_id,))
+            fetch_result = cursor.fetchone()
+            current_team_name = fetch_result[0] if fetch_result else "Unknown Team"
 
-            prompt_message = (
-                f"Player '{canonical_name}' (Primary Team: {primary_team_name}) is playing for '{current_team_name}'. "
-                f"Team names {'DON\'T match' if suggested_subbing == 1 else 'MATCH'}. "
-                f"Suggest player IS subbing: {'Yes' if suggested_subbing == 1 else 'No'}. Confirm? (Y/n): "
-            )
-        # else: Player has no primary team assigned in ref db, keep suggested_subbing = 0, don't prompt
+            if primary_team_name != "Unknown":
+                # We know the player's primary team, compare team NAMES instead of IDs
+                if primary_team_name != current_team_name:
+                    # Team names don't match, suggest they're subbing
+                    suggested_subbing = 1
+                else:
+                    # Team names match, suggest they're not subbing
+                    suggested_subbing = 0
+                prompt_user = True # We have enough info to prompt
+
+                prompt_message = (
+                    f"Player '{canonical_name}' (Primary Team: {primary_team_name}) is playing for '{current_team_name}'. "
+                    f"Team names {'DON''T match' if suggested_subbing == 1 else 'MATCH'}. "
+                    f"Suggest player IS subbing: {'Yes' if suggested_subbing == 1 else 'No'}. Confirm? (Y/n): "
+                )
 
     # Determine final is_subbing value
     final_is_subbing = suggested_subbing
-    if prompt_user:
+    if prompt_user and match_type == 'team': # Only prompt for team matches
         user_response = input(prompt_message).strip().lower()
         if user_response == 'n':
             final_is_subbing = 1 - suggested_subbing # Flip the suggestion
@@ -608,7 +635,7 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
         score, kills, deaths, assists, ai_kills, cap_ship_damage, is_subbing
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        match_id, player_id, canonical_name, player_hash, team_id, faction, position,
+        match_id, player_id, canonical_name, player_hash, team_id_value, faction, position,
         score, kills, deaths, assists, ai_kills, cap_ship_damage, final_is_subbing # Use final_is_subbing here
     ))
 
@@ -636,6 +663,7 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
     create_database(db_path)
     conn = None # Initialize conn to None
     ref_db = None # Initialize ref_db to None
+
     try:
         conn = sqlite3.connect(db_path)
 
@@ -656,7 +684,6 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
 
             for filename, match_data in season_matches.items():
                 # Pass ref_db object (which might be None)
-                # Pass the ref_db object and the cache
                 # Check if there's a match_type in the data
                 match_type = match_data.get('match_type', None)
                 process_match_data(conn, season_name, filename, match_data, ref_db, match_type)
@@ -694,7 +721,7 @@ def generate_stats_reports(db_path, output_dir):
     # 1. Team Standings Report
     cursor.execute("""
     SELECT name, wins, losses, (wins + losses) as games_played, 
-           CAST(wins AS FLOAT) / (wins + losses) AS win_rate
+            CAST(wins AS FLOAT) / (wins + losses) AS win_rate
     FROM teams
     WHERE (wins + losses) > 0
     ORDER BY win_rate DESC, wins DESC
@@ -705,61 +732,141 @@ def generate_stats_reports(db_path, output_dir):
     with open(os.path.join(output_dir, "team_standings.json"), 'w') as f:
         json.dump(team_standings, f, indent=2)
     
-    # 2. Player Performance Report - now using player_hash for consistency
+    # 2. Generate combined reports for all match types (regardless of match_type)
+    # --- Player Performance (All) ---
     cursor.execute("""
     SELECT ps.player_name as name, ps.player_hash as hash,
-           COUNT(DISTINCT ps.match_id) as games_played,
-           SUM(CASE WHEN ps.is_subbing = 0 THEN 1 ELSE 0 END) as regular_games,
-           SUM(CASE WHEN ps.is_subbing = 1 THEN 1 ELSE 0 END) as sub_games,
-           SUM(ps.score) as total_score,
-           ROUND(AVG(ps.score), 2) as avg_score,
-           SUM(ps.kills) as total_kills,
-           SUM(ps.deaths) as total_deaths,
-           CASE WHEN SUM(ps.deaths) > 0 
-                THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2)
-                ELSE SUM(ps.kills) END as kd_ratio,
-           SUM(ps.assists) as total_assists,
-           SUM(ps.ai_kills) as total_ai_kills,
-           SUM(ps.cap_ship_damage) as total_cap_ship_damage
+            COUNT(DISTINCT ps.match_id) as games_played,
+            SUM(CASE WHEN ps.is_subbing = 0 THEN 1 ELSE 0 END) as regular_games,
+            SUM(CASE WHEN ps.is_subbing = 1 THEN 1 ELSE 0 END) as sub_games,
+            SUM(ps.score) as total_score,
+            ROUND(AVG(ps.score), 2) as avg_score,
+            SUM(ps.kills) as total_kills,
+            SUM(ps.deaths) as total_deaths,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as deaths_per_game,
+            SUM(ps.kills) - SUM(ps.deaths) as net_kills,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.kills) - SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as net_kills_per_game,
+            CASE WHEN SUM(ps.deaths) > 0 THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2) ELSE SUM(ps.kills) END as kd_ratio,
+            SUM(ps.assists) as total_assists,
+            SUM(ps.ai_kills) as total_ai_kills,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.ai_kills) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as ai_kills_per_game,
+            SUM(ps.cap_ship_damage) as total_cap_ship_damage,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.cap_ship_damage) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as damage_per_game
     FROM player_stats ps
+    JOIN matches m ON ps.match_id = m.id
     GROUP BY ps.player_hash
     ORDER BY avg_score DESC
     """)
     
     player_performance = [dict(row) for row in cursor.fetchall()]
-    
     with open(os.path.join(output_dir, "player_performance.json"), 'w') as f:
         json.dump(player_performance, f, indent=2)
     
-    # 2b. Player Performance Report (Excluding Subs)
+    # --- Player Performance (No Subs) ---
     cursor.execute("""
     SELECT ps.player_name as name, ps.player_hash as hash,
-           COUNT(DISTINCT ps.match_id) as games_played,
-           SUM(ps.score) as total_score,
-           ROUND(AVG(ps.score), 2) as avg_score,
-           SUM(ps.kills) as total_kills,
-           SUM(ps.deaths) as total_deaths,
-           CASE WHEN SUM(ps.deaths) > 0 
-                THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2)
-                ELSE SUM(ps.kills) END as kd_ratio,
-           SUM(ps.assists) as total_assists,
-           SUM(ps.ai_kills) as total_ai_kills,
-           SUM(ps.cap_ship_damage) as total_cap_ship_damage
+            COUNT(DISTINCT ps.match_id) as games_played,
+            SUM(ps.score) as total_score,
+            ROUND(AVG(ps.score), 2) as avg_score,
+            SUM(ps.kills) as total_kills,
+            SUM(ps.deaths) as total_deaths,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as deaths_per_game,
+            SUM(ps.kills) - SUM(ps.deaths) as net_kills,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.kills) - SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as net_kills_per_game,
+            CASE WHEN SUM(ps.deaths) > 0 THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2) ELSE SUM(ps.kills) END as kd_ratio,
+            SUM(ps.assists) as total_assists,
+            SUM(ps.ai_kills) as total_ai_kills,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.ai_kills) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as ai_kills_per_game,
+            SUM(ps.cap_ship_damage) as total_cap_ship_damage,
+            CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.cap_ship_damage) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as damage_per_game
     FROM player_stats ps
+    JOIN matches m ON ps.match_id = m.id
     WHERE ps.is_subbing = 0
     GROUP BY ps.player_hash
     ORDER BY avg_score DESC
     """)
     
     player_performance_no_subs = [dict(row) for row in cursor.fetchall()]
-    
     with open(os.path.join(output_dir, "player_performance_no_subs.json"), 'w') as f:
         json.dump(player_performance_no_subs, f, indent=2)
+
+    # 3. Generate Player Performance Reports per Match Type
+    match_types = ['team', 'pickup', 'ranked']
+    generated_player_reports = [] # Keep track of generated files
+
+    for mt in match_types:
+        # --- Player Performance (All) ---
+        cursor.execute("""
+        SELECT ps.player_name as name, ps.player_hash as hash,
+                COUNT(DISTINCT ps.match_id) as games_played,
+                SUM(CASE WHEN ps.is_subbing = 0 THEN 1 ELSE 0 END) as regular_games,
+                SUM(CASE WHEN ps.is_subbing = 1 THEN 1 ELSE 0 END) as sub_games,
+                SUM(ps.score) as total_score,
+                ROUND(AVG(ps.score), 2) as avg_score,
+                SUM(ps.kills) as total_kills,
+                SUM(ps.deaths) as total_deaths,
+                CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as deaths_per_game,
+                SUM(ps.kills) - SUM(ps.deaths) as net_kills,
+                CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.kills) - SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as net_kills_per_game,
+                CASE WHEN SUM(ps.deaths) > 0 THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2) ELSE SUM(ps.kills) END as kd_ratio,
+                SUM(ps.assists) as total_assists,
+                SUM(ps.ai_kills) as total_ai_kills,
+                CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.ai_kills) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as ai_kills_per_game,
+                SUM(ps.cap_ship_damage) as total_cap_ship_damage,
+                CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.cap_ship_damage) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as damage_per_game
+        FROM player_stats ps
+        JOIN matches m ON ps.match_id = m.id
+        WHERE m.match_type = ?
+        GROUP BY ps.player_hash
+        ORDER BY avg_score DESC
+        """, (mt,))
+        
+        player_performance_data = [dict(row) for row in cursor.fetchall()]
+        if player_performance_data: # Only write file if data exists for this type
+            filename = f"player_performance_{mt}.json"
+            filepath = os.path.join(output_dir, filename)
+            with open(filepath, 'w') as f:
+                json.dump(player_performance_data, f, indent=2)
+            generated_player_reports.append(filename)
+
+        # --- Player Performance (No Subs) ---
+        # Only generate "no subs" reports for team matches, skip for pickup/ranked
+        if mt == 'team':
+            cursor.execute("""
+            SELECT ps.player_name as name, ps.player_hash as hash,
+                    COUNT(DISTINCT ps.match_id) as games_played,
+                    SUM(ps.score) as total_score,
+                    ROUND(AVG(ps.score), 2) as avg_score,
+                    SUM(ps.kills) as total_kills,
+                    SUM(ps.deaths) as total_deaths,
+                    CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as deaths_per_game,
+                    SUM(ps.kills) - SUM(ps.deaths) as net_kills,
+                    CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.kills) - SUM(ps.deaths) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as net_kills_per_game,
+                    CASE WHEN SUM(ps.deaths) > 0 THEN ROUND(CAST(SUM(ps.kills) AS FLOAT) / SUM(ps.deaths), 2) ELSE SUM(ps.kills) END as kd_ratio,
+                    SUM(ps.assists) as total_assists,
+                    SUM(ps.ai_kills) as total_ai_kills,
+                    CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.ai_kills) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as ai_kills_per_game,
+                    SUM(ps.cap_ship_damage) as total_cap_ship_damage,
+                    CASE WHEN COUNT(DISTINCT ps.match_id) > 0 THEN ROUND(CAST(SUM(ps.cap_ship_damage) AS FLOAT) / COUNT(DISTINCT ps.match_id), 2) ELSE 0 END as damage_per_game
+            FROM player_stats ps
+            JOIN matches m ON ps.match_id = m.id
+            WHERE ps.is_subbing = 0 AND m.match_type = ?
+            GROUP BY ps.player_hash
+            ORDER BY avg_score DESC
+            """, (mt,))
+
+            player_performance_no_subs_data = [dict(row) for row in cursor.fetchall()]
+            if player_performance_no_subs_data: # Only write file if data exists
+                filename_no_subs = f"player_performance_no_subs_{mt}.json"
+                filepath_no_subs = os.path.join(output_dir, filename_no_subs)
+                with open(filepath_no_subs, 'w') as f:
+                    json.dump(player_performance_no_subs_data, f, indent=2)
+                generated_player_reports.append(filename_no_subs)
     
-    # 3. Faction Win Rates
+    # 4. Faction Win Rates
     cursor.execute("""
     SELECT winner, COUNT(*) as wins,
-           ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM matches WHERE winner != 'UNKNOWN'), 2) as win_percentage
+            ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM matches WHERE winner != 'UNKNOWN'), 2) as win_percentage
     FROM matches
     WHERE winner != 'UNKNOWN'
     GROUP BY winner
@@ -770,12 +877,12 @@ def generate_stats_reports(db_path, output_dir):
     with open(os.path.join(output_dir, "faction_win_rates.json"), 'w') as f:
         json.dump(faction_win_rates, f, indent=2)
     
-    # 4. Season Summary
+    # 5. Season Summary
     cursor.execute("""
     SELECT s.name as season, 
-           COUNT(m.id) as matches_played,
-           SUM(CASE WHEN m.winner = 'IMPERIAL' THEN 1 ELSE 0 END) as imperial_wins,
-           SUM(CASE WHEN m.winner = 'REBEL' THEN 1 ELSE 0 END) as rebel_wins
+            COUNT(m.id) as matches_played,
+            SUM(CASE WHEN m.winner = 'IMPERIAL' THEN 1 ELSE 0 END) as imperial_wins,
+            SUM(CASE WHEN m.winner = 'REBEL' THEN 1 ELSE 0 END) as rebel_wins
     FROM seasons s
     LEFT JOIN matches m ON s.id = m.season_id
     GROUP BY s.id
@@ -787,13 +894,13 @@ def generate_stats_reports(db_path, output_dir):
     with open(os.path.join(output_dir, "season_summary.json"), 'w') as f:
         json.dump(season_summary, f, indent=2)
     
-    # 5. Player's Team History - updated to include subbing info
+    # 6. Player's Team History - updated to include subbing info
     cursor.execute("""
     SELECT ps.player_name, ps.player_hash, 
-           t.name as team_name, 
-           COUNT(DISTINCT ps.match_id) as games_with_team,
-           SUM(CASE WHEN ps.is_subbing = 0 THEN 1 ELSE 0 END) as regular_games,
-           SUM(CASE WHEN ps.is_subbing = 1 THEN 1 ELSE 0 END) as sub_games
+            t.name as team_name, 
+            COUNT(DISTINCT ps.match_id) as games_with_team,
+            SUM(CASE WHEN ps.is_subbing = 0 THEN 1 ELSE 0 END) as regular_games,
+            SUM(CASE WHEN ps.is_subbing = 1 THEN 1 ELSE 0 END) as sub_games
     FROM player_stats ps
     JOIN teams t ON ps.team_id = t.id
     GROUP BY ps.player_hash, t.id
@@ -805,7 +912,7 @@ def generate_stats_reports(db_path, output_dir):
     with open(os.path.join(output_dir, "player_teams.json"), 'w') as f:
         json.dump(player_teams, f, indent=2)
     
-    # 6. Subbing Report - focusing on substitutes
+    # 7. Subbing Report - focusing on substitutes - only for team matches
     cursor.execute("""
     SELECT 
         p.name as player_name,
@@ -822,7 +929,8 @@ def generate_stats_reports(db_path, output_dir):
     FROM player_stats ps
     JOIN players p ON ps.player_id = p.id
     JOIN teams t ON ps.team_id = t.id
-    WHERE ps.is_subbing = 1
+    JOIN matches m ON ps.match_id = m.id
+    WHERE ps.is_subbing = 1 AND m.match_type = 'team'
     GROUP BY ps.player_id, ps.team_id
     ORDER BY games_subbed DESC, avg_score DESC
     """)
@@ -837,6 +945,16 @@ def generate_stats_reports(db_path, output_dir):
     print(f"  - Team Standings: {len(team_standings)} teams")
     print(f"  - Player Performance: {len(player_performance)} players")
     print(f"  - Player Performance (No Subs): {len(player_performance_no_subs)} players")
+    print("  - Per match type reports:")
+    for mt in match_types:
+        if mt == 'team':
+            for report_name in [f"player_performance_{mt}.json", f"player_performance_no_subs_{mt}.json"]:
+                if report_name in generated_player_reports:
+                    print(f"    - {report_name}")
+        else:
+            report_name = f"player_performance_{mt}.json"
+            if report_name in generated_player_reports:
+                print(f"    - {report_name}")
     print(f"  - Faction Win Rates: {len(faction_win_rates)} factions")
     print(f"  - Season Summary: {len(season_summary)} seasons")
     print(f"  - Player Teams: {len(player_teams)} player-team combinations")
@@ -990,19 +1108,19 @@ def main():
     parser = argparse.ArgumentParser(description="Process Star Wars Squadrons match data into a SQLite database")
     
     parser.add_argument("--input", type=str, default="all_seasons_data.json",
-                       help="Input JSON file with seasons data (default: all_seasons_data.json)")
+                        help="Input JSON file with seasons data (default: all_seasons_data.json)")
     parser.add_argument("--db", type=str, default="squadrons_stats.db",
-                       help="SQLite database file path (default: squadrons_stats.db)")
+                        help="SQLite database file path (default: squadrons_stats.db)")
     parser.add_argument("--stats", type=str, default="stats_reports",
-                       help="Directory for stats reports (default: stats_reports)")
+                        help="Directory for stats reports (default: stats_reports)")
     parser.add_argument("--reference-db", type=str, default="squadrons_reference.db",
-                       help="Reference database for canonical team/player names (default: squadrons_reference.db)")
+                        help="Reference database for canonical team/player names (default: squadrons_reference.db)")
     parser.add_argument("--generate-only", action="store_true",
-                       help="Only generate stats reports from existing database")
+                        help="Only generate stats reports from existing database")
     parser.add_argument("--update-match-types", action="store_true",
-                       help="Update match types for existing matches in the database")
+                        help="Update match types for existing matches in the database")
     parser.add_argument("--force-update-match-types", action="store_true",
-                       help="Force update of match types, even if they are already set")
+                        help="Force update of match types, even if they are already set")
     
     args = parser.parse_args()
     

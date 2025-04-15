@@ -59,5 +59,13 @@ Screenshots/**
 stats_reports/**
 !stats_reports/.gitkeep
 
+# Ignore stats_reports
+stats_reports/**
+!stats_reports/.gitkeep
+
+# Ignore elo_reports_pickup
+elo_reports_pickup/**
+!elo_reports_pickup/.gitkeep
+
 # Ignore todo
 todo.txt
