@@ -36,33 +36,44 @@ The static web application generated will be suitable for deployment on platform
 - **Benefits:** Free hosting, direct integration with the GitHub repository, support for static sites with full JavaScript capabilities.
 - **Automation:** Deployment can be automated using GitHub Actions to update the live visualization whenever the underlying data changes (e.g., on pushes to the main branch).
 
-## 4. Functional Requirements
+## 4. Development Phases
 
-The following table outlines the detailed functional requirements for the frontend visualization features.
+Development will proceed in phases to deliver value incrementally.
 
-| Requirement ID | Description                                      | User Story                                                                                                   | Expected Behavior/Outcome                                                                                                                                                              |
-|-----------------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Core Features** |                                                  |                                                                                                              |                                                                                                                                                                                        |
-| FRF001          | Display Interactive Leaderboards                 | As a user, I want to view interactive leaderboards based on processed game data so I can see rankings for various stats. | The web interface should display tables showing player rankings for specified metrics, loaded from the project's JSON data.                                                              |
-| FRF002          | Visualize Player ELO Progression                 | As a user, I want to see a visual representation of player ELO changes over time so I can track skill progression. | The web interface should display a chart (e.g., line chart) showing the ELO history for selected players, loaded from the ELO history JSON data.                                         |
-| FRF003          | Data Sorting and Filtering                       | As a user viewing leaderboards or charts, I want to sort and filter the data so I can focus on specific information or players. | Leaderboard tables should allow sorting by any column. Filtering options (e.g., by player name, date range) should be available for both leaderboards and charts where applicable.        |
-| FRF004          | Responsive Design                                | As a user, I want to view the visualizations correctly on different devices (desktop, mobile) so I can access the information anywhere. | The web interface layout and visualizations should adapt to various screen sizes, ensuring readability and usability on both desktop browsers and mobile devices.                             |
-| **Specific Visualizations (Initial Scope)** |                                                  |                                                                                                              |                                                                                                                                                                                        |
-| FRF005          | Interactive ELO Ladder Chart                     | As a user, I want an interactive chart specifically showing ELO changes for players over time or matches so I can analyze rating trends. | The system will render a line chart displaying ELO values on the Y-axis and time/match sequence on the X-axis, potentially allowing hovering for details or zooming.                     |
-| FRF006          | AI Kills Leaderboard                             | As a user, I want to see a leaderboard ranking players by their average AI Kills per game so I can identify top objective players. | A table will display players ranked by their calculated AI Kills per game statistic, sortable and filterable.                                                                        |
-| FRF007          | Damage Dealt Leaderboard                         | As a user, I want to see a leaderboard ranking players by their average Damage Dealt per game so I can identify high-impact players. | A table will display players ranked by their calculated Damage Dealt per game statistic, sortable and filterable.                                                                      |
-| FRF008          | Net Kills Leaderboard                            | As a user, I want to see a leaderboard ranking players by their average Net Kills (Kills - Deaths) per game so I can identify efficient fraggers. | A table will display players ranked by their calculated Net Kills per game statistic, sortable and filterable.                                                                         |
-| FRF009          | Least Deaths Leaderboard                         | As a user, I want to see a leaderboard ranking players by their average Least Deaths per game so I can identify survivable players. | A table will display players ranked by their calculated Least Deaths per game statistic, sortable and filterable.                                                                      |
+*   **Phase 1 (MVP - Minimum Viable Product):** Focus on core functionality and essential visualizations with basic interactivity. The goal is to establish the foundation and provide initial useful views. Vanilla JavaScript is preferred for simplicity unless a framework significantly simplifies chart integration.
+*   **Phase 2 (Enhancements):** Build upon the MVP by adding more interactivity, completing the initial set of leaderboards, and refining the user experience and design.
+*   **Phase 3 (Future):** Address items listed in "Future Considerations" based on user feedback and project priorities.
 
-## 5. Non-Functional Requirements
+## 5. Functional Requirements
 
-- **Technology Stack:** Utilize modern web frameworks (e.g., Vue.js, React, or even vanilla JS depending on complexity) and established visualization libraries (e.g., Chart.js, D3.js, Plotly.js).
-- **Performance:** Ensure visualizations load efficiently and interactions are smooth.
+The following table outlines the detailed functional requirements, indicating the planned phase for each.
+
+| Requirement ID | Phase | Description                                      | User Story                                                                                                   | Expected Behavior/Outcome                                                                                                                                                              |
+|-----------------|-------|--------------------------------------------------|--------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Phase 1: MVP** |       |                                                  |                                                                                                              |                                                                                                                                                                                        |
+| FRF101          | 1     | Basic HTML Structure & Data Load             | As a developer, I need a basic HTML page structure and JavaScript to load the necessary JSON data files (e.g., ELO history, stats summaries). | Create `index.html`, `style.css`, `script.js` in `web_visualizations/`. JS successfully fetches and parses relevant JSON data upon page load.                                          |
+| FRF102          | 1     | Basic ELO Ladder Chart                       | As a user, I want a simple chart showing player ELO changes over time so I can see basic trends.             | Render a non-interactive line chart using a library (e.g., Chart.js) displaying ELO history. Basic styling applied.                                                                    |
+| FRF103          | 1     | Display Simple Leaderboard(s)                | As a user, I want to see at least one leaderboard (e.g., Net Kills) displayed as a simple table so I can view basic rankings. | Render one or two leaderboards as static HTML tables populated from JSON data. No sorting/filtering initially.                                                                       |
+| FRF104          | 1     | Basic Responsive Design                      | As a user, I want the basic layout to be usable on mobile devices.                                           | Implement simple CSS media queries to ensure the page content reflows reasonably on smaller screens. Perfect layout not required in Phase 1.                                          |
+| **Phase 2: Enhancements** |       |                                                  |                                                                                                              |                                                                                                                                                                                        |
+| FRF201          | 2     | Interactive Leaderboards (Sort/Filter)       | As a user viewing leaderboards, I want to sort by columns and filter the data so I can analyze rankings more effectively. | Implement JavaScript to add client-side sorting to all leaderboard tables. Add basic filtering controls (e.g., text input for player name).                                            |
+| FRF202          | 2     | Implement All Initial Leaderboards           | As a user, I want to see all the initially planned leaderboards (AI Kills, Damage, Net Kills, Least Deaths) available. | Add the remaining leaderboards specified in the initial scope (FRF006-FRF009 equivalent) to the web interface, including sorting/filtering from FRF201.                               |
+| FRF203          | 2     | Enhanced Chart Interactivity                 | As a user viewing the ELO chart, I want tooltips on hover or other interactions to see specific data points easily. | Configure the charting library to show data values on hover (tooltips). Consider basic zooming/panning if supported easily by the library.                                             |
+| FRF204          | 2     | Improved Responsive Design & Styling         | As a user, I want a polished look and feel that works well across devices.                                   | Refine CSS, improve layout adjustments for different screen sizes, ensure consistent styling across all components.                                                                    |
+
+## 6. Non-Functional Requirements
+
+*(Applies across phases)*
+- **Technology Stack:** Phase 1: Vanilla JS preferred, Chart.js (or similar). Phase 2+: Consider Vue/React if complexity increases significantly. Use established visualization libraries.
+- **Performance:** Ensure visualizations load efficiently and interactions (especially in Phase 2) are smooth.
 - **Maintainability:** Write clean, well-documented code. Structure the frontend code logically within the `web_visualizations/` directory.
 
-## 6. Future Considerations
+## 7. Future Considerations
 
+*(Post-Phase 2)*
 - Additional stats leaderboards.
 - Head-to-head player comparison tools.
 - More advanced chart types.
 - User accounts or personalization (if scope expands significantly).
+- Build script implementation for optimization/bundling.
+- Automated deployment via GitHub Actions.
