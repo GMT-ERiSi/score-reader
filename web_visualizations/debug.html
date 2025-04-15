@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES Modules Debug</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>ES Modules Debug</h1>
+    <div id="module-support"></div>
+    <h2>Module Import Test</h2>
+    <div id="import-test"></div>
+    <h2>Console Output</h2>
+    <pre id="console-output"></pre>
+
+    <script>
+        // Check if browser supports ES modules
+        const moduleSupport = 'noModule' in HTMLScriptElement.prototype;
+        document.getElementById('module-support').innerHTML = 
+            moduleSupport 
+                ? '<p class="success">✓ Your browser supports ES modules</p>' 
+                : '<p class="error">✗ Your browser does NOT support ES modules</p>';
+        
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        const originalConsole = {
+            log: console.log,
+            warn: console.warn,
+            error: console.error
+        };
+        
+        function addToConsole(type, args) {
+            const line = document.createElement('div');
+            line.className = type;
+            line.textContent = Array.from(args).map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput.appendChild(line);
+        }
+        
+        console.log = function(...args) {
+            originalConsole.log(...args);
+            addToConsole('log', args);
+        };
+        
+        console.warn = function(...args) {
+            originalConsole.warn(...args);
+            addToConsole('warn', args);
+        };
+        
+        console.error = function(...args) {
+            originalConsole.error(...args);
+            addToConsole('error', args);
+        };
+    </script>
+
+    <script type="module">
+        const importTest = document.getElementById('import-test');
+        
+        try {
+            // Test importing tableInteractivity.js
+            import('./js/tableInteractivity.js')
+                .then(module => {
+                    console.log('Successfully imported tableInteractivity.js', Object.keys(module));
+                    importTest.innerHTML += '<p class="success">✓ Successfully imported tableInteractivity.js</p>';
+                })
+                .catch(error => {
+                    console.error('Error importing tableInteractivity.js:', error);
+                    importTest.innerHTML += `<p class="error">✗ Error importing tableInteractivity.js: ${error.message}</p>`;
+                });
+                
+            // Test importing chartInteractivity.js
+            import('./js/chartInteractivity.js')
+                .then(module => {
+                    console.log('Successfully imported chartInteractivity.js', Object.keys(module));
+                    importTest.innerHTML += '<p class="success">✓ Successfully imported chartInteractivity.js</p>';
+                })
+                .catch(error => {
+                    console.error('Error importing chartInteractivity.js:', error);
+                    importTest.innerHTML += `<p class="error">✗ Error importing chartInteractivity.js: ${error.message}</p>`;
+                });
+                
+            // Test importing leaderboardManager.js
+            import('./js/leaderboardManager.js')
+                .then(module => {
+                    console.log('Successfully imported leaderboardManager.js', Object.keys(module));
+                    importTest.innerHTML += '<p class="success">✓ Successfully imported leaderboardManager.js</p>';
+                })
+                .catch(error => {
+                    console.error('Error importing leaderboardManager.js:', error);
+                    importTest.innerHTML += `<p class="error">✗ Error importing leaderboardManager.js: ${error.message}</p>`;
+                });
+                
+            // Test importing dataMock.js
+            import('./js/dataMock.js')
+                .then(module => {
+                    console.log('Successfully imported dataMock.js', Object.keys(module));
+                    importTest.innerHTML += '<p class="success">✓ Successfully imported dataMock.js</p>';
+                })
+                .catch(error => {
+                    console.error('Error importing dataMock.js:', error);
+                    importTest.innerHTML += `<p class="error">✗ Error importing dataMock.js: ${error.message}</p>`;
+                });
+        } catch (error) {
+            console.error('General module error:', error);
+            importTest.innerHTML += `<p class="error">✗ General module error: ${error.message}</p>`;
+        }
+    </script>
+</body>
+</html>

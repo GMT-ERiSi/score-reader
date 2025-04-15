@@ -8,6 +8,12 @@
     <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Chart.js Zoom plugin (optional) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <!-- Module support detection -->
+    <script>
+        window.moduleSupport = 'noModule' in HTMLScriptElement.prototype;
+    </script>
 </head>
 <body>
     <h1>Star Wars: Squadrons - Stats Visualizations</h1>
@@ -21,7 +27,7 @@
         <table id="teamEloTable">
             <thead>
                 <tr>
-                    <th>Rank</th>
+                    <th class="rank-cell">Rank</th>
                     <th>Team Name</th>
                     <th>ELO Rating</th>
                     <th>W-L</th>
@@ -43,7 +49,7 @@
         <table id="pickupEloTable">
             <thead>
                 <tr>
-                    <th>Rank</th>
+                    <th class="rank-cell">Rank</th>
                     <th>Player Name</th>
                     <th>ELO Rating</th>
                     <th>W-L</th>
@@ -56,6 +62,13 @@
         </table>
     </section>
 
-    <script src="script.js"></script>
+    <!-- Container for additional leaderboards -->
+    <div id="leaderboards-container">
+        <!-- Additional leaderboards will be dynamically created here -->
+    </div>
+
+    <!-- Import modules using type="module" with fallback -->
+    <script type="module" src="script.js"></script>
+    <script nomodule src="js/nomodule-fallback.js"></script>
 </body>
 </html>

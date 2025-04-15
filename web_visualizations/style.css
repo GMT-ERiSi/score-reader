@@ -62,7 +62,155 @@ tbody tr:hover {
     background-color: #dee2e6; /* Hover effect */
 }
 
-/* Basic Responsive */
+/* ===== Phase 2 Enhancements ===== */
+
+/* Sortable Table Headers */
+th.sortable {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+th.sortable:hover {
+    background-color: #d3d7db;
+}
+
+.sort-icon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 0.9em;
+}
+
+/* Clickable table rows for chart filtering */
+tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+tbody tr.selected {
+    background-color: #cce5ff !important;
+    border-left: 3px solid #0056b3;
+}
+
+/* Table filtering */
+.table-filter {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.filter-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.clear-filter {
+    margin-left: 10px;
+    padding: 8px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.clear-filter:hover {
+    background-color: #e3e3e3;
+}
+
+.no-results-message {
+    text-align: center;
+    padding: 15px;
+    font-style: italic;
+    color: #777;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Chart controls */
+.chart-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.reset-zoom-button,
+.show-all-button {
+    padding: 6px 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.reset-zoom-button:hover,
+.show-all-button:hover {
+    background-color: #e3e3e3;
+}
+
+.tooltip {
+    display: inline-block;
+    margin-left: 15px;
+    font-size: 0.85em;
+    color: #666;
+    font-style: italic;
+}
+
+/* Additional Leaderboards Section */
+.leaderboard-section {
+    margin-bottom: 30px;
+}
+
+#additional-leaderboards h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+/* Tabs for multiple leaderboards */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 15px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-bottom: none;
+    margin-right: 5px;
+    border-radius: 5px 5px 0 0;
+    background-color: #f0f0f0;
+}
+
+.tab:hover {
+    background-color: #e3e3e3;
+}
+
+.tab.active {
+    background-color: #fff;
+    border-color: #ddd;
+    border-bottom-color: #fff;
+    margin-bottom: -1px;
+    font-weight: bold;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Improved responsive design */
 @media (max-width: 768px) {
     .chart-container {
         width: 95vw;
@@ -77,6 +225,30 @@ tbody tr:hover {
     }
     table, th, td {
         font-size: 0.9em; /* Slightly smaller font on mobile */
+    }
+    
+    /* Responsive table improvements */
+    .table-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .clear-filter {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+    
+    .chart-controls {
+        flex-wrap: wrap;
+    }
+    
+    /* Adjust tabs for mobile */
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tab {
+        margin-bottom: 5px;
     }
 }
 
@@ -95,5 +267,10 @@ tbody tr:hover {
     }
     th, td {
         padding: 5px;
+    }
+    
+    /* Further mobile optimizations */
+    table {
+        font-size: 0.85em;
     }
 }
