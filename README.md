@@ -30,15 +30,18 @@ Star Wars Squadrons Score Reader
 │   ├── player_elo_ladder.py    - ELO rating system for individual players (pickup/ranked)
 │   ├── reference_manager.py    - Manages the reference database
 │   ├── stats_db_processor.py   - Processes extracted data into the database
-│   ├── stats_db_processorV5.py - Enhanced processor with pickup/ranked match support
 │   ├── ELO_LADDER_README.md    - Documentation for the ELO ladder
 │   ├── README.md               - Documentation for stats processing
 │   └── ...
 │
-├── stats_reports/              - Generated statistical reports
-│   ├── elo_ladder.json         - Current ELO ratings for teams
-│   ├── elo_history.json        - History of ELO changes for teams
+├── elo_reports_pickup/         - Generated pickup ELO reports
 │   ├── pickup_player_elo_ladder.json - ELO ratings for players in pickup matches
+│   ├── pickup_player_elo_history.json - History of ELO changes for pickup players
+│   └── ...
+│
+├── stats_reports/              - Generated team statistical reports
+│   ├── elo_ladder_team.json    - Current ELO ratings for teams
+│   ├── elo_history_team.json   - History of ELO changes for teams
 │   └── ...
 │
 ├── tests/                      - Unit tests for the project
@@ -130,30 +133,28 @@ Star Wars Squadrons Score Reader
    # Use the CLEANED data as input
    python -m stats_reader.stats_db_processor --input "Extracted Results/all_seasons_data_cleaned.json" --reference-db squadrons_reference.db
    ```
+   
+   When prompted during processing, choose the match type. The processor will now prompt you to select the match type (team, pickup, ranked) at the beginning, which eliminates the need for further special steps to remove team IDs for pickup and ranked games.
 
 6. **Generate ELO ladder**:
    ```bash
-   python -m stats_reader.elo_ladder
+   python -m stats_reader.elo_ladder --match-type team
    ```
+   
+   This will create team ELO reports in the `stats_reports` directory.
 
 ## Workflow for Pickup/Ranked Matches
 
-For processing pickup or ranked matches (where players are not representing established teams):
+For processing pickup or ranked matches:
 
-1. **Process screenshots** as in the standard workflow:
-   ```bash
-   python -m score_extractor.season_processor --base-dir ../Screenshots --season [FOLDER] --output-dir "Extracted Results"
-   ```
+1. **Process screenshots** as in the standard workflow.
 
-2. **Clean the extracted data**:
-   ```bash
-   python -m stats_reader clean --input "Extracted Results/[FOLDER]/[FOLDER]_results.json" --output "Extracted Results/[FOLDER]/[FOLDER]_results_cleaned.json"
-   ```
+2. **Clean the extracted data** as in the standard workflow.
 
 3. **Process the data as pickup/ranked matches**:
    ```bash
    # Create a dedicated database for pickup/ranked matches (recommended)
-   python -m stats_reader.stats_db_processorV5 --input "Extracted Results/[FOLDER]/[FOLDER]_results_cleaned.json" --db squadrons_stats_pickup.db --reference-db squadrons_reference.db
+   python -m stats_reader.stats_db_processor --input "Extracted Results/[FOLDER]/[FOLDER]_results_cleaned.json" --reference-db squadrons_reference.db
    ```
    
    When prompted during processing:
@@ -164,23 +165,30 @@ For processing pickup or ranked matches (where players are not representing esta
 
 4. **Generate player-based ELO ladder**:
    ```bash
-   python -m stats_reader.player_elo_ladder --db squadrons_stats_pickup.db --output "stats_reports_pickup" --match-type pickup
+   # For pickup matches (preferred method)
+   python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "elo_reports_pickup" --match-type pickup
+   
+   # For ranked matches
+   python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "stats_reports" --match-type ranked
    ```
    
    This will create:
-   - `pickup_player_elo_ladder.json`: Current ELO ratings for individual players
-   - `pickup_player_elo_history.json`: Full history of player ELO changes
+   - For pickup matches: Reports in the `elo_reports_pickup` directory
+     - `pickup_player_elo_ladder.json`: Current ELO ratings for individual players
+     - `pickup_player_elo_history.json`: Full history of player ELO changes
+   - For ranked matches: Reports in the `stats_reports` directory
+     - `ranked_player_elo_ladder.json`: Current ELO ratings for ranked players
+     - `ranked_player_elo_history.json`: Full history of ranked player ELO changes
 
-   For ranked matches, use `--match-type ranked` instead.
-
-5. **View generated reports** in the `stats_reports_pickup` directory to analyze player performance.
+5. **View generated reports** to analyze player performance.
 
 ## Key Differences between Team and Pickup/Ranked Processing
 
 - **Team Assignment**: In team matches, players represent specific teams. In pickup/ranked matches, players play for themselves regardless of their primary team affiliation.
 - **ELO Calculation**: Team matches use team-based ELO. Pickup/ranked matches use player-based ELO.
-- **Database Handling**: For pickup/ranked matches, player team_ids are set to NULL in the database, but the matches themselves still maintain faction assignments (Imperial/Rebel).
+- **Database Handling**: For pickup/ranked matches, player team_ids are automatically set to NULL in the database when you select the appropriate match type during processing.
 - **Reports**: Pickup/ranked matches generate player-centric reports rather than team-centric ones.
+- **Report Location**: Team ELO reports go to `stats_reports` directory, while pickup ELO reports should go to `elo_reports_pickup` directory.
 
 ## Processing a Single Folder
 
@@ -218,22 +226,18 @@ If you want to process only a specific folder of screenshots (e.g., for a season
 
 4. **Process the extracted data into the stats database**:
    ```bash
-   # For team matches
    python -m stats_reader.stats_db_processor --input "Extracted Results/TEST/TEST_results_cleaned.json" --reference-db squadrons_reference.db
-   
-   # OR for pickup/ranked matches
-   python -m stats_reader.stats_db_processorV5 --input "Extracted Results/TEST/TEST_results_cleaned.json" --db squadrons_stats_pickup.db --reference-db squadrons_reference.db
    ```
    
-   When using V5 processor for pickup/ranked matches, select the appropriate match type when prompted.
+   When prompted, select the appropriate match type (team, pickup, ranked).
 
 5. **Generate appropriate ELO ladder**:
    ```bash
    # For team matches
-   python -m stats_reader.elo_ladder
+   python -m stats_reader.elo_ladder --match-type team
    
-   # OR for pickup/ranked matches
-   python -m stats_reader.player_elo_ladder --db squadrons_stats_pickup.db --match-type pickup
+   # For pickup matches
+   python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "elo_reports_pickup" --match-type pickup
    ```
 
 ## Workflow Components
@@ -243,11 +247,10 @@ Each step in the workflow corresponds to specific components in the project:
 | Step | Component | Description |
 |------|-----------|-------------|
 | 1. Process Screenshots | `score_extractor/season_processor.py` | Extracts match data from screenshots using Claude API |
-| 2. Clean Extracted Data | `stats_reader clean` | Interactive tool to correct AI extraction errors (scores, teams, results) |
+| 2. Clean Extracted Data | `stats_reader clean` | Interactive tool to correct AI extraction errors |
 | 3a. Populate Reference DB | `stats_reader/reference_manager.py` | Creates the reference database with player names from cleaned data |
 | 3b. Manage Reference DB | `stats_reader/reference_manager.py --manage` | Interactive tool for setting player primary teams and resolving duplicate player names |
-| 4a. Process Team Data | `stats_reader/stats_db_processor.py` | Adds the cleaned team match data to the stats database |
-| 4b. Process Pickup/Ranked Data | `stats_reader/stats_db_processorV5.py` | Processes pickup/ranked matches with proper handling |
+| 4. Process Match Data | `stats_reader/stats_db_processor.py` | Adds the cleaned match data to the stats database (now with match type selection) |
 | 5a. Generate Team ELO | `stats_reader/elo_ladder.py` | Calculates team ELO ratings and generates ladders |
 | 5b. Generate Player ELO | `stats_reader/player_elo_ladder.py` | Calculates individual player ELO ratings for pickup/ranked matches |
 
@@ -313,6 +316,36 @@ The player ELO system works by:
 2. Updating individual player ratings based on match outcomes
 3. Ranking players based on their personal skill level
 
+### Important Note for Pickup ELO
+
+For the pickup player ELO ladder, it is preferred to use the `player_elo_ladder.py` command and store the output in the `elo_reports_pickup` folder:
+
+```bash
+python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "elo_reports_pickup" --match-type pickup
+```
+
+This ensures the pickup player ladder is kept separate from the team ladder.
+
+## Match Type Selection
+
+The updated `stats_db_processor.py` now prompts you to choose the match type (team, pickup, ranked) at the beginning of processing each match. This improvement eliminates the need for a separate step to remove team IDs for pickup and ranked games.
+
+When you choose "pickup" or "ranked" as the match type:
+- Generic team names are automatically assigned
+- Player team_ids are automatically set to NULL in the database
+- No further steps are needed before generating player ELO ladders
+
+This streamlined approach makes it easier to maintain separate ladders for different match types.
+
+# Optional: If you need to fix team IDs for existing pickup/ranked matches in the database
+# This command finds pickup/ranked matches where player_stats.team_id is not NULL and sets them to NULL
+python -m stats_reader.fix_pickup_team_ids --db squadrons_stats.db
+
+- You accidentally processed pickup/ranked matches using the team workflow
+- You changed a match's type from "team" to "pickup" or "ranked" after initial processing
+- You're migrating data from an older version of the database structure
+- You want to regenerate pickup/ranked player ELO ladders but get errors about team IDs not being NULL
+
 ## Additional Tools
 
 - **Stats Processing**: More details in `stats_reader/README.md`
@@ -324,4 +357,4 @@ The player ELO system works by:
 - The project is configured to work with PNG and JPG files
 - Extracted data is saved to the Extracted Results directory
 - The SQLite database `squadrons_stats.db` contains all processed match data
-- Reports are generated in the `stats_reports` directory
+- Reports are generated in the `stats_reports` directory (team reports) and `elo_reports_pickup` directory (pickup player reports)
