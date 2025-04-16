@@ -280,12 +280,35 @@ function renderTeamEloChart() {
     const allDates = new Set();
 
     teamEloHistory.forEach(match => {
-        // Parse date string reliably and get timestamp for Chart.js
-        const matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-        if (isNaN(matchTimestamp)) { // Check if parsing failed
+        // Try to parse the date, with automatic correction for swapped month/day
+        let matchTimestamp;
+        try {
+            // Regular parsing attempt
+            matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
+            
+            // If the date is invalid, try swapping month and day
+            if (isNaN(matchTimestamp)) {
+                const dateParts = match.match_date.split(/[\s-:]/);
+                if (dateParts.length >= 3) {
+                    // Try swapping month and day
+                    const correctedDate = `${dateParts[0]}-${dateParts[2]}-${dateParts[1]} ${dateParts[3] || '12'}:${dateParts[4] || '00'}:${dateParts[5] || '00'}`;
+                    matchTimestamp = new Date(correctedDate.replace(' ', 'T')).getTime();
+                    
+                    if (!isNaN(matchTimestamp)) {
+                        console.log(`Corrected date format for match ID ${match.match_id}: ${match.match_date} → ${correctedDate}`);
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn(`Error parsing date: ${e.message}`);
+            matchTimestamp = NaN;
+        }
+        
+        if (isNaN(matchTimestamp)) {
             console.warn(`Invalid date format found in team history: ${match.match_date} for match ID ${match.match_id}`);
             return; // Skip this match entry if date is invalid
         }
+        
         allDates.add(matchTimestamp); // Use the timestamp
 
         // Process Imperial team
@@ -652,12 +675,16 @@ async function createLeaderboards() {
     console.log("Creating additional leaderboards...");
     
     try {
-        // Use the playerStats that were already loaded
-        // No need to generate dummy data here as playerStats should already be set
+        // Check if playerStats already has valid data (from real data loading)
+        if (!playerStats || playerStats.length === 0) {
+            console.log("No player stats data found, generating dummy data");
+            // Only generate dummy stats if we don't already have valid player stats
+            playerStats = generateDummyPlayerStats();
+        } else {
+            console.log(`Using existing player stats data (${playerStats.length} players)`);
+        }
         
-        console.log("Using player stats data:", playerStats.length);
-        
-        // Create leaderboards with the stats data
+        // Create leaderboards with the player stats data (real or dummy)
         await createAdditionalLeaderboards('#leaderboards-container', playerStats);
         
         console.log("Additional leaderboards created.");
