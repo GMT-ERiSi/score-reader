@@ -6,7 +6,8 @@ import argparse
 from dotenv import load_dotenv
 
 # Import the extract_scores_from_image function from your existing module
-from score_extractor.test_extraction import extract_scores_from_image
+# from score_extractor.test_extraction import extract_scores_from_image # Incorrect: Causes circular import
+from score_extractor import extract_scores_from_image # Correct: Import from the main package (__init__.py)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -50,62 +51,64 @@ def extract_scores_from_multiple_images(image_paths):
 
 def extract_date_from_filename(filename):
     """
-    Extract a date from a filename using various patterns
-    
+    Extract a date from a filename using specific patterns.
+    The function will only accept a date in the format YYYY-MM-DD HH:MM:SS.
+    If no valid date is found, it prompts the user to enter a date (in YYYY-MM-DD format).
+    If the user presses Enter (or enters an invalid date), the current date is used (with time set to 00:00:00).
+
     Args:
-        filename (str): The filename to parse
+        filename (str): The filename to parse.
         
     Returns:
-        str or None: Extracted date in YYYY-MM-DD HH:MM:SS format, or None if not found
+        str: The extracted or fallback date in "YYYY-MM-DD HH:MM:SS" format.
     """
     import re
     from datetime import datetime
-    
-    # Check for specific patterns first, then more general ones
 
-    # Pattern: Star Wars Squadrons Screenshot YYYY.MM.DD - HH.MM.SS (Check this first!)
-    # Example: Star Wars Squadrons Screenshot 2022.09.24 - 00.17.55.76.png
+    # Helper to validate a full date-time string.
+    def validate_date(date_str):
+        try:
+            datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            return True
+        except ValueError:
+            return False
+
+    # Pattern: Star Wars Squadrons Screenshot YYYY.MM.DD - HH.MM.SS (allow optional fractional seconds)
     sw_match = re.search(
-        r'Star Wars\s+Squadrons\s+Screenshot\s+'  # Prefix
-        r'(\d{4})\.(\d{2})\.(\d{2})'              # Date YYYY.MM.DD
-        r'\s+-\s+'                                # Separator
-        r'(\d{2})\.(\d{2})\.(\d{2})',             # Time HH.MM.SS
+        r'Star Wars\s+Squadrons\s+Screenshot\s+'
+        r'(\d{4})\.(\d{2})\.(\d{2})'
+        r'\s+-\s+'
+        r'(\d{2})\.(\d{2})\.(\d{2})(?:\.\d+)?',
         filename,
         re.IGNORECASE
     )
     if sw_match:
-        year, month, day, hour, minute, second = sw_match.groups()
-        # Validate time components
-        if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
-            return f"{year}-{month}-{day} {hour}:{minute}:{second}"
-        # Fallback if time is invalid - return date with default time
-        return f"{year}-{month}-{day} 12:00:00"
+        year, month, day, hour, minute, second = sw_match.groups()[:6]
+        date_str = f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        if validate_date(date_str):
+            return date_str
 
-    # Pattern: YYYY[.-]MM[.-]DD followed by optional [_ or space]HH.MM.SS
-    # Example: 2023.10.25_15.30.00 or 2023-12-25 20.05.30
+    # Pattern: YYYY[.-]MM[.-]DD with optional time (if missing, default to noon)
     match = re.search(r'(20\d{2})[.-](\d{2})[.-](\d{2})(?:[_ ]?(\d{2})\.(\d{2})\.(\d{2}))?', filename)
     if match:
         year, month, day, hour, minute, second = match.groups()
         if hour and minute and second:
-            # Validate time components (simple check for now)
-            if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
-                 return f"{year}-{month}-{day} {hour}:{minute}:{second}"
-        # Default to noon if no valid time found
-        return f"{year}-{month}-{day} 12:00:00"
+            date_str = f"{year}-{month}-{day} {hour}:{minute}:{second}"
+        else:
+            date_str = f"{year}-{month}-{day} 12:00:00"
+        if validate_date(date_str):
+            return date_str
 
-    # Pattern: DD[.-]MM[.-]YYYY followed by optional [ space]HH.MM.SS
-    # Example: 15.11.2023 or 10.03.2024 18.45.15
-    match = re.search(r'(\d{2})[.-](\d{2})[.-](20\d{2})(?:[ ]?(\d{2})\.(\d{2})\.(\d{2}))?', filename)
-    if match:
-        day, month, year, hour, minute, second = match.groups()
-        if hour and minute and second:
-             # Validate time components (simple check for now)
-            if 0 <= int(hour) <= 23 and 0 <= int(minute) <= 59 and 0 <= int(second) <= 59:
-                return f"{year}-{month}-{day} {hour}:{minute}:{second}"
-        # Default to noon if no valid time found
-        return f"{year}-{month}-{day} 12:00:00"
-    
-    return None
+    # If no valid date detected, prompt the user.
+    user_input = input("Could not extract a valid date from filename. Please enter date (YYYY-MM-DD) or press Enter to use the current date: ")
+    if user_input.strip():
+        try:
+            # Parse the user input (expecting YYYY-MM-DD) and default time to 00:00:00.
+            dt = datetime.strptime(user_input.strip(), "%Y-%m-%d")
+            return dt.strftime("%Y-%m-%d 00:00:00")
+        except ValueError:
+            print("Invalid format. Using current date instead.")
+    return datetime.now().strftime("%Y-%m-%d 00:00:00")
 
 def process_season_folder(season_folder, batch_size=None, output_dir=None):
     """

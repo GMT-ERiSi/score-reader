@@ -5,7 +5,9 @@ import base64
 from dotenv import load_dotenv
 
 # Import the functions from the main module
-from score_extractor import extract_scores_from_image, extract_scores_from_multiple_images
+# from score_extractor import extract_scores_from_image, extract_scores_from_multiple_images # Original import
+from .season_processor import extract_scores_from_multiple_images # Use the one with date logic from season_processor.py
+from score_extractor import extract_scores_from_image # Keep using the one from __init__.py for the core API call logic
 
 # Load environment variables from .env file
 load_dotenv()
@@ -64,9 +66,14 @@ def _test_with_folder(folder_path, batch_size=None):
     
     # Save all results to a JSON file
     output_path = os.path.join(folder_path, "extraction_results.json")
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2)
+    # Get season name from folder path
+    season_name = os.path.basename(folder_path)
+    # Create the nested structure expected by the DB processor
+    output_data = {season_name: results}
     
+    with open(output_path, "w") as f:
+        json.dump(output_data, f, indent=2) # Save the nested structure
+
     print(f"\nAll results saved to: {output_path}")
     return results
 
