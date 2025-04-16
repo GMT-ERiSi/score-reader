@@ -652,9 +652,10 @@ async function createLeaderboards() {
     console.log("Creating additional leaderboards...");
     
     try {
-        // Generate player stats data for additional leaderboards
-        // In a real implementation, this would be fetched from the backend
-        playerStats = generateDummyPlayerStats();
+        // Use the playerStats that were already loaded
+        // No need to generate dummy data here as playerStats should already be set
+        
+        console.log("Using player stats data:", playerStats.length);
         
         // Create leaderboards with the stats data
         await createAdditionalLeaderboards('#leaderboards-container', playerStats);
@@ -691,18 +692,61 @@ async function renderVisualizations() {
 }
 
 // --- Initialization ---
-// Use dummy data instead of fetching
+// Load real data instead of using dummy data - set variable to 
 async function initializeData() {
     try {
         console.log("Initializing data...");
         
-        // Make dummy data available globally for other modules
-        window.teamEloHistory = teamEloHistory = dummyTeamEloHistory;
-        window.teamEloLadder = teamEloLadder = dummyTeamEloLadder;
-        window.pickupEloHistory = pickupEloHistory = dummyPickupEloHistory;
-        window.pickupEloLadder = pickupEloLadder = dummyPickupEloLadder;
+        // Check if we should use real data or dummy data
+        // You can change this based on a URL parameter, local storage setting, etc.
+        const useRealData = true;
+        
+        if (useRealData) {
+            console.log("Loading real data...");
+            
+            try {
+                // Import the real data loader dynamically
+                const realDataModule = await import('./js/realdata.js');
+                const { loadAllRealData } = realDataModule;
+                
+                // Load all real data
+                const data = await loadAllRealData();
+                
+                // Make data available globally
+                window.teamEloHistory = teamEloHistory = data.teamEloHistory;
+                window.teamEloLadder = teamEloLadder = data.teamEloLadder;
+                window.pickupEloHistory = pickupEloHistory = data.pickupEloHistory;
+                window.pickupEloLadder = pickupEloLadder = data.pickupEloLadder;
+                window.playerStats = playerStats = data.playerStats;
+                
+                console.log("Real data loaded successfully");
+            } catch (error) {
+                console.error("Error loading real data:", error);
+                console.log("Falling back to dummy data...");
+                
+                // Fall back to dummy data if real data loading fails
+                window.teamEloHistory = teamEloHistory = dummyTeamEloHistory;
+                window.teamEloLadder = teamEloLadder = dummyTeamEloLadder;
+                window.pickupEloHistory = pickupEloHistory = dummyPickupEloHistory;
+                window.pickupEloLadder = pickupEloLadder = dummyPickupEloLadder;
+                
+                // Generate player stats for additional leaderboards
+                playerStats = generateDummyPlayerStats();
+            }
+        } else {
+            console.log("Using dummy data...");
+            
+            // Use dummy data
+            window.teamEloHistory = teamEloHistory = dummyTeamEloHistory;
+            window.teamEloLadder = teamEloLadder = dummyTeamEloLadder;
+            window.pickupEloHistory = pickupEloHistory = dummyPickupEloHistory;
+            window.pickupEloLadder = pickupEloLadder = dummyPickupEloLadder;
+            
+            // Generate player stats for additional leaderboards
+            playerStats = generateDummyPlayerStats();
+        }
 
-        // Render visualizations with dummy data
+        // Render visualizations with the data
         await renderVisualizations();
         
         console.log("Initialization complete");
