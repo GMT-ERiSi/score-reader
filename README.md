@@ -104,6 +104,24 @@ Star Wars Squadrons Score Reader
    ```
    This generates `Extracted Results/all_seasons_data.json`.
 
+### Date Handling during Extraction
+
+The extraction process (`score_extractor/season_processor.py`) attempts to determine the match date automatically from the screenshot filename. It looks for specific patterns:
+
+1.  `Star Wars Squadrons Screenshot YYYY.MM.DD - HH.MM.SS[.ms].png`
+2.  `YYYY[.-]MM[.-]DD[_HH.MM.SS].png` (Time defaults to 12:00:00 if missing)
+
+The extracted date is always converted to the standard `"YYYY-MM-DD HH:MM:SS"` format.
+
+**Important Fallback:** If a valid date cannot be extracted from the filename using these patterns, the script will **prompt the user** during the extraction run:
+
+Could not extract a valid date from filename. Please enter date (YYYY-MM-DD) or press Enter to use the current date:
+
+-   If you enter a date in `YYYY-MM-DD` format, it will be used with the time set to `00:00:00`.
+-   If you press Enter without typing anything, or if your input is invalid, the script will default to using the **current date and time** when the script is run (time set to `00:00:00`).
+
+This ensures that every match record processed has a `match_date` field added to the raw JSON output. Note that the subsequent database processing step (`stats_reader.stats_db_processor.py`) will also display this date and prompt for confirmation or override before saving to the database.
+
 3. **Clean the extracted data** (Recommended):
    ```bash
    python -m stats_reader clean --input "Extracted Results/all_seasons_data.json" --output "Extracted Results/all_seasons_data_cleaned.json"
@@ -358,3 +376,4 @@ python -m stats_reader.fix_pickup_team_ids --db squadrons_stats.db
 - Extracted data is saved to the Extracted Results directory
 - The SQLite database `squadrons_stats.db` contains all processed match data
 - Reports are generated in the `stats_reports` directory (team reports) and `elo_reports_pickup` directory (pickup player reports)
+
