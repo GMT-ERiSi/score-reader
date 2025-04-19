@@ -10,6 +10,11 @@ from modules.report_generator import generate_stats_reports
 # for these functions from the stats_db_processor.py file, but keep the main()
 # function and any other code at the bottom of the file.
 
+# Also, would need to revert this import in the __main__.py file
+# from .stats_db_processor_direct import main as stats_processor_main
+# to use stats_db_processor instead
+
 # Alternatively, keep using  stats_db_processor_direct.py instead whilst testing the modular code
+
 
 
