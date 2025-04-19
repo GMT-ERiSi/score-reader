@@ -8,7 +8,7 @@ import sqlite3
 
 
 def create_database(db_path):
-    """Create the SQLite database with the required schema"""
+    """Create the SQLite database with the required schema including role column"""
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -65,6 +65,7 @@ def create_database(db_path):
         team_id INTEGER,
         faction TEXT,
         position TEXT,
+        role TEXT,             -- Added role column (Farmer/Flex/Support)
         score INTEGER,
         kills INTEGER,
         deaths INTEGER,
@@ -77,6 +78,15 @@ def create_database(db_path):
         FOREIGN KEY (team_id) REFERENCES teams(id)
     )
     ''')
+    
+    # Check if role column exists in player_stats, and add it if not
+    cursor.execute("PRAGMA table_info(player_stats)")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    if 'role' not in columns:
+        print("Adding role column to player_stats table...")
+        cursor.execute("ALTER TABLE player_stats ADD COLUMN role TEXT")
+        conn.commit()
     
     conn.commit()
     conn.close()

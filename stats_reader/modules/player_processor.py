@@ -210,7 +210,7 @@ def get_or_create_player(conn, player_name, ref_db=None, cache=None):
 
 
 def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=None, cache=None, match_type=None):
-    """Process stats for a single player"""
+    """Process stats for a single player including role handling"""
     cursor = conn.cursor()
     
     # Handle different possible formats of player data
@@ -243,6 +243,37 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     # If the canonical name is different from the player name in the data, show what was matched
     if canonical_name != player_name:
         print(f"Matched player '{player_name}' to canonical name '{canonical_name}'")
+    
+    # Determine player's role
+    player_role = None
+    # Get primary role from reference DB if available
+    if ref_db:
+        ref_player = ref_db.get_player(canonical_name)
+        if ref_player and 'role' in ref_player:
+            primary_role = ref_player.get('role')
+            if primary_role in ["Farmer", "Flex", "Support"]:
+                player_role = primary_role
+                print(f"Using primary role from reference database: {player_role}")
+    
+    # Allow overriding the role for this match
+    valid_roles = ["Farmer", "Flex", "Support"]
+    role_options_str = ", ".join(valid_roles)
+    if player_role:
+        role_prompt = f"Player '{canonical_name}' primary role is '{player_role}'. Enter new role for this match ({role_options_str}) or press Enter to keep primary role: "
+    else:
+        role_prompt = f"Player '{canonical_name}' has no primary role. Enter role for this match ({role_options_str}) or press Enter for no role: "
+    
+    user_role = input(role_prompt).strip()
+    
+    if user_role:
+        # Normalize input (capitalize first letter only)
+        user_role = user_role.capitalize()
+        if user_role in valid_roles:
+            player_role = user_role
+            print(f"Using role for this match: {player_role}")
+        else:
+            print(f"Invalid role '{user_role}'. Valid options are: {role_options_str}")
+            print(f"Keeping {'primary role: ' + player_role if player_role else 'no role'}")
     
     # Determine if player is subbing, with interactive confirmation
     suggested_subbing = 0 # Default suggestion is 0 (not subbing)
@@ -292,13 +323,13 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
             final_is_subbing = 1 - suggested_subbing # Flip the suggestion
         # If 'y' or empty, keep the suggested value (already assigned to final_is_subbing)
 
-    # Insert player stats with name, hash, and subbing status
+    # Insert player stats with name, hash, role, and subbing status
     cursor.execute("""
     INSERT INTO player_stats (
-        match_id, player_id, player_name, player_hash, team_id, faction, position,
+        match_id, player_id, player_name, player_hash, team_id, faction, position, role,
         score, kills, deaths, assists, ai_kills, cap_ship_damage, is_subbing
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        match_id, player_id, canonical_name, player_hash, team_id_value, faction, position,
-        score, kills, deaths, assists, ai_kills, cap_ship_damage, final_is_subbing # Use final_is_subbing here
+        match_id, player_id, canonical_name, player_hash, team_id_value, faction, position, player_role,
+        score, kills, deaths, assists, ai_kills, cap_ship_damage, final_is_subbing
     ))
