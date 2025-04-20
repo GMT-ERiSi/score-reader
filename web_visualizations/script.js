@@ -781,11 +781,17 @@ async function initializeData() {
             
             try {
                 // Import the real data loader dynamically
-                const realDataModule = await import('./js/realdata.js');
+                const realDataModule = await import('./js/realdata_fixed.js');
                 const { loadAllRealData } = realDataModule;
                 
                 // Load all real data
                 const data = await loadAllRealData();
+                
+                // Debug log to show what data was loaded
+                console.log("Real data contents:");
+                console.log("Pickup ladder length:", data.pickupEloLadder?.length || 0);
+                console.log("First pickup player:", data.pickupEloLadder?.[0] || "None");
+                console.log("Roles data:", Object.keys(data.playerRoles || {}).length);
                 
                 // Make data available globally
                 window.teamEloHistory = teamEloHistory = data.teamEloHistory;
