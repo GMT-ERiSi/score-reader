@@ -1,0 +1,738 @@
+[
+  {
+    "match_id": 1,
+    "match_date": "2022-12-07 21:01:50",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "JEM BLESSAGE",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 2,
+        "player_name": "LUCA DRESKER",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 3,
+        "player_name": "VAX MILLESCO",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 4,
+        "player_name": "MEI-LIN BRILAVO",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 5,
+        "player_name": "KOR KORLI",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "NRD_ERiSi",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 7,
+        "player_name": "cemoicece",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 8,
+        "player_name": "as5655",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 9,
+        "player_name": "Bonsaiboompje",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.0,
+    "rebel_avg_elo": 1000.0
+  },
+  {
+    "match_id": 4,
+    "match_date": "2022-12-07 21:01:50",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "JEM BLESSAGE",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 2,
+        "player_name": "LUCA DRESKER",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 3,
+        "player_name": "VAX MILLESCO",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 4,
+        "player_name": "MEI-LIN BRILAVO",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 5,
+        "player_name": "KOR KORLI",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "NRD_ERiSi",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      },
+      {
+        "player_id": 7,
+        "player_name": "cemoicece",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      },
+      {
+        "player_id": 8,
+        "player_name": "as5655",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      },
+      {
+        "player_id": 9,
+        "player_name": "Bonsaiboompje",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 984.0,
+    "rebel_avg_elo": 1016.0
+  },
+  {
+    "match_id": 2,
+    "match_date": "2023-01-18 23:02:43",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 10,
+        "player_name": "hook-handsome287",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 11,
+        "player_name": "Marcel_Patulacci",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 12,
+        "player_name": "TwinZx3z",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 13,
+        "player_name": "arzakel",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 14,
+        "player_name": "ERisibek",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 15,
+        "player_name": "Revenge",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 16,
+        "player_name": "Lions",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 17,
+        "player_name": "DjJamesE",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.0,
+    "rebel_avg_elo": 1000.0
+  },
+  {
+    "match_id": 5,
+    "match_date": "2023-01-18 23:02:43",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 10,
+        "player_name": "hook-handsome287",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 11,
+        "player_name": "Marcel_Patulacci",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 12,
+        "player_name": "TwinZx3z",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      },
+      {
+        "player_id": 13,
+        "player_name": "arzakel",
+        "old_rating": 984.0,
+        "new_rating": 969.4695015289755,
+        "rating_change": -14.530498471024544
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 14,
+        "player_name": "ERisibek",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      },
+      {
+        "player_id": 15,
+        "player_name": "Revenge",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      },
+      {
+        "player_id": 16,
+        "player_name": "Lions",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      },
+      {
+        "player_id": 17,
+        "player_name": "DjJamesE",
+        "old_rating": 1016.0,
+        "new_rating": 1030.5304984710244,
+        "rating_change": 14.53049847102443
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 984.0,
+    "rebel_avg_elo": 1016.0
+  },
+  {
+    "match_id": 6,
+    "match_date": "2023-01-21 23:31:34",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 14,
+        "player_name": "ERisibek",
+        "old_rating": 1030.5304984710244,
+        "new_rating": 1014.1790596522397,
+        "rating_change": -16.351438818784686
+      },
+      {
+        "player_id": 18,
+        "player_name": "TheBlackxRanger",
+        "old_rating": 1000,
+        "new_rating": 983.6485611812153,
+        "rating_change": -16.351438818784686
+      },
+      {
+        "player_id": 19,
+        "player_name": "Grendel292",
+        "old_rating": 1000,
+        "new_rating": 983.6485611812153,
+        "rating_change": -16.351438818784686
+      },
+      {
+        "player_id": 20,
+        "player_name": "Boomer1724",
+        "old_rating": 1000,
+        "new_rating": 983.6485611812153,
+        "rating_change": -16.351438818784686
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 21,
+        "player_name": "Dathka",
+        "old_rating": 1000,
+        "new_rating": 1016.3514388187847,
+        "rating_change": 16.351438818784686
+      },
+      {
+        "player_id": 22,
+        "player_name": "Agent Solace",
+        "old_rating": 1000,
+        "new_rating": 1016.3514388187847,
+        "rating_change": 16.351438818784686
+      },
+      {
+        "player_id": 23,
+        "player_name": "Corsair1220",
+        "old_rating": 1000,
+        "new_rating": 1016.3514388187847,
+        "rating_change": 16.351438818784686
+      },
+      {
+        "player_id": 24,
+        "player_name": "Deathbird99",
+        "old_rating": 1000,
+        "new_rating": 1016.3514388187847,
+        "rating_change": 16.351438818784686
+      },
+      {
+        "player_id": 25,
+        "player_name": "LordSithRui",
+        "old_rating": 1000,
+        "new_rating": 1016.3514388187847,
+        "rating_change": 16.351438818784686
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1007.6326246177562,
+    "rebel_avg_elo": 1000.0
+  },
+  {
+    "match_id": 7,
+    "match_date": "2025-04-19 21:22:49",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "JEM BLESSAGE",
+        "old_rating": 969.4695015289755,
+        "new_rating": 956.2528663663891,
+        "rating_change": -13.216635162586385
+      },
+      {
+        "player_id": 2,
+        "player_name": "LUCA DRESKER",
+        "old_rating": 969.4695015289755,
+        "new_rating": 956.2528663663891,
+        "rating_change": -13.216635162586385
+      },
+      {
+        "player_id": 3,
+        "player_name": "VAX MILLESCO",
+        "old_rating": 969.4695015289755,
+        "new_rating": 956.2528663663891,
+        "rating_change": -13.216635162586385
+      },
+      {
+        "player_id": 4,
+        "player_name": "MEI-LIN BRILAVO",
+        "old_rating": 969.4695015289755,
+        "new_rating": 956.2528663663891,
+        "rating_change": -13.216635162586385
+      },
+      {
+        "player_id": 5,
+        "player_name": "KOR KORLI",
+        "old_rating": 969.4695015289755,
+        "new_rating": 956.2528663663891,
+        "rating_change": -13.216635162586385
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "NRD_ERiSi",
+        "old_rating": 1030.5304984710244,
+        "new_rating": 1043.747133633611,
+        "rating_change": 13.216635162586499
+      },
+      {
+        "player_id": 7,
+        "player_name": "cemoicece",
+        "old_rating": 1030.5304984710244,
+        "new_rating": 1043.747133633611,
+        "rating_change": 13.216635162586499
+      },
+      {
+        "player_id": 8,
+        "player_name": "as5655",
+        "old_rating": 1030.5304984710244,
+        "new_rating": 1043.747133633611,
+        "rating_change": 13.216635162586499
+      },
+      {
+        "player_id": 9,
+        "player_name": "Bonsaiboompje",
+        "old_rating": 1030.5304984710244,
+        "new_rating": 1043.747133633611,
+        "rating_change": 13.216635162586499
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 969.4695015289756,
+    "rebel_avg_elo": 1030.5304984710244
+  },
+  {
+    "match_id": 8,
+    "match_date": "2025-04-19 21:34:07",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "JEM BLESSAGE",
+        "old_rating": 956.2528663663891,
+        "new_rating": 944.1990573710023,
+        "rating_change": -12.053808995386817
+      },
+      {
+        "player_id": 2,
+        "player_name": "LUCA DRESKER",
+        "old_rating": 956.2528663663891,
+        "new_rating": 944.1990573710023,
+        "rating_change": -12.053808995386817
+      },
+      {
+        "player_id": 3,
+        "player_name": "VAX MILLESCO",
+        "old_rating": 956.2528663663891,
+        "new_rating": 944.1990573710023,
+        "rating_change": -12.053808995386817
+      },
+      {
+        "player_id": 4,
+        "player_name": "MEI-LIN BRILAVO",
+        "old_rating": 956.2528663663891,
+        "new_rating": 944.1990573710023,
+        "rating_change": -12.053808995386817
+      },
+      {
+        "player_id": 5,
+        "player_name": "KOR KORLI",
+        "old_rating": 956.2528663663891,
+        "new_rating": 944.1990573710023,
+        "rating_change": -12.053808995386817
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "NRD_ERiSi",
+        "old_rating": 1043.747133633611,
+        "new_rating": 1055.8009426289977,
+        "rating_change": 12.053808995386817
+      },
+      {
+        "player_id": 7,
+        "player_name": "cemoicece",
+        "old_rating": 1043.747133633611,
+        "new_rating": 1055.8009426289977,
+        "rating_change": 12.053808995386817
+      },
+      {
+        "player_id": 8,
+        "player_name": "as5655",
+        "old_rating": 1043.747133633611,
+        "new_rating": 1055.8009426289977,
+        "rating_change": 12.053808995386817
+      },
+      {
+        "player_id": 9,
+        "player_name": "Bonsaiboompje",
+        "old_rating": 1043.747133633611,
+        "new_rating": 1055.8009426289977,
+        "rating_change": 12.053808995386817
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 956.2528663663891,
+    "rebel_avg_elo": 1043.747133633611
+  },
+  {
+    "match_id": 9,
+    "match_date": "2025-04-19 21:36:03",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "JEM BLESSAGE",
+        "old_rating": 944.1990573710023,
+        "new_rating": 933.1687543795999,
+        "rating_change": -11.030302991402323
+      },
+      {
+        "player_id": 2,
+        "player_name": "LUCA DRESKER",
+        "old_rating": 944.1990573710023,
+        "new_rating": 933.1687543795999,
+        "rating_change": -11.030302991402323
+      },
+      {
+        "player_id": 3,
+        "player_name": "VAX MILLESCO",
+        "old_rating": 944.1990573710023,
+        "new_rating": 933.1687543795999,
+        "rating_change": -11.030302991402323
+      },
+      {
+        "player_id": 4,
+        "player_name": "MEI-LIN BRILAVO",
+        "old_rating": 944.1990573710023,
+        "new_rating": 933.1687543795999,
+        "rating_change": -11.030302991402323
+      },
+      {
+        "player_id": 5,
+        "player_name": "KOR KORLI",
+        "old_rating": 944.1990573710023,
+        "new_rating": 933.1687543795999,
+        "rating_change": -11.030302991402323
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "NRD_ERiSi",
+        "old_rating": 1055.8009426289977,
+        "new_rating": 1066.8312456204,
+        "rating_change": 11.030302991402323
+      },
+      {
+        "player_id": 7,
+        "player_name": "cemoicece",
+        "old_rating": 1055.8009426289977,
+        "new_rating": 1066.8312456204,
+        "rating_change": 11.030302991402323
+      },
+      {
+        "player_id": 8,
+        "player_name": "as5655",
+        "old_rating": 1055.8009426289977,
+        "new_rating": 1066.8312456204,
+        "rating_change": 11.030302991402323
+      },
+      {
+        "player_id": 9,
+        "player_name": "Bonsaiboompje",
+        "old_rating": 1055.8009426289977,
+        "new_rating": 1066.8312456204,
+        "rating_change": 11.030302991402323
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 944.1990573710024,
+    "rebel_avg_elo": 1055.8009426289977
+  },
+  {
+    "match_id": 10,
+    "match_date": "2025-04-19 21:39:49",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "JEM BLESSAGE",
+        "old_rating": 933.1687543795999,
+        "new_rating": 923.0374294577985,
+        "rating_change": -10.131324921801479
+      },
+      {
+        "player_id": 2,
+        "player_name": "LUCA DRESKER",
+        "old_rating": 933.1687543795999,
+        "new_rating": 923.0374294577985,
+        "rating_change": -10.131324921801479
+      },
+      {
+        "player_id": 3,
+        "player_name": "VAX MILLESCO",
+        "old_rating": 933.1687543795999,
+        "new_rating": 923.0374294577985,
+        "rating_change": -10.131324921801479
+      },
+      {
+        "player_id": 4,
+        "player_name": "MEI-LIN BRILAVO",
+        "old_rating": 933.1687543795999,
+        "new_rating": 923.0374294577985,
+        "rating_change": -10.131324921801479
+      },
+      {
+        "player_id": 5,
+        "player_name": "KOR KORLI",
+        "old_rating": 933.1687543795999,
+        "new_rating": 923.0374294577985,
+        "rating_change": -10.131324921801479
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "NRD_ERiSi",
+        "old_rating": 1066.8312456204,
+        "new_rating": 1076.9625705422015,
+        "rating_change": 10.131324921801479
+      },
+      {
+        "player_id": 7,
+        "player_name": "cemoicece",
+        "old_rating": 1066.8312456204,
+        "new_rating": 1076.9625705422015,
+        "rating_change": 10.131324921801479
+      },
+      {
+        "player_id": 8,
+        "player_name": "as5655",
+        "old_rating": 1066.8312456204,
+        "new_rating": 1076.9625705422015,
+        "rating_change": 10.131324921801479
+      },
+      {
+        "player_id": 9,
+        "player_name": "Bonsaiboompje",
+        "old_rating": 1066.8312456204,
+        "new_rating": 1076.9625705422015,
+        "rating_change": 10.131324921801479
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 933.1687543795999,
+    "rebel_avg_elo": 1066.8312456204
+  },
+  {
+    "match_id": 3,
+    "match_date": "pickup",
+    "season": "SCL15",
+    "imperial_players": [
+      {
+        "player_id": 14,
+        "player_name": "ERisibek",
+        "old_rating": 1014.1790596522397,
+        "new_rating": 999.3315878454129,
+        "rating_change": -14.847471806826888
+      },
+      {
+        "player_id": 18,
+        "player_name": "TheBlackxRanger",
+        "old_rating": 983.6485611812153,
+        "new_rating": 968.8010893743884,
+        "rating_change": -14.847471806826888
+      },
+      {
+        "player_id": 19,
+        "player_name": "Grendel292",
+        "old_rating": 983.6485611812153,
+        "new_rating": 968.8010893743884,
+        "rating_change": -14.847471806826888
+      },
+      {
+        "player_id": 20,
+        "player_name": "Boomer1724",
+        "old_rating": 983.6485611812153,
+        "new_rating": 968.8010893743884,
+        "rating_change": -14.847471806826888
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 21,
+        "player_name": "Dathka",
+        "old_rating": 1016.3514388187847,
+        "new_rating": 1031.1989106256115,
+        "rating_change": 14.847471806826775
+      },
+      {
+        "player_id": 22,
+        "player_name": "Agent Solace",
+        "old_rating": 1016.3514388187847,
+        "new_rating": 1031.1989106256115,
+        "rating_change": 14.847471806826775
+      },
+      {
+        "player_id": 23,
+        "player_name": "Corsair1220",
+        "old_rating": 1016.3514388187847,
+        "new_rating": 1031.1989106256115,
+        "rating_change": 14.847471806826775
+      },
+      {
+        "player_id": 24,
+        "player_name": "Deathbird99",
+        "old_rating": 1016.3514388187847,
+        "new_rating": 1031.1989106256115,
+        "rating_change": 14.847471806826775
+      },
+      {
+        "player_id": 25,
+        "player_name": "LordSithRui",
+        "old_rating": 1016.3514388187847,
+        "new_rating": 1031.1989106256115,
+        "rating_change": 14.847471806826775
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 991.2811857989715,
+    "rebel_avg_elo": 1016.3514388187847
+  }
+]

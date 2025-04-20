@@ -3,6 +3,7 @@
  * Handles all interactive features for leaderboard tables including sorting and filtering.
  */
 
+
 // Make table headers sortable
 function makeTableSortable(tableId) {
     const table = document.getElementById(tableId);
@@ -276,9 +277,162 @@ function enableTableRowSelection(tableId, chartFilterCallback) {
     table.parentNode.insertBefore(buttonContainer, table);
 }
 
+// Add a role filter dropdown above the table
+function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support']) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        console.warn(`Table with ID '${tableId}' not found.`);
+        return;
+    }
+    
+    // Get the filter container if it exists, or create it
+    let filterContainer = table.parentNode.querySelector('.table-filter');
+    if (!filterContainer) {
+        filterContainer = document.createElement('div');
+        filterContainer.className = 'table-filter';
+        table.parentNode.insertBefore(filterContainer, table);
+    }
+    
+    // Create the role filter dropdown
+    const roleFilterContainer = document.createElement('div');
+    roleFilterContainer.className = 'role-filter';
+    
+    const roleLabel = document.createElement('label');
+    roleLabel.textContent = 'Filter by Role: ';
+    roleLabel.for = `${tableId}-role-filter`;
+    
+    const roleSelect = document.createElement('select');
+    roleSelect.id = `${tableId}-role-filter`;
+    roleSelect.className = 'role-filter-select';
+    
+    // Add 'All' option
+    const allOption = document.createElement('option');
+    allOption.value = 'all';
+    allOption.textContent = 'All Roles';
+    roleSelect.appendChild(allOption);
+    
+    // Add role options
+    roles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role;
+        option.textContent = role;
+        roleSelect.appendChild(option);
+    });
+    
+    // Add 'No Role' option
+    const noRoleOption = document.createElement('option');
+    noRoleOption.value = 'none';
+    noRoleOption.textContent = 'No Role';
+    roleSelect.appendChild(noRoleOption);
+    
+    // Add event listener
+    roleSelect.addEventListener('change', () => {
+        filterTableByRole(table, roleSelect.value);
+    });
+    
+    // Add to container
+    roleFilterContainer.appendChild(roleLabel);
+    roleFilterContainer.appendChild(roleSelect);
+    filterContainer.appendChild(roleFilterContainer);
+    
+    return roleSelect;
+}
+
+// Filter table rows based on selected role
+function filterTableByRole(table, roleFilter) {
+    const rows = table.querySelectorAll('tbody tr');
+    let visibleCount = 0;
+    
+    // Get the role column index (typically 4th column for player tables)
+    // First check if there's a role column header
+    let roleColumnIndex = -1;
+    const headers = table.querySelectorAll('thead th');
+    headers.forEach((header, index) => {
+        if (header.textContent.trim().toLowerCase() === 'role') {
+            roleColumnIndex = index;
+        }
+    });
+    
+    // If we couldn't find a role column by header name, use a default column
+    if (roleColumnIndex === -1) {
+        // Try to find it by looking at row content - ELO tables typically have role in 3rd column
+        const firstRow = rows[0];
+        if (firstRow) {
+            const cells = firstRow.cells;
+            if (cells.length >= 3) {
+                const possibleRoleCell = cells[2];
+                const cellText = possibleRoleCell.textContent.trim();
+                if (['farmer', 'flex', 'support', 'none', ''].includes(cellText.toLowerCase())) {
+                    roleColumnIndex = 2; // Found the role column
+                }
+            }
+        }
+        
+        // If we still can't find it, default to column 2
+        if (roleColumnIndex === -1) {
+            roleColumnIndex = 2;
+        }
+    }
+    
+    // Apply filter
+    rows.forEach(row => {
+        const cells = row.cells;
+        if (cells.length <= roleColumnIndex) {
+            // Row doesn't have enough columns, show it
+            row.style.display = '';
+            visibleCount++;
+            return;
+        }
+        
+        const roleCell = cells[roleColumnIndex];
+        const roleText = roleCell ? roleCell.textContent.trim() : '';
+        
+        if (roleFilter === 'all' || 
+            (roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none' || roleText.toLowerCase() === 'unknown')) ||
+            (roleText.toLowerCase() === roleFilter.toLowerCase())) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Show/hide "no results" message
+    let noResultsMsg = table.parentNode.querySelector('.no-results-message');
+    
+    if (visibleCount === 0) {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('p');
+            noResultsMsg.className = 'no-results-message';
+            noResultsMsg.textContent = 'No matching results found.';
+            table.parentNode.insertBefore(noResultsMsg, table.nextSibling);
+        }
+        noResultsMsg.style.display = 'block';
+    } else if (noResultsMsg) {
+        noResultsMsg.style.display = 'none';
+    }
+    
+    // Update rank numbers for visible rows
+    updateRankNumbersForVisible(table);
+}
+
+// Update rank numbers for visible rows only
+function updateRankNumbersForVisible(table) {
+    const rows = table.querySelectorAll('tbody tr');
+    let visibleIndex = 1;
+    
+    rows.forEach(row => {
+        if (row.style.display !== 'none' && row.cells[0] && row.cells[0].classList.contains('rank-cell')) {
+            row.cells[0].textContent = visibleIndex++;
+        }
+    });
+}
+
 // Export all functions
 export {
     makeTableSortable,
     addTableFilter,
-    enableTableRowSelection
+    enableTableRowSelection,
+    addRoleFilter,
+    filterTableByRole
 };

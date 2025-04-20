@@ -11,7 +11,7 @@ try {
         try {
             console.log('Loading tableInteractivity.js...');
             const tableInteractivity = await import('./js/tableInteractivity.js');
-            const { makeTableSortable, addTableFilter, enableTableRowSelection } = tableInteractivity;
+            const { makeTableSortable, addTableFilter, enableTableRowSelection, addRoleFilter, filterTableByRole } = tableInteractivity;
             console.log('tableInteractivity.js loaded successfully');
 
             console.log('Loading chartInteractivity.js...');
@@ -41,7 +41,9 @@ try {
                 filterChartByName,
                 addChartControls,
                 createAdditionalLeaderboards,
-                generateDummyPlayerStats
+                generateDummyPlayerStats,
+                addRoleFilter,
+                filterTableByRole
             });
 
         } catch (error) {
@@ -73,7 +75,9 @@ function initializeApp(modules) {
         filterChartByName,
         addChartControls,
         createAdditionalLeaderboards,
-        generateDummyPlayerStats
+        generateDummyPlayerStats,
+        addRoleFilter,
+        filterTableByRole
     } = modules;
 
     // --- Dummy Data Generation ---
@@ -613,7 +617,7 @@ function renderPickupEloTable() {
         if (table && !table.querySelector('.no-data-message')) {
             const msgRow = table.insertRow();
             const cell = msgRow.insertCell();
-            cell.colSpan = 5; // Span across all columns
+            cell.colSpan = 6; // Span across all columns (including new Role column)
             cell.textContent = 'Pickup Player ELO ladder data not available.';
             cell.className = 'no-data-message';
             cell.style.textAlign = 'center';
@@ -625,6 +629,29 @@ function renderPickupEloTable() {
 
     // Ensure ladder is sorted by rank
     const sortedLadder = pickupEloLadder.sort((a, b) => a.rank - b.rank);
+    
+    // Update the header row to include Role
+    const pickupTable = document.getElementById('pickupEloTable');
+    const headerRow = pickupTable.querySelector('thead tr');
+    
+    // Check if the Role column already exists
+    let hasRoleColumn = false;
+    headerRow.querySelectorAll('th').forEach(th => {
+        if (th.textContent.trim().toLowerCase() === 'role') {
+            hasRoleColumn = true;
+        }
+    });
+    
+    // Add Role column header if it doesn't exist
+    if (!hasRoleColumn) {
+        // Insert Role header after Player column (which is the 2nd column)
+        const playerHeader = headerRow.querySelectorAll('th')[1];
+        if (playerHeader) {
+            const roleHeader = document.createElement('th');
+            roleHeader.textContent = 'Role';
+            headerRow.insertBefore(roleHeader, playerHeader.nextSibling);
+        }
+    }
 
     // Populate table rows
     sortedLadder.forEach(player => {
@@ -636,6 +663,10 @@ function renderPickupEloTable() {
 
         const nameCell = row.insertCell();
         nameCell.textContent = player.player_name; // Use player_name
+        
+        // Add role cell
+        const roleCell = row.insertCell();
+        roleCell.textContent = player.role || 'None';
 
         const eloCell = row.insertCell();
         eloCell.textContent = player.elo_rating;
@@ -666,6 +697,23 @@ function applyTableInteractivity() {
     enableTableRowSelection('pickupEloTable', (playerName) => {
         filterChartByName(pickupEloChartInstance, playerName);
     });
+    
+    // Add role filter to pickup table if we have role data
+    if (window.playerRoles && Object.keys(window.playerRoles).length > 0) {
+        // Find unique roles in our data
+        const uniqueRoles = new Set();
+        pickupEloLadder.forEach(player => {
+            if (player.role) {
+                uniqueRoles.add(player.role);
+            }
+        });
+        
+        // Only add role filter if we have role data
+        if (uniqueRoles.size > 0) {
+            addRoleFilter('pickupEloTable', Array.from(uniqueRoles));
+            console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
+        }
+    }
     
     console.log("Table interactivity features applied.");
 }
@@ -745,6 +793,7 @@ async function initializeData() {
                 window.pickupEloHistory = pickupEloHistory = data.pickupEloHistory;
                 window.pickupEloLadder = pickupEloLadder = data.pickupEloLadder;
                 window.playerStats = playerStats = data.playerStats;
+                window.playerRoles = data.playerRoles; // Add player roles for global access
                 
                 console.log("Real data loaded successfully");
             } catch (error) {

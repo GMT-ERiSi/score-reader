@@ -1,9 +1,59 @@
-// realData.js - Load actual data files instead of using dummy data
+// Load player roles data
+async function loadPlayerRoles() {
+    try {
+        // Try to load player role data if it exists
+        const response = await fetch('../stats_reports_test/player_roles.json');
+        
+        if (!response.ok) {
+            // Fall back to another possible location
+            console.log('Role data file not found in test directory, trying main directory...');
+            const mainResponse = await fetch('../stats_reports/player_roles.json');
+            
+            if (!mainResponse.ok) {
+                console.log('No player role data found. Role filtering will be unavailable.');
+                return {};
+            }
+            
+            return await mainResponse.json();
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error loading player role data:', error);
+        return {};
+    }
+}// realData.js - Load actual data files instead of using dummy data
 // Place this in the web_visualizations/js/ directory
 
 /**
  * Functions to load real ELO and stats data from the generated JSON report files
  */
+
+// Load player roles data
+async function loadPlayerRoles() {
+    try {
+        // Try to load player role data if it exists
+        const response = await fetch('../stats_reports_test/player_roles.json');
+        
+        if (!response.ok) {
+            // Fall back to another possible location
+            console.log('Role data file not found in test directory, trying main directory...');
+            const mainResponse = await fetch('../stats_reports/player_roles.json');
+            
+            if (!mainResponse.ok) {
+                console.log('No player role data found. Role filtering will be unavailable.');
+                return {};
+            }
+            
+            return await mainResponse.json();
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error loading player role data:', error);
+        return {};
+    }
+}
 
 // Load team ELO ladder data
 async function loadTeamEloLadder() {
@@ -117,22 +167,25 @@ async function loadAllRealData() {
     console.log('Loading real data from report files...');
     
     // Load all data in parallel
-    const [teamLadder, teamHistory, pickupLadder, pickupHistory, playerPerformance] = await Promise.all([
+    const [teamLadder, teamHistory, pickupLadder, pickupHistory, playerPerformance, playerRoles] = await Promise.all([
         loadTeamEloLadder(),
         loadTeamEloHistory(),
         loadPickupEloLadder(),
         loadPickupEloHistory(),
-        loadPlayerStats()
+        loadPlayerStats(),
+        loadPlayerRoles()
     ]);
     
     console.log('Real data loaded successfully');
     console.log('First 3 player performance records:', playerPerformance.slice(0, 3));
+    console.log('Player roles loaded:', Object.keys(playerRoles).length);
     
     // Process player performance data for additional leaderboards
     const processedPlayerStats = playerPerformance.map(player => {
         const result = {
             player_id: player.player_hash, // Use hash as ID
             player_name: player.name,
+            role: playerRoles[player.name] || null, // Add role from the roles data
             matches_played: player.games_played || 0,
             ai_kills: player.total_ai_kills || 0,
             player_kills: player.total_kills || 0,
@@ -144,14 +197,26 @@ async function loadAllRealData() {
         return result;
     });
     
+    // Also add roles to pickup ladder if they're not already there
+    const pickupLadderWithRoles = pickupLadder.map(player => {
+        if (!player.role && playerRoles[player.player_name]) {
+            return {
+                ...player,
+                role: playerRoles[player.player_name]
+            };
+        }
+        return player;
+    });
+    
     console.log('First 3 processed player stats:', processedPlayerStats.slice(0, 3));
     
     return {
         teamEloLadder: teamLadder,
         teamEloHistory: teamHistory,
-        pickupEloLadder: pickupLadder,
+        pickupEloLadder: pickupLadderWithRoles,
         pickupEloHistory: pickupHistory,
-        playerStats: processedPlayerStats
+        playerStats: processedPlayerStats,
+        playerRoles: playerRoles
     };
 }
 
