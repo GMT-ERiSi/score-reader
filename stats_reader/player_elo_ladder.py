@@ -122,7 +122,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
         
         # Get imperial players
         cursor.execute("""
-        SELECT player_id, player_name, player_hash
+        SELECT player_id, player_name, player_hash, role
         FROM player_stats
         WHERE match_id = ? AND faction = 'IMPERIAL'
         """, (match_id,))
@@ -131,7 +131,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
         
         # Get rebel players
         cursor.execute("""
-        SELECT player_id, player_name, player_hash
+        SELECT player_id, player_name, player_hash, role
         FROM player_stats
         WHERE match_id = ? AND faction = 'REBEL'
         """, (match_id,))
@@ -187,6 +187,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
             imperial_players_history.append({
                 'player_id': player_id,
                 'player_name': player['player_name'],
+                'role': player['role'], # Add role here
                 'old_rating': old_rating,
                 'new_rating': new_rating,
                 'rating_change': new_rating - old_rating
@@ -201,6 +202,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
             rebel_players_history.append({
                 'player_id': player_id,
                 'player_name': player['player_name'],
+                'role': player['role'], # Add role here
                 'old_rating': old_rating,
                 'new_rating': new_rating,
                 'rating_change': new_rating - old_rating
