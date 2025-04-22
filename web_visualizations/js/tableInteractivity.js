@@ -231,7 +231,7 @@ function enableTableRowSelection(tableId, chartFilterCallback) {
 }
 
 // Add a role filter with buttons above the table
-function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support']) {
+function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], containerId = 'roleFilterContainer') {
     const table = document.getElementById(tableId);
     if (!table) {
         console.warn(`Table with ID '${tableId}' not found.`);
@@ -239,43 +239,77 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support']) {
     }
     
     // Get the role filter container
-    const roleFilterContainer = document.getElementById('roleFilterContainer');
+    const roleFilterContainer = document.getElementById(containerId);
     if (!roleFilterContainer) {
-        console.warn('Role filter container not found.');
+        console.warn(`Role filter container '${containerId}' not found.`);
         return;
     }
+    
+    console.log(`Adding role filter buttons for ${roles.length} roles to container '${containerId}': ${JSON.stringify(roles)}`);
     
     // Clear any existing content
     roleFilterContainer.innerHTML = '';
     
-    // Add label
-    const filterLabel = document.createElement('div');
-    filterLabel.textContent = 'Filter by Role:';
-    filterLabel.className = 'role-filter-label';
-    roleFilterContainer.appendChild(filterLabel);
+    // Add heading
+    const heading = document.createElement('h4');
+    heading.textContent = 'Filter Players by Role';
+    heading.style.marginTop = '0';
+    heading.style.marginBottom = '10px';
+    heading.style.color = '#333';
+    roleFilterContainer.appendChild(heading);
+    
+    // Create button container
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.flexWrap = 'wrap';
+    buttonContainer.style.gap = '8px';
+    roleFilterContainer.appendChild(buttonContainer);
     
     // Add 'All' button (selected by default)
     const allButton = document.createElement('button');
     allButton.textContent = 'All Roles';
     allButton.className = 'role-filter-button active';
+    allButton.style.padding = '8px 15px';
+    allButton.style.margin = '4px';
+    allButton.style.backgroundColor = '#0066cc';
+    allButton.style.color = 'white';
+    allButton.style.border = '1px solid #0055aa';
+    allButton.style.borderRadius = '4px';
+    allButton.style.cursor = 'pointer';
+    allButton.style.fontWeight = 'bold';
     allButton.dataset.role = 'all';
-    roleFilterContainer.appendChild(allButton);
+    buttonContainer.appendChild(allButton);
     
     // Add role buttons
     roles.forEach(role => {
         const button = document.createElement('button');
         button.textContent = role;
         button.className = 'role-filter-button';
+        button.style.padding = '8px 15px';
+        button.style.margin = '4px';
+        button.style.backgroundColor = '#f2f2f2';
+        button.style.border = '1px solid #ddd';
+        button.style.borderRadius = '4px';
+        button.style.cursor = 'pointer';
+        button.style.fontWeight = 'bold';
         button.dataset.role = role;
-        roleFilterContainer.appendChild(button);
+        buttonContainer.appendChild(button);
+        console.log(`Added button for role: ${role}`);
     });
     
     // Add 'None' button for players without a role
     const noneButton = document.createElement('button');
     noneButton.textContent = 'No Role';
     noneButton.className = 'role-filter-button';
+    noneButton.style.padding = '8px 15px';
+    noneButton.style.margin = '4px';
+    noneButton.style.backgroundColor = '#f2f2f2';
+    noneButton.style.border = '1px solid #ddd';
+    noneButton.style.borderRadius = '4px';
+    noneButton.style.cursor = 'pointer';
+    noneButton.style.fontWeight = 'bold';
     noneButton.dataset.role = 'none';
-    roleFilterContainer.appendChild(noneButton);
+    buttonContainer.appendChild(noneButton);
     
     // Add event listener to the container (event delegation)
     roleFilterContainer.addEventListener('click', (e) => {
@@ -286,13 +320,19 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support']) {
             return;
         }
         
+        console.log(`Role filter button clicked: ${target.dataset.role}`);
+        
         // Remove 'active' class from all buttons
         roleFilterContainer.querySelectorAll('.role-filter-button').forEach(btn => {
             btn.classList.remove('active');
+            btn.style.backgroundColor = '#f2f2f2';
+            btn.style.color = '#333';
         });
         
         // Add 'active' class to the clicked button
         target.classList.add('active');
+        target.style.backgroundColor = '#0066cc';
+        target.style.color = 'white';
         
         // Filter the table
         filterTableByRole(table, target.dataset.role);
@@ -318,6 +358,8 @@ function filterTableByRole(table, roleFilter) {
         }
     });
     
+    console.log(`Filtering by role: ${roleFilter}, using column index: ${roleColumnIndex}`);
+    
     // Apply filter
     rows.forEach(row => {
         const cells = row.cells;
@@ -331,6 +373,8 @@ function filterTableByRole(table, roleFilter) {
         const roleCell = cells[roleColumnIndex];
         const roleText = roleCell ? roleCell.textContent.trim() : '';
         
+        console.log(`Row role text: "${roleText}", comparing to filter: "${roleFilter}"`);
+        
         if (roleFilter === 'all' || 
             (roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none')) ||
             (roleText.toLowerCase() === roleFilter.toLowerCase())) {
@@ -340,6 +384,8 @@ function filterTableByRole(table, roleFilter) {
             row.style.display = 'none';
         }
     });
+    
+    console.log(`Filter result: ${visibleCount} visible rows`);
     
     // Show/hide "no results" message
     let noResultsMsg = table.parentNode.querySelector('.no-results-message');

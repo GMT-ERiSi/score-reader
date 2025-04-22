@@ -84,7 +84,6 @@ function initializeApp(modules) {
     let teamEloHistory = [];
     let teamEloLadder = [];
     let playerStats = []; // For additional leaderboards
-    let playerRoles = {}; // For role filtering
 
     // Chart instances
     let teamEloChartInstance = null;
@@ -93,6 +92,7 @@ function initializeApp(modules) {
     const teamEloChartCtx = document.getElementById('teamEloChart')?.getContext('2d');
     const teamEloTableBody = document.getElementById('teamEloTable')?.querySelector('tbody');
 
+    // --- Rendering Functions ---
     function renderTeamEloChart() {
         console.log("Rendering Team ELO Chart...");
         if (!teamEloChartCtx || !teamEloHistory || teamEloHistory.length === 0) {
@@ -112,23 +112,17 @@ function initializeApp(modules) {
         const allDates = new Set();
 
         teamEloHistory.forEach(match => {
-            // Try to parse the date, with automatic correction for swapped month/day
+            // Try to parse the date
             let matchTimestamp;
             try {
-                // Regular parsing attempt
                 matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
                 
-                // If the date is invalid, try swapping month and day
                 if (isNaN(matchTimestamp)) {
+                    // Try alternative date formats if needed
                     const dateParts = match.match_date.split(/[\s-:]/);
                     if (dateParts.length >= 3) {
-                        // Try swapping month and day
                         const correctedDate = `${dateParts[0]}-${dateParts[2]}-${dateParts[1]} ${dateParts[3] || '12'}:${dateParts[4] || '00'}:${dateParts[5] || '00'}`;
                         matchTimestamp = new Date(correctedDate.replace(' ', 'T')).getTime();
-                        
-                        if (!isNaN(matchTimestamp)) {
-                            console.log(`Corrected date format for match ID ${match.match_id}: ${match.match_date} → ${correctedDate}`);
-                        }
                     }
                 }
             } catch (e) {
@@ -147,19 +141,16 @@ function initializeApp(modules) {
             if (!teamsData[match.imperial.team_id]) {
                 teamsData[match.imperial.team_id] = { name: match.imperial.team_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
+            // Add rating points
             teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.old_rating });
-            // Add rating *after* the match using timestamp
             teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.new_rating });
-
 
             // Process Rebel team
             if (!teamsData[match.rebel.team_id]) {
                 teamsData[match.rebel.team_id] = { name: match.rebel.team_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
+            // Add rating points
             teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.old_rating });
-            // Add rating *after* the match using timestamp
             teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.new_rating });
         });
 
@@ -257,6 +248,91 @@ function initializeApp(modules) {
         }
         return color;
     }
+
+    function renderTeamEloTable() {
+        console.log("Rendering Team ELO Table...");
+        if (!teamEloTableBody || !teamEloLadder || teamEloLadder.length === 0) {
+            console.warn("Team ELO table body or data not available.");
+            const table = document.getElementById('teamEloTable');
+            if (table && !table.querySelector('.no-data-message')) {
+                const msgRow = table.insertRow();
+                const cell = msgRow.insertCell();
+                cell.colSpan = 5; // Span across all columns
+                cell.textContent = 'Team ELO ladder data not available.';
+                cell.className = 'no-data-message';
+                cell.style.textAlign = 'center';
+            }
+            return;
+        }
+        // Clear previous data
+        teamEloTableBody.innerHTML = '';
+
+        // Ensure ladder is sorted by rank (it should be already, but just in case)
+        const sortedLadder = teamEloLadder.sort((a, b) => a.rank - b.rank);
+
+        // Check if we should add a role column
+        const table = document.getElementById('teamEloTable');
+        const headerRow = table.querySelector('thead tr');
+        let hasRoleColumn = false;
+        
+        // Look for "Role" in the header
+        headerRow.querySelectorAll('th').forEach(th => {
+            if (th.textContent.toLowerCase().includes('role')) {
+                hasRoleColumn = true;
+            }
+        });
+        
+        // Add role column if it doesn't exist and we have player roles
+        if (!hasRoleColumn && playerStats.some(p => p.role)) {
+            console.log("Adding Role column to team table");
+            const roleHeader = document.createElement('th');
+            roleHeader.textContent = 'Primary Roles';
+            // Insert after team name column
+            const nameHeader = headerRow.querySelector('th:nth-child(2)');
+            if (nameHeader) {
+                headerRow.insertBefore(roleHeader, nameHeader.nextSibling);
+            } else {
+                headerRow.appendChild(roleHeader);
+            }
+        }
+
+        // Populate table rows
+        sortedLadder.forEach(team => {
+            const row = teamEloTableBody.insertRow();
+
+            const rankCell = row.insertCell();
+            rankCell.textContent = team.rank;
+            rankCell.classList.add('rank-cell');
+
+            const nameCell = row.insertCell();
+            nameCell.textContent = team.team_name;
+            
+            // Add role cell if we added the header
+            if (!hasRoleColumn && playerStats.some(p => p.role)) {
+                const roleCell = row.insertCell();
+                
+                // Get roles for this team's players
+                const teamRoles = getTeamRoles(team.team_name, team.team_id);
+                roleCell.textContent = teamRoles || 'N/A';
+                roleCell.classList.add('role-cell');
+                
+                // Store role data for filtering
+                if (teamRoles) {
+                    row.dataset.roles = teamRoles;
+                }
+            }
+
+            const eloCell = row.insertCell();
+            eloCell.textContent = team.elo_rating;
+
+            const wlCell = row.insertCell();
+            wlCell.textContent = `${team.matches_won}-${team.matches_lost}`;
+
+            const winRateCell = row.insertCell();
+            winRateCell.textContent = `${team.win_rate}%`;
+        });
+        console.log("Team ELO Table populated.");
+    }
     
     // Helper function to get roles for a team
     function getTeamRoles(teamName, teamId) {
@@ -287,61 +363,6 @@ function initializeApp(modules) {
         return roleTexts || null;
     }
 
-    function renderTeamEloTable() {
-        console.log("Rendering Team ELO Table...");
-        if (!teamEloTableBody || !teamEloLadder || teamEloLadder.length === 0) {
-            console.warn("Team ELO table body or data not available.");
-            const table = document.getElementById('teamEloTable');
-            if (table && !table.querySelector('.no-data-message')) {
-                const msgRow = table.insertRow();
-                const cell = msgRow.insertCell();
-                cell.colSpan = 6; // Span across all columns
-                cell.textContent = 'Team ELO ladder data not available.';
-                cell.className = 'no-data-message';
-                cell.style.textAlign = 'center';
-            }
-            return;
-        }
-        // Clear previous data
-        teamEloTableBody.innerHTML = '';
-
-        // Ensure ladder is sorted by rank (it should be already, but just in case)
-        const sortedLadder = teamEloLadder.sort((a, b) => a.rank - b.rank);
-
-        // Populate table rows
-        sortedLadder.forEach(team => {
-            const row = teamEloTableBody.insertRow();
-
-            const rankCell = row.insertCell();
-            rankCell.textContent = team.rank;
-            rankCell.classList.add('rank-cell');
-
-            const nameCell = row.insertCell();
-            nameCell.textContent = team.team_name;
-            
-            // Add role cell
-            const roleCell = row.insertCell();
-            const teamRoles = getTeamRoles(team.team_name, team.team_id);
-            roleCell.textContent = teamRoles || 'N/A';
-            roleCell.classList.add('role-cell');
-            
-            // Store role data for filtering
-            if (teamRoles) {
-                row.dataset.roles = teamRoles;
-            }
-
-            const eloCell = row.insertCell();
-            eloCell.textContent = team.elo_rating;
-
-            const wlCell = row.insertCell();
-            wlCell.textContent = `${team.matches_won}-${team.matches_lost}`;
-
-            const winRateCell = row.insertCell();
-            winRateCell.textContent = `${team.win_rate}%`;
-        });
-        console.log("Team ELO Table populated.");
-    }
-
     // Function to apply interactive features to tables
     function applyTableInteractivity() {
         console.log("Applying table interactivity features...");
@@ -365,7 +386,7 @@ function initializeApp(modules) {
             });
         }
         
-        // CRITICAL FIX: Ensure the role filter container is visible and positioned correctly
+        // Add role filter for team page
         const roleFilterContainer = document.getElementById('teamRoleFilterContainer');
         if (roleFilterContainer) {
             // Force visibility and styling
@@ -373,62 +394,35 @@ function initializeApp(modules) {
             roleFilterContainer.style.flexWrap = 'wrap';
             roleFilterContainer.style.gap = '8px';
             roleFilterContainer.style.padding = '10px';
-            roleFilterContainer.style.border = '3px solid #ff0000'; // Red border to make it obvious
+            roleFilterContainer.style.border = '2px solid #0066cc';
             roleFilterContainer.style.backgroundColor = '#f8f8f8';
             roleFilterContainer.style.margin = '15px 0';
-            roleFilterContainer.style.position = 'relative'; // Ensure it's in the normal flow
-            roleFilterContainer.style.zIndex = '100'; // Ensure it's on top
             
-            // Add a label at the top
-            const label = document.createElement('div');
-            label.textContent = 'ROLE FILTER BUTTONS:';
-            label.style.fontWeight = 'bold';
-            label.style.width = '100%';
-            label.style.marginBottom = '10px';
-            roleFilterContainer.prepend(label);
-            
-            console.log("Force-styled the role filter container");
-        }
-        
-        // Extract unique roles from player stats
-        const uniqueRoles = new Set();
-        playerStats.forEach(player => {
-            if (player.role) {
-                uniqueRoles.add(player.role);
-            }
-        });
-        
-        console.log(`Found ${uniqueRoles.size} unique roles for team players:`, Array.from(uniqueRoles));
-        
-        if (uniqueRoles.size > 0) {
-            // Add role filter using the roles we found
-            console.log("Adding role filter buttons for team page");
-            addRoleFilter('teamEloTable', Array.from(uniqueRoles), 'teamRoleFilterContainer');
-        } else {
-            // Add default roles if none found
-            console.log("No roles found, adding default role buttons");
-            addRoleFilter('teamEloTable', ['Farmer', 'Flex', 'Support'], 'teamRoleFilterContainer');
-        }
-        
-        // Add extra direct creation of buttons for testing
-        if (roleFilterContainer) {
-            console.log("Creating direct test buttons");
-            ['Flex', 'Support', 'Farmer'].forEach(role => {
-                const testButton = document.createElement('button');
-                testButton.textContent = `Role: ${role}`;
-                testButton.style.padding = '10px 15px';
-                testButton.style.backgroundColor = '#4CAF50';
-                testButton.style.color = 'white';
-                testButton.style.border = 'none';
-                testButton.style.borderRadius = '5px';
-                testButton.style.cursor = 'pointer';
-                testButton.style.margin = '5px';
-                testButton.addEventListener('click', () => {
-                    console.log(`Test button clicked for role: ${role}`);
-                    filterTableByRole(document.getElementById('teamEloTable'), role);
+            // Add a clear message if addRoleFilter is not defined
+            if (typeof addRoleFilter !== 'function') {
+                console.error("addRoleFilter function is not defined!");
+                roleFilterContainer.innerHTML = '<div style="color: red; font-weight: bold;">Error: Role filtering function not available</div>';
+            } else {
+                // Extract unique roles from player stats
+                const uniqueRoles = new Set();
+                playerStats.forEach(player => {
+                    if (player.role) {
+                        uniqueRoles.add(player.role);
+                    }
                 });
-                roleFilterContainer.appendChild(testButton);
-            });
+                
+                console.log(`Found ${uniqueRoles.size} unique roles for team players:`, Array.from(uniqueRoles));
+                
+                if (uniqueRoles.size > 0) {
+                    // Add role filter using the roles we found
+                    console.log("Adding role filter buttons for team page");
+                    addRoleFilter('teamEloTable', Array.from(uniqueRoles), 'teamRoleFilterContainer');
+                } else {
+                    // Add default roles if none found
+                    console.log("No roles found, adding default role buttons");
+                    addRoleFilter('teamEloTable', ['Farmer', 'Flex', 'Support'], 'teamRoleFilterContainer');
+                }
+            }
         }
         
         console.log("Table interactivity features applied.");
@@ -443,7 +437,15 @@ function initializeApp(modules) {
             renderTeamEloTable();
             
             // Apply interactivity
-            applyTableInteractivity();
+            try {
+                applyTableInteractivity();
+            } catch (err) {
+                console.error("Error applying table interactivity:", err);
+                
+                // Fallback: Add direct role filter buttons if the module import failed
+                createDirectRoleFilter();
+            }
+            
             await createAdditionalLeaderboards('#leaderboards-container', playerStats);
             
             console.log("All team visualizations rendered successfully");
@@ -456,6 +458,190 @@ function initializeApp(modules) {
             </div>`;
         }
     }
+    
+    // Fallback function to create role filter buttons directly
+    function createDirectRoleFilter() {
+        console.log("Creating direct role filter buttons as fallback");
+        
+        const roleFilterContainer = document.getElementById('teamRoleFilterContainer');
+        if (!roleFilterContainer) return;
+        
+        // Clear any existing content
+        roleFilterContainer.innerHTML = '';
+        
+        // Style the container
+        roleFilterContainer.style.display = 'block';
+        roleFilterContainer.style.border = '2px solid #0066cc';
+        roleFilterContainer.style.padding = '15px';
+        roleFilterContainer.style.margin = '15px 0';
+        roleFilterContainer.style.backgroundColor = '#f0f8ff';
+        roleFilterContainer.style.borderRadius = '8px';
+        
+        // Add heading
+        const heading = document.createElement('h4');
+        heading.textContent = 'Filter by Player Role';
+        heading.style.marginTop = '0';
+        heading.style.marginBottom = '10px';
+        heading.style.color = '#333';
+        roleFilterContainer.appendChild(heading);
+        
+        // Extract roles from player stats
+        const uniqueRoles = new Set();
+        
+        // Add default roles in case none are found
+        const defaultRoles = ['Farmer', 'Flex', 'Support'];
+        
+        playerStats.forEach(player => {
+            if (player.role) {
+                uniqueRoles.add(player.role);
+            }
+        });
+        
+        // If no roles found, use default roles
+        const rolesToUse = uniqueRoles.size > 0 ? Array.from(uniqueRoles) : defaultRoles;
+        
+        // Create buttons container
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.display = 'flex';
+        buttonContainer.style.flexWrap = 'wrap';
+        buttonContainer.style.gap = '8px';
+        roleFilterContainer.appendChild(buttonContainer);
+        
+        // Add "All" button
+        const allButton = document.createElement('button');
+        allButton.textContent = 'All Roles';
+        allButton.className = 'role-filter-button active';
+        allButton.style.padding = '8px 15px';
+        allButton.style.margin = '4px';
+        allButton.style.backgroundColor = '#0066cc';
+        allButton.style.color = 'white';
+        allButton.style.fontWeight = 'bold';
+        allButton.style.border = '1px solid #0055aa';
+        allButton.style.borderRadius = '4px';
+        allButton.style.cursor = 'pointer';
+        allButton.dataset.role = 'all';
+        buttonContainer.appendChild(allButton);
+        
+        // Function to filter the table by role
+        const directFilterByRole = (role) => {
+            const table = document.getElementById('teamEloTable');
+            if (!table) return;
+            
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                // Check if row has role information
+                if (role === 'all') {
+                    row.style.display = '';
+                    return;
+                }
+                
+                // For "No Role", show only rows without roles
+                if (role === 'none') {
+                    const roles = row.dataset.roles;
+                    if (!roles || roles.trim() === '') {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                    return;
+                }
+                
+                // For specific role, check if it's included
+                const roles = row.dataset.roles || '';
+                if (roles.toLowerCase().includes(role.toLowerCase())) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        };
+        
+        // Add role buttons
+        rolesToUse.forEach(role => {
+            const button = document.createElement('button');
+            button.textContent = role;
+            button.className = 'role-filter-button';
+            button.style.padding = '8px 15px';
+            button.style.margin = '4px';
+            button.style.backgroundColor = '#f2f2f2';
+            button.style.border = '1px solid #ddd';
+            button.style.borderRadius = '4px';
+            button.style.cursor = 'pointer';
+            button.style.fontWeight = 'bold';
+            button.dataset.role = role;
+            
+            // Add click handler
+            button.addEventListener('click', () => {
+                // Update button styling
+                buttonContainer.querySelectorAll('.role-filter-button').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.backgroundColor = '#f2f2f2';
+                    btn.style.color = '#333';
+                });
+                
+                button.classList.add('active');
+                button.style.backgroundColor = '#0066cc';
+                button.style.color = 'white';
+                
+                // Filter the table
+                directFilterByRole(role);
+            });
+            
+            buttonContainer.appendChild(button);
+        });
+        
+        // Add "None" button
+        const noneButton = document.createElement('button');
+        noneButton.textContent = 'No Role';
+        noneButton.className = 'role-filter-button';
+        noneButton.style.padding = '8px 15px';
+        noneButton.style.margin = '4px';
+        noneButton.style.backgroundColor = '#f2f2f2';
+        noneButton.style.border = '1px solid #ddd';
+        noneButton.style.borderRadius = '4px';
+        noneButton.style.cursor = 'pointer';
+        noneButton.style.fontWeight = 'bold';
+        noneButton.dataset.role = 'none';
+        
+        // Add click handler for None button
+        noneButton.addEventListener('click', () => {
+            // Update button styling
+            buttonContainer.querySelectorAll('.role-filter-button').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '#f2f2f2';
+                btn.style.color = '#333';
+            });
+            
+            noneButton.classList.add('active');
+            noneButton.style.backgroundColor = '#0066cc';
+            noneButton.style.color = 'white';
+            
+            // Filter the table
+            directFilterByRole('none');
+        });
+        
+        buttonContainer.appendChild(noneButton);
+        
+        // Add click handler for All button
+        allButton.addEventListener('click', () => {
+            // Update button styling
+            buttonContainer.querySelectorAll('.role-filter-button').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.backgroundColor = '#f2f2f2';
+                btn.style.color = '#333';
+            });
+            
+            allButton.classList.add('active');
+            allButton.style.backgroundColor = '#0066cc';
+            allButton.style.color = 'white';
+            
+            // Filter the table
+            directFilterByRole('all');
+        });
+        
+        console.log("Direct role filter buttons created");
+    }
 
     // Initialize data and render
     async function initializeData() {
@@ -464,7 +650,6 @@ function initializeApp(modules) {
             
             // Set global flag to indicate team page
             window.isTeamPage = true;
-            document.title = "Team Stats - Squadrons Visualizations"; // Force title to include team
             
             // Load real data
             const data = await loadAllRealData();
@@ -484,15 +669,30 @@ function initializeApp(modules) {
             // Store data for use in rendering
             teamEloHistory = data.teamEloHistory;
             teamEloLadder = data.teamEloLadder;
-            playerRoles = data.playerRoles;
             
-            // Use player stats for role information
-            playerStats = data.playerStats;
+            // Filter player stats to only include team-related stats
+            // This ensures we don't show pickup player stats in team leaderboards
+            if (data.playerStats && data.playerStats.length > 0) {
+                // Only keep player stats for team matches
+                const teamPlayerNames = new Set();
+                
+                // Get all player names from team ladder
+                if (teamEloLadder && teamEloLadder.length > 0) {
+                    // Extract team info if available
+                    const teamNames = new Set(teamEloLadder.map(t => t.team_name));
+                    console.log("Team names in ladder:", Array.from(teamNames));
+                }
+                
+                playerStats = data.playerStats;
+                console.log(`Loaded ${playerStats.length} player stats entries`);
+            } else {
+                playerStats = [];
+                console.log("No player stats data available for teams");
+            }
             
             console.log("Team data loaded successfully");
             console.log("Team ladder entries:", teamEloLadder.length);
             console.log("Team history entries:", teamEloHistory.length);
-            console.log("Player stats entries:", playerStats.length);
             
             // Render visualizations
             await renderVisualizations();

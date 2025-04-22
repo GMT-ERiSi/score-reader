@@ -124,50 +124,90 @@ async function loadPickupEloHistory() {
 // Load player performance data (for additional leaderboards)
 async function loadPlayerStats() {
     try {
-        // First check if we're on the pickup page (look for URL parameter or other indicator)
+        // First check if we're on the pickup page or team page
         const isPickupPage = window.location.href.includes('pickup') || 
                            document.title.toLowerCase().includes('pickup');
+        const isTeamPage = window.location.href.includes('team') || 
+                           document.title.toLowerCase().includes('team');
+        
+        console.log(`Page type detection: Pickup Page = ${isPickupPage}, Team Page = ${isTeamPage}`);
         
         if (isPickupPage) {
-            console.log('Loading pickup player performance data...');
-            // Try to load pickup-specific player performance data
-            const pickupResponse = await fetch('../elo_reports_pickup/player_performance_pickup_role_flex.json');
+            console.log('Loading pickup-specific player performance data...');
             
-            if (pickupResponse.ok) {
-                return await pickupResponse.json();
+            // Try to load pickup-specific player performance data files
+            const pickupFiles = [
+                '../elo_reports_pickup/player_performance_pickup.json',
+                '../elo_reports_pickup/player_performance_pickup_role_flex.json',
+                '../elo_reports_pickup/player_performance_pickup_role_farmer.json',
+                '../elo_reports_pickup/player_performance_pickup_role_support.json',
+                '../elo_reports_pickup/player_performance_role_flex.json'
+            ];
+            
+            // Try each file until one succeeds
+            for (const file of pickupFiles) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        console.log(`Successfully loaded pickup data from: ${file}`);
+                        return await response.json();
+                    }
+                } catch (err) {
+                    console.log(`Failed to load ${file}: ${err.message}`);
+                }
             }
             
-            // Try alternative pickup performance data files
-            const altPickupResponse = await fetch('../elo_reports_pickup/player_performance_pickup.json');
-            if (altPickupResponse.ok) {
-                return await altPickupResponse.json();
+            console.log('No pickup-specific performance data found, falling back to general data');
+        }
+        else if (isTeamPage) {
+            console.log('Loading team-specific player performance data...');
+            
+            // Try to load team-specific player performance data
+            try {
+                const response = await fetch('../stats_reports/player_performance_team.json');
+                if (response.ok) {
+                    console.log('Successfully loaded team performance data');
+                    return await response.json();
+                }
+            } catch (err) {
+                console.log(`Failed to load team performance data: ${err.message}`);
             }
             
-            // Fall back to any role-based pickup performance
-            const flexResponse = await fetch('../elo_reports_pickup/player_performance_role_flex.json');
-            if (flexResponse.ok) {
-                return await flexResponse.json();
+            // Fall back to other team files
+            try {
+                const legacyResponse = await fetch('../stats_reports/player_performance.json');
+                if (legacyResponse.ok) {
+                    console.log('Successfully loaded legacy team performance data');
+                    return await legacyResponse.json();
+                }
+            } catch (err) {
+                console.log(`Failed to load legacy team performance data: ${err.message}`);
             }
-            
-            console.log('No pickup-specific performance data found, trying general performance data');
         }
         
-        // Try to load team-specific player performance data first
-        const response = await fetch('../stats_reports/player_performance_team.json');
+        // If we get here, try some general fallbacks
+        console.log('Attempting general fallback performance data load...');
         
-        if (!response.ok) {
-            // Fall back to combined player performance data
-            console.log('Team player performance file not found, trying combined performance data...');
+        // Try team files first
+        try {
+            const response = await fetch('../stats_reports/player_performance_team.json');
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (err) {}
+        
+        // Then try legacy files
+        try {
             const legacyResponse = await fetch('../stats_reports/player_performance.json');
-            
-            if (!legacyResponse.ok) {
-                throw new Error(`Failed to load player performance data: ${legacyResponse.status} ${legacyResponse.statusText}`);
+            if (legacyResponse.ok) {
+                return await legacyResponse.json();
             }
-            
-            return await legacyResponse.json();
-        }
+        } catch (err) {}
         
-        return await response.json();
+        // Last resort - return empty array
+        console.error('All attempts to load player performance data failed');
+        return [];
+        
     } catch (error) {
         console.error('Error loading player performance data:', error);
         return [];
@@ -211,14 +251,28 @@ async function loadAllRealData() {
     
     // Also add roles to pickup ladder if they're not already there
     const pickupLadderWithRoles = pickupLadder.map(player => {
+        // Log some debug info about player roles
+        if (player.player_id <= 5) {
+            console.log(`Player ${player.player_name} has role: ${player.role || 'none'} in JSON`);
+            console.log(`Player ${player.player_name} has role in playerRoles: ${playerRoles[player.player_name] || 'none'}`);
+        }
+        
+        // Make sure we always have a role property (never undefined)
         if (!player.role && playerRoles[player.player_name]) {
             return {
                 ...player,
                 role: playerRoles[player.player_name]
             };
+        } else if (!player.role) {
+            return {
+                ...player,
+                role: null // Ensure role is null instead of undefined
+            };
         }
         return player;
     });
+    
+    console.log("First few players with roles:", pickupLadderWithRoles.slice(0, 3));
     
     console.log('First 3 processed player stats:', processedPlayerStats.slice(0, 3));
     

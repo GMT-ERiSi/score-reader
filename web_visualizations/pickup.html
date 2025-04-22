@@ -18,7 +18,8 @@
 </head>
 <body>
     <header>
-        <h1>Star Wars: Squadrons - Pickup Stats Visualizations</h1>
+        <h1>Star Wars: Squadrons - Pickup Stats</h1>
+        <p class="subtitle">Showing data for pickup matches only</p>
         <nav>
             <ul>
                 <li><a href="team.html">Team Stats</a></li>
@@ -37,9 +38,12 @@
         <div class="table-controls">
             <input type="text" id="pickupTableFilter" placeholder="Search players..." class="table-filter">
             <button id="showAllPlayersButton" class="show-all-button">Show All Players</button>
-            <div id="roleFilterContainer" class="role-filter-container">
-                <!-- Role filter will be added here if roles are available -->
-            </div>
+        </div>
+        
+        <!-- Role filter container - positioned outside the table-controls for better visibility -->
+        <div id="roleFilterContainer" class="role-filter-container" style="display: block; border: 2px solid blue; padding: 15px; margin: 15px 0; background-color: #f0f8ff;">
+            <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Role:</h4>
+            <!-- Role filter buttons will be added here by JavaScript -->
         </div>
         <table id="pickupEloTable">
             <thead>

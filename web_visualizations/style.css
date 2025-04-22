@@ -17,6 +17,13 @@ header {
     text-align: center;
 }
 
+.subtitle {
+    color: #aaa;
+    font-style: italic;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
 nav ul {
     list-style: none;
     display: flex;
@@ -204,23 +211,42 @@ tr.selected {
 
 /* Role filtering */
 .role-filter-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    display: block !important;
+    border: 2px solid #0066cc !important;
+    padding: 15px !important;
+    margin: 20px 0 !important;
+    background-color: #f0f8ff !important;
+    border-radius: 8px !important;
+}
+
+.role-filter-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #333;
 }
 
 .role-filter-button {
-    padding: 0.4rem 0.8rem;
+    padding: 8px 15px;
+    margin: 4px;
     background-color: #f2f2f2;
     border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.role-filter-button:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
 }
 
 .role-filter-button.active {
     background-color: #0066cc;
     color: white;
+    border-color: #0055aa;
 }
 
 /* Additional leaderboards container */
@@ -257,4 +283,10 @@ tr.selected {
     border: 1px solid red;
     background-color: #ffeeee;
     border-radius: 4px;
+}
+
+/* Debug styling for role cells */
+.role-cell {
+    font-weight: bold;
+    color: #0066cc;
 }

@@ -272,11 +272,12 @@ function initializeApp(modules) {
             
             // Add role cell
             const roleCell = row.insertCell();
-            roleCell.textContent = player.role || 'None';
+            const roleText = player.role || 'None';
+            roleCell.textContent = roleText;
             // Add a data attribute for role filtering
-            if (player.role) {
-                row.setAttribute('data-role', player.role);
-            }
+            row.setAttribute('data-role', roleText);
+            // Add debug class to make role cells stand out during debugging
+            roleCell.classList.add('role-cell');
 
             const eloCell = row.insertCell();
             eloCell.textContent = player.elo_rating;
@@ -313,18 +314,77 @@ function initializeApp(modules) {
             });
         }
         
+        // CRITICAL FIX: Ensure the role filter container is visible and positioned correctly
+        const roleFilterContainer = document.getElementById('roleFilterContainer');
+        if (roleFilterContainer) {
+            // Force visibility and positioning
+            roleFilterContainer.style.display = 'flex';
+            roleFilterContainer.style.flexWrap = 'wrap';
+            roleFilterContainer.style.gap = '8px';
+            roleFilterContainer.style.padding = '10px';
+            roleFilterContainer.style.border = '3px solid #ff0000'; // Red border to make it obvious
+            roleFilterContainer.style.backgroundColor = '#f8f8f8';
+            roleFilterContainer.style.margin = '15px 0';
+            roleFilterContainer.style.position = 'relative'; // Ensure it's in the normal flow
+            roleFilterContainer.style.zIndex = '100'; // Ensure it's on top
+            
+            // Add a label at the top
+            const label = document.createElement('div');
+            label.textContent = 'ROLE FILTER BUTTONS:';
+            label.style.fontWeight = 'bold';
+            label.style.width = '100%';
+            label.style.marginBottom = '10px';
+            roleFilterContainer.prepend(label);
+            
+            console.log("Force-styled the role filter container");
+        }
+        
         // Add role filter if we have role data
         const uniqueRoles = new Set();
+        
+        // Debug: Check each player's role
+        console.log("Checking roles for each player:");
         pickupEloLadder.forEach(player => {
+            console.log(`  Player ${player.player_name}: role = "${player.role || 'null/undefined'}"`);
             if (player.role) {
                 uniqueRoles.add(player.role);
             }
         });
         
+        console.log(`Found ${uniqueRoles.size} unique roles: ${Array.from(uniqueRoles).join(', ')}`);
+        
         // Only add role filter if we have role data
         if (uniqueRoles.size > 0) {
+            console.log("Adding role filter buttons");
             addRoleFilter('pickupEloTable', Array.from(uniqueRoles));
             console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
+        } else {
+            console.log("No roles found, not adding role filter");
+            
+            // Even if we don't have roles in the data, let's add some default role buttons for testing
+            console.log("Adding default role buttons for testing");
+            addRoleFilter('pickupEloTable', ['Farmer', 'Flex', 'Support']);
+        }
+        
+        // Add extra direct creation of buttons for testing
+        if (roleFilterContainer) {
+            console.log("Creating direct test buttons");
+            ['Flex', 'Support', 'Farmer'].forEach(role => {
+                const testButton = document.createElement('button');
+                testButton.textContent = `Role: ${role}`;
+                testButton.style.padding = '10px 15px';
+                testButton.style.backgroundColor = '#4CAF50';
+                testButton.style.color = 'white';
+                testButton.style.border = 'none';
+                testButton.style.borderRadius = '5px';
+                testButton.style.cursor = 'pointer';
+                testButton.style.margin = '5px';
+                testButton.addEventListener('click', () => {
+                    console.log(`Test button clicked for role: ${role}`);
+                    filterTableByRole(document.getElementById('pickupEloTable'), role);
+                });
+                roleFilterContainer.appendChild(testButton);
+            });
         }
         
         console.log("Pickup table interactivity features applied.");
@@ -358,18 +418,79 @@ function initializeApp(modules) {
         try {
             console.log("Initializing pickup data...");
             
+            // Set global flag to indicate pickup page
+            window.isPickupPage = true;
+            document.title = "Pickup Stats - Squadrons Visualizations"; // Force title to include pickup
+            
             // Load real data
             const data = await loadAllRealData();
+            
+            // Validate that we have pickup data
+            if (!data.pickupEloLadder || data.pickupEloLadder.length === 0) {
+                console.error("No pickup ladder data loaded!");
+                document.body.innerHTML += `
+                    <div style="color: red; padding: 20px; margin: 20px; border: 1px solid red; background: #ffeeee;">
+                        <h2>Pickup Data Not Found</h2>
+                        <p>Could not load pickup ELO ladder data. Please ensure that pickup data has been generated.</p>
+                        <p>Expected file: ../elo_reports_pickup/pickup_player_elo_ladder.json</p>
+                    </div>
+                `;
+            }
             
             // Store data for use in rendering
             pickupEloHistory = data.pickupEloHistory;
             pickupEloLadder = data.pickupEloLadder;
-            playerStats = data.playerStats;
             playerRoles = data.playerRoles;
+            
+            // Filter player stats to only include pickup-related stats
+            // This ensures we don't show team player stats in pickup leaderboards
+            if (data.playerStats && data.playerStats.length > 0) {
+                // Create a set of pickup player names for filtering
+                const pickupPlayerNames = new Set();
+                
+                if (pickupEloLadder && pickupEloLadder.length > 0) {
+                    pickupEloLadder.forEach(player => {
+                        pickupPlayerNames.add(player.player_name);
+                    });
+                    console.log(`Found ${pickupPlayerNames.size} unique pickup player names`);
+                }
+                
+                // If we have pickup player names, filter stats to only include those players
+                if (pickupPlayerNames.size > 0) {
+                    playerStats = data.playerStats.filter(player => 
+                        pickupPlayerNames.has(player.player_name)
+                    );
+                    console.log(`Filtered player stats from ${data.playerStats.length} to ${playerStats.length} pickup players`);
+                } else {
+                    // If we can't filter, just use all stats
+                    playerStats = data.playerStats;
+                    console.log(`Using all ${playerStats.length} player stats as pickup stats`);
+                }
+            } else {
+                playerStats = [];
+                console.log("No player stats data available for pickup");
+            }
             
             console.log("Pickup data loaded successfully");
             console.log("Pickup ladder entries:", pickupEloLadder.length);
             console.log("Pickup history entries:", pickupEloHistory.length);
+            
+            // Debug: Examine roles in first 5 entries
+            console.log("First 5 entries in pickup ladder with roles:", 
+                pickupEloLadder.slice(0, 5).map(p => ({
+                    name: p.player_name,
+                    role: p.role,
+                    elo: p.elo_rating
+                }))
+            );
+            
+            // Count roles
+            const roleCounts = {};
+            pickupEloLadder.forEach(player => {
+                const role = player.role || 'None';
+                roleCounts[role] = (roleCounts[role] || 0) + 1;
+            });
+            console.log("Role counts in ladder data:", roleCounts);
             
             // Render visualizations
             await renderVisualizations();
@@ -377,6 +498,12 @@ function initializeApp(modules) {
             console.log("Pickup page initialization complete");
         } catch (error) {
             console.error("Error initializing pickup data:", error);
+            document.body.innerHTML += `
+                <div style="color: red; padding: 20px; margin: 20px; border: 1px solid red; background: #ffeeee;">
+                    <h2>Error Loading Pickup Data</h2>
+                    <p>There was an error initializing the pickup data: ${error.message}</p>
+                </div>
+            `;
         }
     }
 

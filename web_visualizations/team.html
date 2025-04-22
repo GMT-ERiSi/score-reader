@@ -18,7 +18,8 @@
 </head>
 <body>
     <header>
-        <h1>Star Wars: Squadrons - Team Stats Visualizations</h1>
+        <h1>Star Wars: Squadrons - Team Stats</h1>
+        <p class="subtitle">Showing data for team matches only</p>
         <nav>
             <ul>
                 <li><a href="team.html" class="active">Team Stats</a></li>
@@ -38,11 +39,18 @@
             <input type="text" id="teamTableFilter" placeholder="Search teams..." class="table-filter">
             <button id="showAllTeamsButton" class="show-all-button">Show All Teams</button>
         </div>
+        
+        <!-- Role filter container for team page -->
+        <div id="teamRoleFilterContainer" class="role-filter-container" style="display: block; border: 2px solid blue; padding: 15px; margin: 15px 0; background-color: #f0f8ff;">
+            <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Player Role:</h4>
+            <!-- Role filter buttons will be added here by JavaScript -->
+        </div>
         <table id="teamEloTable">
             <thead>
                 <tr>
                     <th class="rank-cell">Rank</th>
                     <th>Team Name</th>
+                    <th>Primary Roles</th>
                     <th>ELO Rating</th>
                     <th>W-L</th>
                     <th>Win Rate</th>
