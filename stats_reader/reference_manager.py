@@ -154,7 +154,7 @@ class ReferenceDatabase:
             SELECT p.id, p.name, p.primary_team_id, t.name, p.alias, p.primary_role
             FROM ref_players p
             LEFT JOIN ref_teams t ON p.primary_team_id = t.id
-            WHERE p.name = ?
+            WHERE UPPER(TRIM(p.name)) = UPPER(?) -- Apply TRIM only to column, UPPER to both
         """, (name,))
         result = cursor.fetchone()
         
@@ -165,10 +165,14 @@ class ReferenceDatabase:
                 "team_id": result[2], 
                 "team_name": result[3], 
                 "alias": result[4],
-                "role": result[5]
+                "primary_role": result[5]
             }
         
         # Try exact match on alias (comma-separated)
+        # Note: Applying UPPER to the LIKE patterns might require adjustments depending on SQLite version/config
+        # For simplicity, let's focus on the direct name match first. We'll keep the alias check as is for now,
+        # but the primary issue seems to be the direct name lookup.
+        # If the direct match works, we can revisit refining the alias match if needed.
         cursor.execute("""
             SELECT p.id, p.name, p.primary_team_id, t.name, p.alias, p.primary_role
             FROM ref_players p
@@ -184,7 +188,7 @@ class ReferenceDatabase:
                 "team_id": result[2],
                 "team_name": result[3],
                 "alias": result[4],
-                "role": result[5]
+                "primary_role": result[5]
             }
 
         return None
@@ -228,7 +232,7 @@ class ReferenceDatabase:
                     "team_id": team_id,
                     "team_name": team_name,
                     "alias": alias_str,
-                    "role": primary_role,
+                    "primary_role": primary_role,
                     "match_score": best_score,
                     "matched_on": matched_on
                 })
@@ -367,7 +371,7 @@ class ReferenceDatabase:
                 "team_id": row[2],
                 "team_name": row[3],
                 "alias": row[4].split(',') if row[4] else [],
-                "role": row[5]
+                "primary_role": row[5]
             })
         return players
     

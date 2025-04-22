@@ -249,11 +249,13 @@ def process_player_stats(conn, match_id, team_id, faction, player_data, ref_db=N
     # Get primary role from reference DB if available
     if ref_db:
         ref_player = ref_db.get_player(canonical_name)
-        if ref_player and 'role' in ref_player:
-            primary_role = ref_player.get('role')
-            if primary_role in ["Farmer", "Flex", "Support"]:
-                player_role = primary_role
-                print(f"Using primary role from reference database: {player_role}")
+        if ref_player and 'primary_role' in ref_player:
+            primary_role_raw = ref_player.get('primary_role') # Get the raw value
+            if primary_role_raw: # Check if it's not None or empty string
+                primary_role_cleaned = primary_role_raw.strip().capitalize() # Clean and normalize case
+                if primary_role_cleaned in ["Farmer", "Flex", "Support"]:
+                    player_role = primary_role_cleaned # Assign the cleaned role
+                    print(f"Using primary role from reference database: {player_role}")
     
     # Allow overriding the role for this match
     valid_roles = ["Farmer", "Flex", "Support"]

@@ -223,7 +223,7 @@ def process_match_data(conn, season_name, filename, match_data, ref_db=None, mat
     print(f"Match data processed successfully. Match ID: {match_id}")
 
 
-def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
+def process_seasons_data(db_path, seasons_data_path, ref_db_instance=None): # Renamed parameter
     """Process all seasons data from the JSON file"""
     global player_resolution_cache # Access the global cache
     player_resolution_cache = {} # Reset cache for each run
@@ -243,35 +243,20 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
         print(f"Error reading seasons data file {seasons_data_path}: {e}")
         return False
     
-    # Import the reference database module - handle cases where it's nested or direct import
-    ref_db_module = None
-    try:
-        from ..reference_manager import ReferenceDatabase
-        ref_db_module = ReferenceDatabase
-    except ImportError:
-        try:
-            from reference_manager import ReferenceDatabase
-            ref_db_module = ReferenceDatabase
-        except ImportError:
-            print("Warning: Reference database manager not found. Team and player consistency features will be disabled.")
-            ref_db_module = None
-    
-    # Create and connect to the database
+    # Create and connect to the main stats database
     create_database(db_path)
     conn = None # Initialize conn to None
-    ref_db = None # Initialize ref_db to None
+    # Use the passed-in ref_db_instance directly
+    ref_db = ref_db_instance
 
     try:
         conn = sqlite3.connect(db_path)
 
-        # Initialize reference database if path provided
-        if ref_db_path and os.path.exists(ref_db_path) and ref_db_module:
-            try:
-                ref_db = ref_db_module(ref_db_path)
-                print(f"Using reference database from: {ref_db_path}")
-            except Exception as e:
-                print(f"Error initializing reference database: {e}")
-                ref_db = None # Ensure ref_db is None if init fails
+        # We already have the instance or None, no need to re-initialize here
+        if ref_db:
+             print(f"Using provided reference database instance.")
+        else:
+             print("No valid reference database instance provided.")
 
         # Process each season
         for season_name, season_matches in seasons_data.items():
@@ -280,8 +265,7 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
             print(f"{'='*50}")
 
             for filename, match_data in season_matches.items():
-                # Pass ref_db object (which might be None)
-                # Check if there's a match_type in the data
+                # Pass the ref_db instance (which might be None)
                 match_type = match_data.get('match_type', None)
                 process_match_data(conn, season_name, filename, match_data, ref_db, match_type)
 
@@ -291,13 +275,12 @@ def process_seasons_data(db_path, seasons_data_path, ref_db_path=None):
         # raise e
         return False # Indicate failure
     finally:
-        # Ensure database connections are closed even if errors occur
+        # Ensure main database connection is closed
+        # The reference DB connection is managed by the caller (stats_db_processor_direct.py)
         if conn:
             conn.close()
             print("Main database connection closed.")
-        if ref_db:
-            ref_db.close()
-            print("Reference database connection closed.")
+        # DO NOT close ref_db here, it's managed by the caller
     
     print("\nAll seasons data processed successfully")
     return True

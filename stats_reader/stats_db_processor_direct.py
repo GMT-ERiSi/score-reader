@@ -17,7 +17,7 @@ from report_generator import generate_stats_reports
 
 # Import the reference database module
 try:
-    from reference_manager import ReferenceDatabase
+    from .reference_manager import ReferenceDatabase # Changed to relative import
 except ImportError:
     print("Warning: Reference database manager not found. Team and player consistency features will be disabled.")
     ReferenceDatabase = None
@@ -64,13 +64,33 @@ def main():
             print("Please run the season_processor.py script first to generate the seasons data.")
             sys.exit(1)
         
-        ref_db_path = args.reference_db if os.path.exists(args.reference_db) else None
-        if not ref_db_path and args.reference_db != "squadrons_reference.db":
-            print(f"Warning: Reference database not found at {args.reference_db}")
-            print("Processing will continue without reference database.")
+        # Initialize reference database object
+        ref_db_instance = None
+        if ReferenceDatabase: # Check if the class was imported successfully
+            ref_db_path = args.reference_db
+            if os.path.exists(ref_db_path):
+                try:
+                    ref_db_instance = ReferenceDatabase(ref_db_path) # INSTANTIATION
+                    print(f"Reference database loaded: {ref_db_path}") # SUCCESS PRINT
+                except Exception as e:
+                    print(f"Error loading reference database {ref_db_path}: {e}")
+                    print("Processing will continue without reference database.")
+                    ref_db_instance = None # Ensure it's None if loading failed
+            elif ref_db_path != "squadrons_reference.db": # Only warn if a non-default path was specified and not found
+                 print(f"Warning: Reference database not found at {ref_db_path}")
+                 print("Processing will continue without reference database.")
+            else: # Handle case where default path doesn't exist
+                 print("Processing will continue without reference database.")
+        else:
+             print("Reference database module not available. Processing without reference features.")
         
-        if process_seasons_data(args.db, args.input, ref_db_path):
+        # Pass the ref_db_instance (object or None) to process_seasons_data
+        if process_seasons_data(args.db, args.input, ref_db_instance): # PASSING INSTANCE
             generate_stats_reports(args.db, args.stats)
+        
+        # Ensure the reference DB connection is closed if it was opened
+        if ref_db_instance:
+            ref_db_instance.close()
 
 if __name__ == "__main__":
     main()
