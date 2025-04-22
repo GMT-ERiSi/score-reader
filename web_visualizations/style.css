@@ -1,276 +1,260 @@
+/* Web Visualizations for Star Wars Squadrons Stats */
+
+/* General styling */
 body {
-    font-family: sans-serif;
-    line-height: 1.6;
-    margin: 20px;
-    background-color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
     color: #333;
+    background-color: #f5f5f5;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #222;
+    color: #fff;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+}
+
+nav ul li {
+    margin: 0 1rem;
+}
+
+nav ul li a {
+    color: #ccc;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #fff;
+    background-color: #444;
+}
+
+nav ul li a.active {
+    color: #fff;
+    background-color: #0066cc;
 }
 
 h1, h2, h3 {
-    color: #0056b3; /* A blue tone */
-}
-
-h1 {
-    text-align: center;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+    margin-top: 0;
 }
 
 section {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 30px;
+    margin: 2rem auto;
+    padding: 1rem;
+    max-width: 1200px;
+    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    background-color: #222;
+    color: #ccc;
+}
+
+/* Chart styling */
 .chart-container {
     position: relative;
-    height: 40vh; /* Adjust height as needed */
-    width: 80vw;  /* Adjust width as needed */
-    max-width: 800px; /* Max width for larger screens */
-    margin: 20px auto; /* Center the chart */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    height: 400px;
+    width: 100%;
+    margin-bottom: 2rem;
 }
 
+/* Table styling */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin: 1rem 0;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 0.75rem;
     text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 th {
-    background-color: #e9ecef; /* Light grey header */
-    color: #495057;
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f8f9fa; /* Zebra striping */
-}
-
-tbody tr:hover {
-    background-color: #dee2e6; /* Hover effect */
-}
-
-/* ===== Phase 2 Enhancements ===== */
-
-/* Sortable Table Headers */
-th.sortable {
+    background-color: #f2f2f2;
     cursor: pointer;
     position: relative;
-    user-select: none;
 }
 
-th.sortable:hover {
-    background-color: #d3d7db;
+/* Sortable table headers */
+th.sort-asc::after {
+    content: ' ↑';
+    position: absolute;
+    right: 8px;
 }
 
-.sort-icon {
-    display: inline-block;
-    margin-left: 5px;
-    font-size: 0.9em;
+th.sort-desc::after {
+    content: ' ↓';
+    position: absolute;
+    right: 8px;
 }
 
-/* Clickable table rows for chart filtering */
-tbody tr {
-    cursor: pointer;
-    transition: background-color 0.2s;
+tr:hover {
+    background-color: #f5f5f5;
 }
 
-tbody tr.selected {
-    background-color: #cce5ff !important;
-    border-left: 3px solid #0056b3;
+/* Selected row styling */
+tr.selected {
+    background-color: #e6f2ff;
 }
 
-/* Table filtering */
-.table-filter {
-    display: flex;
-    margin-bottom: 15px;
-    align-items: center;
-}
-
-.filter-input {
-    flex: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.clear-filter {
-    margin-left: 10px;
-    padding: 8px 12px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.clear-filter:hover {
-    background-color: #e3e3e3;
-}
-
-.no-results-message {
+/* Special cells */
+.rank-cell {
     text-align: center;
-    padding: 15px;
+    width: 50px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    section {
+        padding: 0.5rem;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    th, td {
+        padding: 0.5rem;
+    }
+    
+    th {
+        white-space: nowrap;
+    }
+}
+
+/* No data messages */
+.no-data-message {
+    color: #666;
+    text-align: center;
+    padding: 2rem;
     font-style: italic;
-    color: #777;
-    background-color: #f8f9fa;
+}
+
+/* Table filtering and controls */
+.table-filter {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
     border-radius: 4px;
-    margin-top: 10px;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.table-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.show-all-button {
+    padding: 0.5rem 1rem;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.show-all-button:hover {
+    background-color: #0055aa;
 }
 
 /* Chart controls */
 .chart-controls {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
-    align-items: center;
+    justify-content: center;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
 }
 
-.reset-zoom-button,
-.show-all-button {
-    padding: 6px 12px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+.chart-control-button {
+    padding: 0.4rem 0.8rem;
+    margin: 0 0.25rem;
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
-    margin-left: 10px;
 }
 
-.reset-zoom-button:hover,
-.show-all-button:hover {
-    background-color: #e3e3e3;
+.chart-control-button:hover {
+    background-color: #e6e6e6;
 }
 
-.tooltip {
-    display: inline-block;
-    margin-left: 15px;
-    font-size: 0.85em;
-    color: #666;
-    font-style: italic;
-}
-
-/* Additional Leaderboards Section */
-.leaderboard-section {
-    margin-bottom: 30px;
-}
-
-#additional-leaderboards h2 {
-    margin-top: 0;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-}
-
-/* Tabs for multiple leaderboards */
-.tabs {
+/* Role filtering */
+.role-filter-container {
     display: flex;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
-.tab {
-    padding: 10px 15px;
+.role-filter-button {
+    padding: 0.4rem 0.8rem;
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     cursor: pointer;
-    border: 1px solid transparent;
-    border-bottom: none;
-    margin-right: 5px;
-    border-radius: 5px 5px 0 0;
-    background-color: #f0f0f0;
 }
 
-.tab:hover {
-    background-color: #e3e3e3;
+.role-filter-button.active {
+    background-color: #0066cc;
+    color: white;
 }
 
-.tab.active {
-    background-color: #fff;
-    border-color: #ddd;
-    border-bottom-color: #fff;
-    margin-bottom: -1px;
-    font-weight: bold;
+/* Additional leaderboards container */
+#leaderboards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2rem;
+    margin: 2rem auto;
+    max-width: 1200px;
 }
 
-.tab-panel {
-    display: none;
+.leaderboard-section {
+    flex: 1 1 45%;
+    min-width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
 }
 
-.tab-panel.active {
-    display: block;
-}
-
-/* Improved responsive design */
 @media (max-width: 768px) {
-    .chart-container {
-        width: 95vw;
-        height: 50vh; /* Adjust height for mobile */
-    }
-
-    h1 {
-        font-size: 1.8em;
-    }
-    h2 {
-        font-size: 1.4em;
-    }
-    table, th, td {
-        font-size: 0.9em; /* Slightly smaller font on mobile */
-    }
-    
-    /* Responsive table improvements */
-    .table-filter {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .clear-filter {
-        margin-left: 0;
-        margin-top: 8px;
-    }
-    
-    .chart-controls {
-        flex-wrap: wrap;
-    }
-    
-    /* Adjust tabs for mobile */
-    .tabs {
-        flex-wrap: wrap;
-    }
-    
-    .tab {
-        margin-bottom: 5px;
+    .leaderboard-section {
+        flex: 1 1 100%;
     }
 }
 
-@media (max-width: 480px) {
-    body {
-        margin: 10px;
-    }
-    section {
-        padding: 15px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-    h2 {
-        font-size: 1.2em;
-    }
-    th, td {
-        padding: 5px;
-    }
-    
-    /* Further mobile optimizations */
-    table {
-        font-size: 0.85em;
-    }
+/* Error message styling */
+.error-message {
+    color: red;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid red;
+    background-color: #ffeeee;
+    border-radius: 4px;
 }

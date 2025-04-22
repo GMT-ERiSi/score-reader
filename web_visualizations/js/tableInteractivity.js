@@ -228,56 +228,9 @@ function enableTableRowSelection(tableId, chartFilterCallback) {
         // Update chart with all selected names
         chartFilterCallback(selectedNames.size > 0 ? Array.from(selectedNames) : null);
     });
-    
-    // Add control buttons
-    const buttonContainer = document.createElement('div');
-    buttonContainer.className = 'chart-controls';
-    
-    // Show All button
-    const showAllButton = document.createElement('button');
-    showAllButton.textContent = 'Show All in Chart';
-    showAllButton.className = 'show-all-button';
-    showAllButton.addEventListener('click', () => {
-        // Remove all selections
-        tbody.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
-        selectedNames.clear();
-        chartFilterCallback(null); // Reset chart to show all
-    });
-    
-    // Select All button
-    const selectAllButton = document.createElement('button');
-    selectAllButton.textContent = 'Select All Rows';
-    selectAllButton.className = 'select-all-button';
-    selectAllButton.addEventListener('click', () => {
-        const rows = tbody.querySelectorAll('tr');
-        const allNames = [];
-        
-        rows.forEach(row => {
-            row.classList.add('selected');
-            const name = row.cells[1]?.textContent;
-            if (name) {
-                selectedNames.add(name);
-                allNames.push(name);
-            }
-        });
-        
-        chartFilterCallback(allNames);
-    });
-    
-    // Add buttons to container
-    buttonContainer.appendChild(selectAllButton);
-    buttonContainer.appendChild(showAllButton);
-    
-    // Add tooltip for user guidance
-    const tooltip = document.createElement('div');
-    tooltip.className = 'tooltip';
-    tooltip.textContent = 'Click on rows to filter the chart (multiple selections allowed)';
-    buttonContainer.appendChild(tooltip);
-    
-    table.parentNode.insertBefore(buttonContainer, table);
 }
 
-// Add a role filter dropdown above the table
+// Add a role filter with buttons above the table
 function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support']) {
     const table = document.getElementById(tableId);
     if (!table) {
@@ -285,57 +238,68 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support']) {
         return;
     }
     
-    // Get the filter container if it exists, or create it
-    let filterContainer = table.parentNode.querySelector('.table-filter');
-    if (!filterContainer) {
-        filterContainer = document.createElement('div');
-        filterContainer.className = 'table-filter';
-        table.parentNode.insertBefore(filterContainer, table);
+    // Get the role filter container
+    const roleFilterContainer = document.getElementById('roleFilterContainer');
+    if (!roleFilterContainer) {
+        console.warn('Role filter container not found.');
+        return;
     }
     
-    // Create the role filter dropdown
-    const roleFilterContainer = document.createElement('div');
-    roleFilterContainer.className = 'role-filter';
+    // Clear any existing content
+    roleFilterContainer.innerHTML = '';
     
-    const roleLabel = document.createElement('label');
-    roleLabel.textContent = 'Filter by Role: ';
-    roleLabel.for = `${tableId}-role-filter`;
+    // Add label
+    const filterLabel = document.createElement('div');
+    filterLabel.textContent = 'Filter by Role:';
+    filterLabel.className = 'role-filter-label';
+    roleFilterContainer.appendChild(filterLabel);
     
-    const roleSelect = document.createElement('select');
-    roleSelect.id = `${tableId}-role-filter`;
-    roleSelect.className = 'role-filter-select';
+    // Add 'All' button (selected by default)
+    const allButton = document.createElement('button');
+    allButton.textContent = 'All Roles';
+    allButton.className = 'role-filter-button active';
+    allButton.dataset.role = 'all';
+    roleFilterContainer.appendChild(allButton);
     
-    // Add 'All' option
-    const allOption = document.createElement('option');
-    allOption.value = 'all';
-    allOption.textContent = 'All Roles';
-    roleSelect.appendChild(allOption);
-    
-    // Add role options
+    // Add role buttons
     roles.forEach(role => {
-        const option = document.createElement('option');
-        option.value = role;
-        option.textContent = role;
-        roleSelect.appendChild(option);
+        const button = document.createElement('button');
+        button.textContent = role;
+        button.className = 'role-filter-button';
+        button.dataset.role = role;
+        roleFilterContainer.appendChild(button);
     });
     
-    // Add 'No Role' option
-    const noRoleOption = document.createElement('option');
-    noRoleOption.value = 'none';
-    noRoleOption.textContent = 'No Role';
-    roleSelect.appendChild(noRoleOption);
+    // Add 'None' button for players without a role
+    const noneButton = document.createElement('button');
+    noneButton.textContent = 'No Role';
+    noneButton.className = 'role-filter-button';
+    noneButton.dataset.role = 'none';
+    roleFilterContainer.appendChild(noneButton);
     
-    // Add event listener
-    roleSelect.addEventListener('change', () => {
-        filterTableByRole(table, roleSelect.value);
+    // Add event listener to the container (event delegation)
+    roleFilterContainer.addEventListener('click', (e) => {
+        const target = e.target;
+        
+        // Only handle button clicks
+        if (!target.classList.contains('role-filter-button')) {
+            return;
+        }
+        
+        // Remove 'active' class from all buttons
+        roleFilterContainer.querySelectorAll('.role-filter-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Add 'active' class to the clicked button
+        target.classList.add('active');
+        
+        // Filter the table
+        filterTableByRole(table, target.dataset.role);
     });
     
-    // Add to container
-    roleFilterContainer.appendChild(roleLabel);
-    roleFilterContainer.appendChild(roleSelect);
-    filterContainer.appendChild(roleFilterContainer);
-    
-    return roleSelect;
+    console.log(`Role filter added with ${roles.length} roles: ${roles.join(', ')}`);
+    return roleFilterContainer;
 }
 
 // Filter table rows based on selected role
@@ -343,36 +307,16 @@ function filterTableByRole(table, roleFilter) {
     const rows = table.querySelectorAll('tbody tr');
     let visibleCount = 0;
     
-    // Get the role column index (typically 4th column for player tables)
-    // First check if there's a role column header
-    let roleColumnIndex = -1;
+    // Get the role column index (typically 2nd column for pickup player tables, after Player Name)
+    let roleColumnIndex = 2; // Default role column index
+    
+    // Check if there's a role column header to be sure
     const headers = table.querySelectorAll('thead th');
     headers.forEach((header, index) => {
         if (header.textContent.trim().toLowerCase() === 'role') {
             roleColumnIndex = index;
         }
     });
-    
-    // If we couldn't find a role column by header name, use a default column
-    if (roleColumnIndex === -1) {
-        // Try to find it by looking at row content - ELO tables typically have role in 3rd column
-        const firstRow = rows[0];
-        if (firstRow) {
-            const cells = firstRow.cells;
-            if (cells.length >= 3) {
-                const possibleRoleCell = cells[2];
-                const cellText = possibleRoleCell.textContent.trim();
-                if (['farmer', 'flex', 'support', 'none', ''].includes(cellText.toLowerCase())) {
-                    roleColumnIndex = 2; // Found the role column
-                }
-            }
-        }
-        
-        // If we still can't find it, default to column 2
-        if (roleColumnIndex === -1) {
-            roleColumnIndex = 2;
-        }
-    }
     
     // Apply filter
     rows.forEach(row => {
@@ -388,7 +332,7 @@ function filterTableByRole(table, roleFilter) {
         const roleText = roleCell ? roleCell.textContent.trim() : '';
         
         if (roleFilter === 'all' || 
-            (roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none' || roleText.toLowerCase() === 'unknown')) ||
+            (roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none')) ||
             (roleText.toLowerCase() === roleFilter.toLowerCase())) {
             row.style.display = '';
             visibleCount++;

@@ -124,6 +124,34 @@ async function loadPickupEloHistory() {
 // Load player performance data (for additional leaderboards)
 async function loadPlayerStats() {
     try {
+        // First check if we're on the pickup page (look for URL parameter or other indicator)
+        const isPickupPage = window.location.href.includes('pickup') || 
+                           document.title.toLowerCase().includes('pickup');
+        
+        if (isPickupPage) {
+            console.log('Loading pickup player performance data...');
+            // Try to load pickup-specific player performance data
+            const pickupResponse = await fetch('../elo_reports_pickup/player_performance_pickup_role_flex.json');
+            
+            if (pickupResponse.ok) {
+                return await pickupResponse.json();
+            }
+            
+            // Try alternative pickup performance data files
+            const altPickupResponse = await fetch('../elo_reports_pickup/player_performance_pickup.json');
+            if (altPickupResponse.ok) {
+                return await altPickupResponse.json();
+            }
+            
+            // Fall back to any role-based pickup performance
+            const flexResponse = await fetch('../elo_reports_pickup/player_performance_role_flex.json');
+            if (flexResponse.ok) {
+                return await flexResponse.json();
+            }
+            
+            console.log('No pickup-specific performance data found, trying general performance data');
+        }
+        
         // Try to load team-specific player performance data first
         const response = await fetch('../stats_reports/player_performance_team.json');
         
@@ -167,9 +195,9 @@ async function loadAllRealData() {
     // Process player performance data for additional leaderboards
     const processedPlayerStats = playerPerformance.map(player => {
         const result = {
-            player_id: player.player_hash, // Use hash as ID
-            player_name: player.name,
-            role: playerRoles[player.name] || null, // Add role from the roles data
+            player_id: player.player_hash || player.hash, // Use hash as ID (accommodate different field names)
+            player_name: player.name || player.player_name, // Handle different field names
+            role: player.role || playerRoles[player.name || player.player_name] || null, // Add role from the roles data
             matches_played: player.games_played || 0,
             ai_kills: player.total_ai_kills || 0,
             player_kills: player.total_kills || 0,

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Squadrons Stats Visualizations</title>
+    <title>Pickup Stats - Squadrons Visualizations</title>
     <link rel="stylesheet" href="style.css">
     <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,45 +13,20 @@
     <!-- Module support detection -->
     <script>
         window.moduleSupport = 'noModule' in HTMLScriptElement.prototype;
+        window.isPickupPage = true; // Flag to identify this is the pickup page
     </script>
 </head>
 <body>
     <header>
-        <h1>Star Wars: Squadrons - Stats Visualizations</h1>
+        <h1>Star Wars: Squadrons - Pickup Stats Visualizations</h1>
         <nav>
             <ul>
                 <li><a href="team.html">Team Stats</a></li>
-                <li><a href="pickup.html">Pickup Stats</a></li>
-                <li><a href="index.html" class="active">Combined View</a></li>
+                <li><a href="pickup.html" class="active">Pickup Stats</a></li>
+                <li><a href="index.html">Combined View</a></li>
             </ul>
         </nav>
     </header>
-
-    <section id="team-section">
-        <h2>Team ELO</h2>
-        <div class="chart-container">
-            <canvas id="teamEloChart"></canvas>
-        </div>
-        <h3>Team ELO Ladder</h3>
-        <div class="table-controls">
-            <input type="text" id="teamTableFilter" placeholder="Search teams..." class="table-filter">
-            <button id="showAllTeamsButton" class="show-all-button">Show All Teams</button>
-        </div>
-        <table id="teamEloTable">
-            <thead>
-                <tr>
-                    <th class="rank-cell">Rank</th>
-                    <th>Team Name</th>
-                    <th>ELO Rating</th>
-                    <th>W-L</th>
-                    <th>Win Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Team ELO data will be populated here -->
-            </tbody>
-        </table>
-    </section>
 
     <section id="pickup-section">
         <h2>Pickup Player ELO</h2>
@@ -93,7 +68,7 @@
     </footer>
 
     <!-- Import modules using type="module" with fallback -->
-    <script type="module" src="script.js"></script>
+    <script type="module" src="js/pickup_page.js"></script>
     <script nomodule src="js/nomodule-fallback.js"></script>
 </body>
 </html>
