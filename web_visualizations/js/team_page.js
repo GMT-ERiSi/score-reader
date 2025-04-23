@@ -261,6 +261,8 @@ function initializeApp(modules) {
         return color;
     }
     
+    // Fixed function for team_page.js to properly display win rate
+
     function renderTeamEloTable() {
         console.log("Rendering Team ELO Table...");
         if (!teamEloTableBody || !teamEloLadder || teamEloLadder.length === 0) {
@@ -293,8 +295,9 @@ function initializeApp(modules) {
             const nameCell = row.insertCell();
             nameCell.textContent = team.team_name;
             
-            // Role cell removed
-
+            const primaryRolesCell = row.insertCell();
+            primaryRolesCell.textContent = 'Various'; // Placeholder for primary roles
+            
             const eloCell = row.insertCell();
             eloCell.textContent = team.elo_rating;
 
@@ -302,6 +305,7 @@ function initializeApp(modules) {
             wlCell.textContent = `${team.matches_won}-${team.matches_lost}`;
 
             const winRateCell = row.insertCell();
+            // Use the win_rate directly from the data
             winRateCell.textContent = `${team.win_rate}%`;
         });
         console.log("Team ELO Table populated.");
