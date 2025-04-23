@@ -336,6 +336,26 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
         
         // Filter the table
         filterTableByRole(table, target.dataset.role);
+        
+        // Trigger a custom event for other components to listen for
+        const roleFilterEvent = new CustomEvent('roleFilterChanged', {
+            detail: {
+                role: target.dataset.role
+            }
+        });
+        document.dispatchEvent(roleFilterEvent);
+    });
+    
+    // Listen for global role filter changes
+    document.addEventListener('roleFilterChanged', (e) => {
+        // Update button state to match
+        const role = e.detail.role;
+        roleFilterContainer.querySelectorAll('.role-filter-button').forEach(btn => {
+            const isActive = btn.dataset.role === role;
+            btn.classList.toggle('active', isActive);
+            btn.style.backgroundColor = isActive ? '#0066cc' : '#f2f2f2';
+            btn.style.color = isActive ? 'white' : '#333';
+        });
     });
     
     console.log(`Role filter added with ${roles.length} roles: ${roles.join(', ')}`);

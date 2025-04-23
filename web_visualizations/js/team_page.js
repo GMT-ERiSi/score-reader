@@ -437,6 +437,14 @@ function initializeApp(modules) {
 
                     // Filter the leaderboards
                     filterAllLeaderboards(selectedRole);
+                    
+                    // Dispatch a custom event for other components to listen for
+                    const roleFilterEvent = new CustomEvent('roleFilterChanged', {
+                        detail: {
+                            role: selectedRole
+                        }
+                    });
+                    document.dispatchEvent(roleFilterEvent);
                 });
                 console.log("Role filter for leaderboards added.");
             } else {

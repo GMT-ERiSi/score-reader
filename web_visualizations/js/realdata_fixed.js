@@ -126,96 +126,241 @@ async function loadPlayerStats() {
         
         console.log(`Page type detection: Pickup Page = ${isPickupPage}, Team Page = ${isTeamPage}`);
         
+        let roleSpecificData = {}; // Will contain data separated by role
+        let allRolesCombined = []; // Will contain combined player stats across all roles
+        
         if (isPickupPage) {
             console.log('Loading pickup-specific player performance data...');
             
             // Try to load pickup-specific player performance data files
-            const pickupFiles = [
-                '../elo_reports_pickup/player_performance_pickup.json',
-                '../elo_reports_pickup/player_performance_pickup_role_flex.json',
-                '../elo_reports_pickup/player_performance_pickup_role_farmer.json',
-                '../elo_reports_pickup/player_performance_pickup_role_support.json',
-                '../elo_reports_pickup/player_performance_role_flex.json'
-            ];
+            const pickupFiles = {
+                'Flex': ['../elo_reports_pickup/player_performance_pickup_role_flex.json', '../elo_reports_pickup/player_performance_role_flex.json'],
+                'Farmer': ['../elo_reports_pickup/player_performance_pickup_role_farmer.json', '../elo_reports_pickup/player_performance_role_farmer.json'],
+                'Support': ['../elo_reports_pickup/player_performance_pickup_role_support.json', '../elo_reports_pickup/player_performance_role_support.json']
+            };
             
-            // Try each file until one succeeds
-            for (const file of pickupFiles) {
-                try {
-                    const response = await fetch(file);
-                    if (response.ok) {
-                        console.log(`Successfully loaded pickup data from: ${file}`);
-                        return await response.json();
+            // Initialize role data containers
+            roleSpecificData = {
+                'Flex': [],
+                'Farmer': [],
+                'Support': [],
+                'None': []
+            };
+            
+            // Load each role's files
+            for (const [role, files] of Object.entries(pickupFiles)) {
+                for (const file of files) {
+                    try {
+                        const response = await fetch(file);
+                        if (response.ok) {
+                            const data = await response.json();
+                            console.log(`Successfully loaded pickup data from: ${file} with ${data.length} players`);
+                            
+                            // Add role property if not present and store by role
+                            data.forEach(player => {
+                                player.role = role; // Ensure role is set explicitly
+                                // Deduplicate within the same role
+                                const existingIndex = roleSpecificData[role].findIndex(p => p.hash === player.hash);
+                                if (existingIndex === -1) {
+                                    roleSpecificData[role].push(player);
+                                } else if (player.games_played > roleSpecificData[role][existingIndex].games_played) {
+                                    // Keep the entry with more games played for this role
+                                    roleSpecificData[role][existingIndex] = player;
+                                }
+                            });
+                        }
+                    } catch (err) {
+                        console.log(`Failed to load ${file}: ${err.message}`);
                     }
-                } catch (err) {
-                    console.log(`Failed to load ${file}: ${err.message}`);
                 }
             }
             
-            console.log('No pickup-specific performance data found, falling back to general data');
+            // For "All" view, combine stats across roles for each player
+            const playerMap = {}; // Map to track combined stats by player hash
+            
+            // Process each role
+            Object.entries(roleSpecificData).forEach(([role, players]) => {
+                players.forEach(player => {
+                    const hash = player.hash;
+                    
+                    if (!playerMap[hash]) {
+                        // First time seeing this player, initialize
+                        playerMap[hash] = {
+                            name: player.name,
+                            hash: player.hash,
+                            roles: [], // Track all roles this player has
+                            games_played: 0,
+                            regular_games: 0,
+                            sub_games: 0,
+                            total_score: 0,
+                            total_kills: 0,
+                            total_deaths: 0,
+                            total_assists: 0,
+                            total_ai_kills: 0,
+                            total_cap_ship_damage: 0
+                        };
+                    }
+                    
+                    // Combine stats
+                    const combinedPlayer = playerMap[hash];
+                    combinedPlayer.games_played += player.games_played || 0;
+                    combinedPlayer.regular_games += player.regular_games || 0;
+                    combinedPlayer.sub_games += player.sub_games || 0;
+                    combinedPlayer.total_score += player.total_score || 0;
+                    combinedPlayer.total_kills += player.total_kills || 0;
+                    combinedPlayer.total_deaths += player.total_deaths || 0;
+                    combinedPlayer.total_assists += player.total_assists || 0;
+                    combinedPlayer.total_ai_kills += player.total_ai_kills || 0;
+                    combinedPlayer.total_cap_ship_damage += player.total_cap_ship_damage || 0;
+                    
+                    // Track roles
+                    if (role !== 'None' && !combinedPlayer.roles.includes(role)) {
+                        combinedPlayer.roles.push(role);
+                    }
+                });
+            });
+            
+            // Calculate averages for combined stats
+            Object.values(playerMap).forEach(player => {
+                // Set primary role as the first in the roles array
+                player.role = player.roles.length > 0 ? player.roles[0] : null;
+                
+                // Calculate averages for combined stats
+                player.avg_score = player.games_played > 0 ? Math.round((player.total_score / player.games_played) * 100) / 100 : 0;
+                player.deaths_per_game = player.games_played > 0 ? Math.round((player.total_deaths / player.games_played) * 100) / 100 : 0;
+                player.net_kills = player.total_kills - player.total_deaths;
+                player.net_kills_per_game = player.games_played > 0 ? Math.round((player.net_kills / player.games_played) * 100) / 100 : 0;
+                player.kd_ratio = player.total_deaths > 0 ? Math.round((player.total_kills / player.total_deaths) * 100) / 100 : player.total_kills;
+                player.ai_kills_per_game = player.games_played > 0 ? Math.round((player.total_ai_kills / player.games_played) * 100) / 100 : 0;
+                player.damage_per_game = player.games_played > 0 ? Math.round(player.total_cap_ship_damage / player.games_played) : 0;
+            });
+            
+            // Convert to array
+            allRolesCombined = Object.values(playerMap);
+            
+            // Log stats for debugging
+            console.log(`Loaded: Flex ${roleSpecificData.Flex.length}, Farmer ${roleSpecificData.Farmer.length}, Support ${roleSpecificData.Support.length} players`);
+            console.log(`Combined into ${allRolesCombined.length} unique players with role-specific data preserved`);
         }
         else if (isTeamPage) {
             console.log('Loading team-specific player performance data...');
             
             // Define the team-specific role performance files
-            const teamRoleFiles = [
-                '../stats_reports/player_performance_team_role_farmer.json',
-                '../stats_reports/player_performance_team_role_flex.json',
-                '../stats_reports/player_performance_team_role_support.json'
-                // Add other roles if necessary
-            ];
-
-            let combinedTeamStats = [];
-            const promises = teamRoleFiles.map(file =>
-                fetch(file)
-                    .then(response => {
+            const teamRoleFiles = {
+                'Flex': ['../stats_reports/player_performance_team_role_flex.json'],
+                'Farmer': ['../stats_reports/player_performance_team_role_farmer.json'],
+                'Support': ['../stats_reports/player_performance_team_role_support.json']
+            };
+            
+            // Initialize role data containers
+            roleSpecificData = {
+                'Flex': [],
+                'Farmer': [],
+                'Support': [],
+                'None': []
+            };
+            
+            // Load each role's files
+            for (const [role, files] of Object.entries(teamRoleFiles)) {
+                for (const file of files) {
+                    try {
+                        const response = await fetch(file);
                         if (response.ok) {
-                            console.log(`Successfully loaded team role data from: ${file}`);
-                            return response.json();
+                            const data = await response.json();
+                            console.log(`Successfully loaded team data from: ${file} with ${data.length} players`);
+                            
+                            // Add role property if not present and store by role
+                            data.forEach(player => {
+                                player.role = role; // Ensure role is set explicitly
+                                // Deduplicate within the same role
+                                const existingIndex = roleSpecificData[role].findIndex(p => p.hash === player.hash);
+                                if (existingIndex === -1) {
+                                    roleSpecificData[role].push(player);
+                                } else if (player.games_played > roleSpecificData[role][existingIndex].games_played) {
+                                    // Keep the entry with more games played for this role
+                                    roleSpecificData[role][existingIndex] = player;
+                                }
+                            });
                         }
-                        console.log(`File not found or error loading: ${file}`);
-                        return null; // Return null for failed fetches
-                    })
-                    .catch(err => {
-                        console.error(`Error fetching ${file}:`, err);
-                        return null; // Return null on error
-                    })
-            );
-
-            const results = await Promise.all(promises);
-
-            results.forEach(data => {
-                if (data) {
-                    combinedTeamStats = combinedTeamStats.concat(data);
+                    } catch (err) {
+                        console.log(`Failed to load ${file}: ${err.message}`);
+                    }
                 }
+            }
+            
+            // For "All" view, combine stats across roles for each player
+            const playerMap = {}; // Map to track combined stats by player hash
+            
+            // Process each role
+            Object.entries(roleSpecificData).forEach(([role, players]) => {
+                players.forEach(player => {
+                    const hash = player.hash;
+                    
+                    if (!playerMap[hash]) {
+                        // First time seeing this player, initialize
+                        playerMap[hash] = {
+                            name: player.name,
+                            hash: player.hash,
+                            roles: [], // Track all roles this player has
+                            games_played: 0,
+                            regular_games: 0,
+                            sub_games: 0,
+                            total_score: 0,
+                            total_kills: 0,
+                            total_deaths: 0,
+                            total_assists: 0,
+                            total_ai_kills: 0,
+                            total_cap_ship_damage: 0
+                        };
+                    }
+                    
+                    // Combine stats
+                    const combinedPlayer = playerMap[hash];
+                    combinedPlayer.games_played += player.games_played || 0;
+                    combinedPlayer.regular_games += player.regular_games || 0;
+                    combinedPlayer.sub_games += player.sub_games || 0;
+                    combinedPlayer.total_score += player.total_score || 0;
+                    combinedPlayer.total_kills += player.total_kills || 0;
+                    combinedPlayer.total_deaths += player.total_deaths || 0;
+                    combinedPlayer.total_assists += player.total_assists || 0;
+                    combinedPlayer.total_ai_kills += player.total_ai_kills || 0;
+                    combinedPlayer.total_cap_ship_damage += player.total_cap_ship_damage || 0;
+                    
+                    // Track roles
+                    if (role !== 'None' && !combinedPlayer.roles.includes(role)) {
+                        combinedPlayer.roles.push(role);
+                    }
+                });
             });
-
-            if (combinedTeamStats.length > 0) {
-                console.log(`Successfully combined ${combinedTeamStats.length} player stats entries from team role files.`);
-                return combinedTeamStats;
-            }
-
-            // If still no data, log an error and proceed to general fallbacks
-            console.log('Could not load any team-specific role performance files.');
+            
+            // Calculate averages for combined stats
+            Object.values(playerMap).forEach(player => {
+                // Set primary role as the first in the roles array
+                player.role = player.roles.length > 0 ? player.roles[0] : null;
+                
+                // Calculate averages for combined stats
+                player.avg_score = player.games_played > 0 ? Math.round((player.total_score / player.games_played) * 100) / 100 : 0;
+                player.deaths_per_game = player.games_played > 0 ? Math.round((player.total_deaths / player.games_played) * 100) / 100 : 0;
+                player.net_kills = player.total_kills - player.total_deaths;
+                player.net_kills_per_game = player.games_played > 0 ? Math.round((player.net_kills / player.games_played) * 100) / 100 : 0;
+                player.kd_ratio = player.total_deaths > 0 ? Math.round((player.total_kills / player.total_deaths) * 100) / 100 : player.total_kills;
+                player.ai_kills_per_game = player.games_played > 0 ? Math.round((player.total_ai_kills / player.games_played) * 100) / 100 : 0;
+                player.damage_per_game = player.games_played > 0 ? Math.round(player.total_cap_ship_damage / player.games_played) : 0;
+            });
+            
+            // Convert to array
+            allRolesCombined = Object.values(playerMap);
+            
+            // Log stats for debugging
+            console.log(`Loaded: Flex ${roleSpecificData.Flex.length}, Farmer ${roleSpecificData.Farmer.length}, Support ${roleSpecificData.Support.length} players`);
+            console.log(`Combined into ${allRolesCombined.length} unique players with role-specific data preserved`);
         }
         
-        // If page-specific loading failed or wasn't applicable, try general fallbacks
-        console.log('Attempting general fallback performance data load...');
+        // Store role-specific data in the window object for access by the filter
+        window.roleSpecificData = roleSpecificData;
         
-        // Try legacy combined file (which likely doesn't exist based on user feedback)
-        try {
-            const legacyResponse = await fetch('../stats_reports/player_performance.json');
-            if (legacyResponse.ok) {
-                console.log('Successfully loaded legacy combined performance data');
-                return await legacyResponse.json();
-            }
-        } catch (err) {
-            console.log(`Failed to load legacy combined performance data: ${err.message}`);
-        }
-
-        // Last resort - return empty array
-        console.error('All attempts to load player performance data failed');
-        return [];
-
+        // Return the combined stats by default
+        return allRolesCombined;
     } catch (error) {
         console.error('Error loading player performance data:', error);
         return [];
@@ -241,7 +386,7 @@ async function loadAllRealData() {
     console.log('Player roles loaded:', Object.keys(playerRoles).length);
     
     // Process player performance data for additional leaderboards
-    const processedPlayerStats = playerPerformance.map(player => {
+    const mappedPlayerStats = playerPerformance.map(player => {
         const result = {
             player_id: player.player_hash || player.hash, // Use hash as ID (accommodate different field names)
             player_name: player.name || player.player_name, // Handle different field names
@@ -256,6 +401,17 @@ async function loadAllRealData() {
         };
         return result;
     });
+    
+    // Deduplicate players by player_id
+    const uniquePlayers = {};
+    mappedPlayerStats.forEach(player => {
+        if (!uniquePlayers[player.player_id] || uniquePlayers[player.player_id].matches_played < player.matches_played) {
+            uniquePlayers[player.player_id] = player;
+        }
+    });
+    
+    const processedPlayerStats = Object.values(uniquePlayers);
+    console.log(`Deduplicated player stats from ${mappedPlayerStats.length} to ${processedPlayerStats.length} unique players`);
     
     // Also add roles to pickup ladder if they're not already there
     const pickupLadderWithRoles = pickupLadder.map(player => {

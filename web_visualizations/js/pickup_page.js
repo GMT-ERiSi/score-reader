@@ -361,6 +361,13 @@ function initializeApp(modules) {
             console.log("Adding role filter buttons");
             addRoleFilter('pickupEloTable', Array.from(uniqueRoles));
             console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
+
+            // Connect role filter button clicks to filter all leaderboards
+            document.addEventListener('roleFilterChanged', (e) => {
+                const selectedRole = e.detail.role;
+                console.log(`Filtering leaderboards for role: ${selectedRole}`);
+                filterAllLeaderboards(selectedRole);
+            });
         } else {
             console.log("No roles found, not adding role filter");
             
