@@ -153,8 +153,14 @@ This ensures that every match record processed has a `match_date` field added to
     # Use the CLEANED data as input
     python -m stats_reader.stats_db_processor_direct --input "Extracted Results/all_seasons_data_cleaned.json" --reference-db squadrons_reference.db
     ```
-
+    
     When prompted during processing, choose the match type. The processor will now prompt you to select the match type (team, pickup, ranked) at the beginning, which eliminates the need for further special steps to remove team IDs for pickup and ranked games. It will also prompt for player roles based on the reference database.
+
+5b. **Generate Player Roles File** (Required for Web Visualizations):
+    ```bash
+    python generate_player_roles_json.py squadrons_stats.db stats_reports
+    ```
+    This creates `stats_reports/player_roles.json`, consolidating player roles based on the database and reference info.
 
 6.  **Generate ELO ladder**:
     ```bash
@@ -188,6 +194,15 @@ For processing pickup or ranked matches:
         -   Assign generic team names ("Imp_pickup_team"/"NR_pickup_team" or "Imperial_ranked_team"/"NR_ranked_team")
         -   Set player team_ids to NULL for proper pickup/ranked tracking
     -   You will be prompted to confirm/enter player roles for each match.
+
+3b. **Generate Player Roles File** (Required for Web Visualizations):
+    ```bash
+    # Use the appropriate DB and output directory if you used a custom one in step 3
+    python generate_player_roles_json.py squadrons_stats.db stats_reports
+    # Example for custom pickup DB:
+    # python generate_player_roles_json.py squadrons_pickup.db elo_reports_pickup
+    ```
+    This creates `player_roles.json` in the specified output directory.
 
 4.  **Generate player-based ELO ladder**:
     ```bash
@@ -256,6 +271,13 @@ If you want to process only a specific folder of screenshots (e.g., for a season
     ```
 
     When prompted, select the appropriate match type (team, pickup, ranked) and confirm/enter player roles.
+
+4b. **Generate Player Roles File** (Required for Web Visualizations):
+    ```bash
+    # Use the appropriate DB and output directory
+    python generate_player_roles_json.py squadrons_stats.db stats_reports
+    ```
+    This creates `player_roles.json` in the specified output directory.
 
 5.  **Generate appropriate ELO ladder**:
     ```bash
