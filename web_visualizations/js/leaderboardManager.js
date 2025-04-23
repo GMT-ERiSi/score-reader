@@ -174,10 +174,12 @@ function createNetKillsLeaderboard(containerId, data) {
         return null;
     }
     
-    // Calculate net kills (player_kills - deaths)
+    // Calculate net kills (player_kills - deaths) and net kills per game
     const processedData = data.map(player => ({
         ...player,
-        net_kills: player.player_kills - player.deaths
+        net_kills: player.player_kills - player.deaths,
+        net_kills_per_game: player.matches_played > 0 ? 
+            parseFloat(((player.player_kills - player.deaths) / player.matches_played).toFixed(2)) : 0
     }));
     
     // Sort data by net kills in descending order
@@ -194,6 +196,7 @@ function createNetKillsLeaderboard(containerId, data) {
         { key: 'player_name' },
         { key: 'role' }, // Add role column
         { key: 'net_kills' },
+        { key: 'net_kills_per_game', format: val => val.toFixed(2) }, // Added net kills per game
         { key: 'player_kills' },
         { key: 'deaths' },
         { key: 'matches_played' }
@@ -202,7 +205,7 @@ function createNetKillsLeaderboard(containerId, data) {
     // Create table
     const tableId = 'netKillsTable';
     const table = createLeaderboardTable(tableId, [
-        'Rank', 'Player', 'Role', 'Net Kills', 'Kills', 'Deaths', 'Matches' // Add Role header
+        'Rank', 'Player', 'Role', 'Net Kills', 'Net Kills/Game', 'Kills', 'Deaths', 'Matches' // Added Net Kills/Game header
     ]);
     
     // Add table to container
@@ -387,6 +390,8 @@ function filterAllLeaderboards(roleFilter) {
                     processedData = [...roleData].map(player => ({
                         ...player,
                         net_kills: (player.total_kills || 0) - (player.total_deaths || 0),
+                        net_kills_per_game: player.games_played > 0 ? 
+                            parseFloat(((player.total_kills || 0) - (player.total_deaths || 0)) / player.games_played).toFixed(2) : '0.00',
                         player_kills: player.total_kills,
                         deaths: player.total_deaths
                     })).sort((a, b) => b.net_kills - a.net_kills);
@@ -448,6 +453,7 @@ function filterAllLeaderboards(roleFilter) {
                                 <td>${player.name}</td>
                                 <td>${roleFilter}</td>
                                 <td>${player.net_kills}</td>
+                                <td>${player.net_kills_per_game}</td>
                                 <td>${player.total_kills || 0}</td>
                                 <td>${player.total_deaths || 0}</td>
                                 <td>${player.games_played}</td>
