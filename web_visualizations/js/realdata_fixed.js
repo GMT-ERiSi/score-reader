@@ -162,52 +162,66 @@ async function loadPlayerStats() {
         else if (isTeamPage) {
             console.log('Loading team-specific player performance data...');
             
-            // Try to load team-specific player performance data
-            try {
-                const response = await fetch('../stats_reports/player_performance_team.json');
-                if (response.ok) {
-                    console.log('Successfully loaded team performance data');
-                    return await response.json();
+            // Define the team-specific role performance files
+            const teamRoleFiles = [
+                '../stats_reports/player_performance_team_role_farmer.json',
+                '../stats_reports/player_performance_team_role_flex.json',
+                '../stats_reports/player_performance_team_role_support.json'
+                // Add other roles if necessary
+            ];
+
+            let combinedTeamStats = [];
+            const promises = teamRoleFiles.map(file =>
+                fetch(file)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log(`Successfully loaded team role data from: ${file}`);
+                            return response.json();
+                        }
+                        console.log(`File not found or error loading: ${file}`);
+                        return null; // Return null for failed fetches
+                    })
+                    .catch(err => {
+                        console.error(`Error fetching ${file}:`, err);
+                        return null; // Return null on error
+                    })
+            );
+
+            const results = await Promise.all(promises);
+
+            results.forEach(data => {
+                if (data) {
+                    combinedTeamStats = combinedTeamStats.concat(data);
                 }
-            } catch (err) {
-                console.log(`Failed to load team performance data: ${err.message}`);
+            });
+
+            if (combinedTeamStats.length > 0) {
+                console.log(`Successfully combined ${combinedTeamStats.length} player stats entries from team role files.`);
+                return combinedTeamStats;
             }
-            
-            // Fall back to other team files
-            try {
-                const legacyResponse = await fetch('../stats_reports/player_performance.json');
-                if (legacyResponse.ok) {
-                    console.log('Successfully loaded legacy team performance data');
-                    return await legacyResponse.json();
-                }
-            } catch (err) {
-                console.log(`Failed to load legacy team performance data: ${err.message}`);
-            }
+
+            // If still no data, log an error and proceed to general fallbacks
+            console.log('Could not load any team-specific role performance files.');
         }
         
-        // If we get here, try some general fallbacks
+        // If page-specific loading failed or wasn't applicable, try general fallbacks
         console.log('Attempting general fallback performance data load...');
         
-        // Try team files first
-        try {
-            const response = await fetch('../stats_reports/player_performance_team.json');
-            if (response.ok) {
-                return await response.json();
-            }
-        } catch (err) {}
-        
-        // Then try legacy files
+        // Try legacy combined file (which likely doesn't exist based on user feedback)
         try {
             const legacyResponse = await fetch('../stats_reports/player_performance.json');
             if (legacyResponse.ok) {
+                console.log('Successfully loaded legacy combined performance data');
                 return await legacyResponse.json();
             }
-        } catch (err) {}
-        
+        } catch (err) {
+            console.log(`Failed to load legacy combined performance data: ${err.message}`);
+        }
+
         // Last resort - return empty array
         console.error('All attempts to load player performance data failed');
         return [];
-        
+
     } catch (error) {
         console.error('Error loading player performance data:', error);
         return [];
