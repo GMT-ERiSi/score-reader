@@ -424,5 +424,6 @@ export {
     addTableFilter,
     enableTableRowSelection,
     addRoleFilter,
-    filterTableByRole
+    filterTableByRole,
+    updateRankNumbersForVisible // Export this function
 };

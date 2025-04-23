@@ -8,22 +8,16 @@
 // Load player roles data
 async function loadPlayerRoles() {
     try {
-        // Try to load player role data if it exists
-        const response = await fetch('../stats_reports_test/player_roles.json');
+        // Load player role data from the main stats_reports directory
+        console.log('Attempting to load player roles from ../stats_reports/player_roles.json');
+        const response = await fetch('../stats_reports/player_roles.json');
         
         if (!response.ok) {
-            // Fall back to another possible location
-            console.log('Role data file not found in test directory, trying main directory...');
-            const mainResponse = await fetch('../stats_reports/player_roles.json');
-            
-            if (!mainResponse.ok) {
-                console.log('No player role data found. Role filtering will be unavailable.');
-                return {};
-            }
-            
-            return await mainResponse.json();
+            console.log(`Failed to load player role data: ${response.status} ${response.statusText}. Role filtering might be unavailable.`);
+            return {}; // Return empty object if file not found or error
         }
         
+        console.log('Successfully loaded player roles.');
         return await response.json();
     } catch (error) {
         console.error('Error loading player role data:', error);

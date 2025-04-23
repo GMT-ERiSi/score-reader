@@ -21,7 +21,7 @@ try {
 
             console.log('Loading leaderboardManager.js...');
             const leaderboardManager = await import('./leaderboardManager.js');
-            const { createAdditionalLeaderboards } = leaderboardManager;
+            const { createAdditionalLeaderboards, filterAllLeaderboards } = leaderboardManager;
             console.log('leaderboardManager.js loaded successfully');
 
             console.log('Loading realdata_fixed.js...');
@@ -33,14 +33,16 @@ try {
             console.log(`All modules loaded in ${(moduleEnd - moduleStart).toFixed(2)}ms`);
 
             // Now that modules are loaded, initialize the app
+            // Pass all necessary functions, including the newly imported one
             initializeApp({
-                makeTableSortable, 
-                addTableFilter, 
+                makeTableSortable,
+                addTableFilter,
                 enableTableRowSelection,
                 enhanceChartInteractivity,
                 filterChartByName,
                 addChartControls,
                 createAdditionalLeaderboards,
+                filterAllLeaderboards, // Pass the function here
                 loadAllRealData,
                 addRoleFilter,
                 filterTableByRole
@@ -77,7 +79,8 @@ function initializeApp(modules) {
         createAdditionalLeaderboards,
         loadAllRealData,
         addRoleFilter,
-        filterTableByRole
+        filterTableByRole,
+        filterAllLeaderboards // Destructure the function here
     } = modules;
 
     // Data storage
@@ -258,35 +261,6 @@ function initializeApp(modules) {
         return color;
     }
     
-    // Helper function to get roles for a team
-    function getTeamRoles(teamName, teamId) {
-        // Find players with this team as their primary team
-        const teamPlayers = playerStats.filter(player => {
-            // Check if this player is associated with this team
-            return player.team_name === teamName || player.team_id === teamId;
-        });
-        
-        if (teamPlayers.length === 0) {
-            return null;
-        }
-        
-        // Count roles
-        const roleCounts = {};
-        teamPlayers.forEach(player => {
-            if (player.role) {
-                roleCounts[player.role] = (roleCounts[player.role] || 0) + 1;
-            }
-        });
-        
-        // Format role counts as "Flex (3), Support (2), Farmer (1)"
-        const roleTexts = Object.entries(roleCounts)
-            .sort((a, b) => b[1] - a[1]) // Sort by count descending
-            .map(([role, count]) => `${role} (${count})`)
-            .join(', ');
-            
-        return roleTexts || null;
-    }
-
     function renderTeamEloTable() {
         console.log("Rendering Team ELO Table...");
         if (!teamEloTableBody || !teamEloLadder || teamEloLadder.length === 0) {
@@ -319,16 +293,7 @@ function initializeApp(modules) {
             const nameCell = row.insertCell();
             nameCell.textContent = team.team_name;
             
-            // Add role cell
-            const roleCell = row.insertCell();
-            const teamRoles = getTeamRoles(team.team_name, team.team_id);
-            roleCell.textContent = teamRoles || 'N/A';
-            roleCell.classList.add('role-cell');
-            
-            // Store role data for filtering
-            if (teamRoles) {
-                row.dataset.roles = teamRoles;
-            }
+            // Role cell removed
 
             const eloCell = row.insertCell();
             eloCell.textContent = team.elo_rating;
@@ -403,14 +368,82 @@ function initializeApp(modules) {
         if (uniqueRoles.size > 0) {
             // Add role filter using the roles we found
             console.log("Adding role filter buttons for team page");
-            addRoleFilter('teamEloTable', Array.from(uniqueRoles), 'teamRoleFilterContainer');
-        } else {
-            // Add default roles if none found
-            console.log("No roles found, adding default role buttons");
-            addRoleFilter('teamEloTable', ['Farmer', 'Flex', 'Support'], 'teamRoleFilterContainer');
-        }
-        
-        
+            // --- Setup Role Filter for Leaderboards ---
+            const leaderboardRoleContainer = document.getElementById('teamRoleFilterContainer');
+            if (leaderboardRoleContainer) {
+                leaderboardRoleContainer.innerHTML = ''; // Clear existing content
+
+                // Add heading
+                const heading = document.createElement('h4');
+                heading.textContent = 'Filter Leaderboards by Role:';
+                heading.style.marginTop = '0';
+                heading.style.marginBottom = '10px';
+                heading.style.width = '100%'; // Make heading span full width
+                leaderboardRoleContainer.appendChild(heading);
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.flexWrap = 'wrap';
+                buttonContainer.style.gap = '8px';
+                leaderboardRoleContainer.appendChild(buttonContainer);
+
+                const rolesToDisplay = uniqueRoles.size > 0 ? Array.from(uniqueRoles) : ['Farmer', 'Flex', 'Support'];
+                const allRoles = ['all', ...rolesToDisplay, 'none'];
+
+                allRoles.forEach(role => {
+                    const button = document.createElement('button');
+                    button.textContent = role === 'all' ? 'All Roles' : (role === 'none' ? 'No Role' : role);
+                    button.className = 'role-filter-button';
+                    button.dataset.role = role;
+
+                    // Style buttons (similar to tableInteractivity)
+                    button.style.padding = '8px 15px';
+                    button.style.margin = '4px';
+                    button.style.border = '1px solid #ddd';
+                    button.style.borderRadius = '4px';
+                    button.style.cursor = 'pointer';
+                    button.style.fontWeight = 'bold';
+
+                    if (role === 'all') {
+                        button.classList.add('active');
+                        button.style.backgroundColor = '#0066cc';
+                        button.style.color = 'white';
+                        button.style.borderColor = '#0055aa';
+                    } else {
+                        button.style.backgroundColor = '#f2f2f2';
+                        button.style.color = '#333';
+                    }
+                    buttonContainer.appendChild(button);
+                });
+
+                // Add event listener to the container
+                leaderboardRoleContainer.addEventListener('click', (e) => {
+                    const target = e.target;
+                    if (!target.classList.contains('role-filter-button')) {
+                        return;
+                    }
+
+                    const selectedRole = target.dataset.role;
+                    console.log(`Leaderboard role filter clicked: ${selectedRole}`);
+
+                    // Update button active states
+                    leaderboardRoleContainer.querySelectorAll('.role-filter-button').forEach(btn => {
+                        const isActive = btn.dataset.role === selectedRole;
+                        btn.classList.toggle('active', isActive);
+                        btn.style.backgroundColor = isActive ? '#0066cc' : '#f2f2f2';
+                        btn.style.color = isActive ? 'white' : '#333';
+                        btn.style.borderColor = isActive ? '#0055aa' : '#ddd';
+                    });
+
+                    // Filter the leaderboards
+                    filterAllLeaderboards(selectedRole);
+                });
+                console.log("Role filter for leaderboards added.");
+            } else {
+                console.warn("Role filter container 'teamRoleFilterContainer' not found.");
+            }
+        } // End of check for roleFilterContainer
+
         console.log("Table interactivity features applied.");
     }
 

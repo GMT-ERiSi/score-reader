@@ -3,6 +3,9 @@
  * Handles the creation and management of all leaderboard types
  */
 
+// Import necessary functions from tableInteractivity
+import { updateRankNumbersForVisible } from './tableInteractivity.js';
+
 // Helper function to create a new table element with headers
 function createLeaderboardTable(id, headers) {
     const table = document.createElement('table');
@@ -46,23 +49,29 @@ function populateLeaderboard(tableId, data, columns) {
     // Add rows
     data.forEach(item => {
         const row = document.createElement('tr');
-        
+        // Add data-role attribute for filtering
+        const role = item.role || 'None'; // Use 'None' if role is null/undefined
+        row.setAttribute('data-role', role);
+
         // Add cells based on provided columns configuration
         columns.forEach(column => {
             const cell = document.createElement('td');
-            
-            // Handle special formatting if needed
+
+            // Handle special formatting or role display
             if (column.format) {
                 cell.textContent = column.format(item[column.key]);
+            } else if (column.key === 'role') { // Display role nicely
+                cell.textContent = item[column.key] || 'None'; // Show 'None' if role is missing
             } else {
-                cell.textContent = item[column.key];
+                // Ensure we handle potential null/undefined values gracefully
+                cell.textContent = item[column.key] !== null && item[column.key] !== undefined ? item[column.key] : '';
             }
-            
+
             // Add class if specified
             if (column.class) {
                 cell.classList.add(column.class);
             }
-            
+
             row.appendChild(cell);
         });
         
@@ -89,15 +98,16 @@ function createAIKillsLeaderboard(containerId, data) {
     const columns = [
         { key: 'rank', class: 'rank-cell' },
         { key: 'player_name' },
+        { key: 'role' }, // Add role column
         { key: 'ai_kills' },
         { key: 'matches_played' },
         { key: 'ai_kills_per_match', format: val => (val ? val.toFixed(2) : '0.00') }
     ];
-    
+
     // Create table
     const tableId = 'aiKillsTable';
     const table = createLeaderboardTable(tableId, [
-        'Rank', 'Player', 'AI Kills', 'Matches', 'Kills per Match'
+        'Rank', 'Player', 'Role', 'AI Kills', 'Matches', 'Kills per Match' // Add Role header
     ]);
     
     // Add table to container
@@ -132,15 +142,16 @@ function createDamageLeaderboard(containerId, data) {
     const columns = [
         { key: 'rank', class: 'rank-cell' },
         { key: 'player_name' },
+        { key: 'role' }, // Add role column
         { key: 'total_damage' },
         { key: 'matches_played' },
         { key: 'damage_per_match', format: val => (val ? val.toFixed(0) : '0') }
     ];
-    
+
     // Create table
     const tableId = 'damageTable';
     const table = createLeaderboardTable(tableId, [
-        'Rank', 'Player', 'Total Damage', 'Matches', 'Damage per Match'
+        'Rank', 'Player', 'Role', 'Total Damage', 'Matches', 'Damage per Match' // Add Role header
     ]);
     
     // Add table to container
@@ -181,16 +192,17 @@ function createNetKillsLeaderboard(containerId, data) {
     const columns = [
         { key: 'rank', class: 'rank-cell' },
         { key: 'player_name' },
+        { key: 'role' }, // Add role column
         { key: 'net_kills' },
         { key: 'player_kills' },
         { key: 'deaths' },
         { key: 'matches_played' }
     ];
-    
+
     // Create table
     const tableId = 'netKillsTable';
     const table = createLeaderboardTable(tableId, [
-        'Rank', 'Player', 'Net Kills', 'Kills', 'Deaths', 'Matches'
+        'Rank', 'Player', 'Role', 'Net Kills', 'Kills', 'Deaths', 'Matches' // Add Role header
     ]);
     
     // Add table to container
@@ -233,15 +245,16 @@ function createLeastDeathsLeaderboard(containerId, data) {
     const columns = [
         { key: 'rank', class: 'rank-cell' },
         { key: 'player_name' },
+        { key: 'role' }, // Add role column
         { key: 'deaths' },
         { key: 'matches_played' },
         { key: 'deaths_per_match', format: val => val.toFixed(2) }
     ];
-    
+
     // Create table
     const tableId = 'leastDeathsTable';
     const table = createLeaderboardTable(tableId, [
-        'Rank', 'Player', 'Total Deaths', 'Matches', 'Deaths per Match'
+        'Rank', 'Player', 'Role', 'Total Deaths', 'Matches', 'Deaths per Match' // Add Role header
     ]);
     
     // Add table to container
@@ -334,8 +347,56 @@ async function createAdditionalLeaderboards(containerSelector, playerStatsData) 
     }
 }
 
+// Function to filter all leaderboard tables by role
+function filterAllLeaderboards(roleFilter) {
+    console.log(`Filtering all leaderboards by role: ${roleFilter}`);
+    const leaderboardContainer = document.getElementById('additional-leaderboards');
+    if (!leaderboardContainer) {
+        console.warn('Leaderboard container not found.');
+        return;
+    }
+
+    const tables = leaderboardContainer.querySelectorAll('table');
+    
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const rowRole = row.getAttribute('data-role');
+            
+            if (roleFilter === 'all' ||
+                (roleFilter === 'none' && rowRole.toLowerCase() === 'none') ||
+                (rowRole && rowRole.toLowerCase() === roleFilter.toLowerCase())) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Update rank numbers for visible rows in this table
+        updateRankNumbersForVisible(table); // Assuming this function exists or we add it
+        
+        // Show/hide "no results" message for this table
+        let noResultsMsg = table.parentNode.querySelector('.no-results-message');
+        if (visibleCount === 0 && roleFilter !== 'all') {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('p');
+                noResultsMsg.className = 'no-results-message';
+                noResultsMsg.textContent = 'No matching players found for this role.';
+                table.parentNode.insertBefore(noResultsMsg, table.nextSibling);
+            }
+            noResultsMsg.style.display = 'block';
+        } else if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    });
+}
+
 // Export functions
 export {
     createAdditionalLeaderboards,
-    populateLeaderboard
+    populateLeaderboard,
+    filterAllLeaderboards // Export the new filter function
 };
