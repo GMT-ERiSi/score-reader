@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Stats - Squadrons Visualizations</title>
+    <title>Squadron Stats - Star Wars: Squadrons</title>
     <link rel="stylesheet" href="style.css">
     <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <!-- Chart.js Zoom plugin (optional) -->
+    <!-- Chart.js Zoom plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Module support detection -->
     <script>
         window.moduleSupport = 'noModule' in HTMLScriptElement.prototype;
@@ -18,38 +20,40 @@
 </head>
 <body>
     <header>
-        <h1>Star Wars: Squadrons - Team Stats</h1>
-        <p class="subtitle">Showing data for team matches only</p>
+        <h1>Star Wars: Squadrons - Squadron Stats</h1>
+        <p class="subtitle">Tracking flight group performance across the galaxy</p>
         <nav>
             <ul>
-                <li><a href="team.html" class="active">Team Stats</a></li>
-                <li><a href="pickup.html">Pickup Stats</a></li>
-                <li><a href="index.html">Combined View</a></li>
+                <li><a href="team.html" class="active"><i class="fas fa-users"></i> Squadron Stats</a></li>
+                <li><a href="pickup.html"><i class="fas fa-fighter-jet"></i> Pilot Stats</a></li>
+                <li><a href="index.html"><i class="fas fa-table"></i> Combined View</a></li>
             </ul>
         </nav>
     </header>
 
     <section id="team-section">
-        <h2>Team ELO</h2>
+        <h2><i class="fas fa-shield-alt"></i> Squadron ELO Ratings</h2>
         <div class="chart-container">
             <canvas id="teamEloChart"></canvas>
         </div>
-        <h3>Team ELO Ladder</h3>
+        <h3>Squadron ELO Ladder</h3>
         <div class="table-controls">
-            <input type="text" id="teamTableFilter" placeholder="Search teams..." class="table-filter">
-            <button id="showAllTeamsButton" class="show-all-button">Show All Teams</button>
+            <input type="text" id="teamTableFilter" placeholder="Search squadrons..." class="table-filter">
+            <button id="showAllTeamsButton" class="show-all-button">
+                <i class="fas fa-list"></i> Show All Squadrons
+            </button>
         </div>
         
         <!-- Role filter container for team page -->
-        <div id="teamRoleFilterContainer" class="role-filter-container" style="display: block; border: 2px solid blue; padding: 15px; margin: 15px 0; background-color: #f0f8ff;">
-            <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Player Role:</h4>
+        <div id="teamRoleFilterContainer" class="role-filter-container">
+            <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Primary Combat Role:</h4>
             <!-- Role filter buttons will be added here by JavaScript -->
         </div>
         <table id="teamEloTable">
             <thead>
                 <tr>
                     <th class="rank-cell">Rank</th>
-                    <th>Team Name</th>
+                    <th>Squadron Name</th>
                     <th>Primary Roles</th>
                     <th>ELO Rating</th>
                     <th>W-L</th>
@@ -60,6 +64,15 @@
                 <!-- Team ELO data will be populated here -->
             </tbody>
         </table>
+        
+        <!-- Faction comparison section - compact single row version -->
+        <div class="faction-stats-compact">
+            <span class="faction-label">Faction Stats:</span>
+            <span class="faction-stat imperial">Imperial Win Rate: <span id="imperialWinRate">Loading...</span></span>
+            <span class="faction-stat imperial">Avg ELO: <span id="imperialAvgElo">Loading...</span></span>
+            <span class="faction-stat rebel">New Republic Win Rate: <span id="rebelWinRate">Loading...</span></span>
+            <span class="faction-stat rebel">Avg ELO: <span id="rebelAvgElo">Loading...</span></span>
+        </div>
     </section>
 
     <!-- Container for additional leaderboards -->
@@ -67,12 +80,19 @@
         <!-- Additional leaderboards will be dynamically created here -->
     </div>
 
+    <div class="loading-container" id="loading">
+        <p>Loading squadron data from across the galaxy...</p>
+        <div class="lightsaber-loader"></div>
+    </div>
+
     <footer>
-        <p>Data generated using Star Wars Squadrons Score Reader</p>
+        <p>Data provided by Imperial and New Republic Intelligence Services</p>
+        <p><small>May the Force be with you</small></p>
     </footer>
 
     <!-- Import modules using type="module" with fallback -->
     <script type="module" src="js/team_page.js"></script>
     <script nomodule src="js/nomodule-fallback.js"></script>
+    <script src="star-wars-theme.js"></script>
 </body>
 </html>

@@ -3,53 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pickup Stats - Squadrons Visualizations</title>
+    <title>Pilot Stats - Star Wars: Squadrons</title>
     <link rel="stylesheet" href="style.css">
     <!-- Include Chart.js library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <!-- Chart.js Zoom plugin (optional) -->
+    <!-- Chart.js Zoom plugin -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Module support detection -->
     <script>
         window.moduleSupport = 'noModule' in HTMLScriptElement.prototype;
         window.isPickupPage = true; // Flag to identify this is the pickup page
+        
+        // Create star background effect
+        document.addEventListener('DOMContentLoaded', () => {
+            createStars();
+        });
+        
+        function createStars() {
+            const body = document.body;
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Random position
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Random size
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Random animation delay
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                
+                body.appendChild(star);
+            }
+        }
     </script>
 </head>
 <body>
     <header>
-        <h1>Star Wars: Squadrons - Pickup Stats</h1>
-        <p class="subtitle">Showing data for pickup matches only</p>
+        <h1>Star Wars: Squadrons - Pilot Stats</h1>
+        <p class="subtitle">Individual combat performance tracking system</p>
         <nav>
             <ul>
-                <li><a href="team.html">Team Stats</a></li>
-                <li><a href="pickup.html" class="active">Pickup Stats</a></li>
-                <li><a href="index.html">Combined View</a></li>
+                <li><a href="team.html"><i class="fas fa-users"></i> Squadron Stats</a></li>
+                <li><a href="pickup.html" class="active"><i class="fas fa-fighter-jet"></i> Pilot Stats</a></li>
+                <li><a href="index.html"><i class="fas fa-table"></i> Combined View</a></li>
             </ul>
         </nav>
     </header>
 
     <section id="pickup-section">
-        <h2>Pickup Player ELO</h2>
+        <h2><i class="fas fa-user-pilot"></i> Pilot ELO Ratings</h2>
         <div class="chart-container">
             <canvas id="pickupEloChart"></canvas>
         </div>
-        <h3>Pickup Player ELO Ladder</h3>
+        <h3>Pilot ELO Ladder</h3>
         <div class="table-controls">
-            <input type="text" id="pickupTableFilter" placeholder="Search players..." class="table-filter">
-            <button id="showAllPlayersButton" class="show-all-button">Show All Players</button>
+            <input type="text" id="pickupTableFilter" placeholder="Search pilots..." class="table-filter">
+            <button id="showAllPlayersButton" class="show-all-button">
+                <i class="fas fa-list"></i> Show All Pilots
+            </button>
         </div>
         
-        <!-- Role filter container - positioned outside the table-controls for better visibility -->
-        <div id="roleFilterContainer" class="role-filter-container" style="display: block; border: 2px solid blue; padding: 15px; margin: 15px 0; background-color: #f0f8ff;">
-            <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Role:</h4>
+        <!-- Role filter container -->
+        <div id="roleFilterContainer" class="role-filter-container">
+            <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Combat Role:</h4>
             <!-- Role filter buttons will be added here by JavaScript -->
         </div>
         <table id="pickupEloTable">
             <thead>
                 <tr>
                     <th class="rank-cell">Rank</th>
-                    <th>Player Name</th>
+                    <th>Pilot Name</th>
                     <th>Role</th>
                     <th>ELO Rating</th>
                     <th>W-L</th>
@@ -67,12 +100,19 @@
         <!-- Additional leaderboards will be dynamically created here -->
     </div>
 
+    <div class="loading-container" id="loading">
+        <p>Loading pilot data from across the galaxy...</p>
+        <div class="lightsaber-loader"></div>
+    </div>
+
     <footer>
-        <p>Data generated using Star Wars Squadrons Score Reader</p>
+        <p>Data provided by Imperial and New Republic Intelligence Services</p>
+        <p><small>May the Force be with you</small></p>
     </footer>
 
     <!-- Import modules using type="module" with fallback -->
     <script type="module" src="js/pickup_page.js"></script>
     <script nomodule src="js/nomodule-fallback.js"></script>
+    <script src="star-wars-theme.js"></script>
 </body>
 </html>
