@@ -410,26 +410,6 @@ function initializeApp(modules) {
             addRoleFilter('teamEloTable', ['Farmer', 'Flex', 'Support'], 'teamRoleFilterContainer');
         }
         
-        // Add extra direct creation of buttons for testing
-        if (roleFilterContainer) {
-            console.log("Creating direct test buttons");
-            ['Flex', 'Support', 'Farmer'].forEach(role => {
-                const testButton = document.createElement('button');
-                testButton.textContent = `Role: ${role}`;
-                testButton.style.padding = '10px 15px';
-                testButton.style.backgroundColor = '#4CAF50';
-                testButton.style.color = 'white';
-                testButton.style.border = 'none';
-                testButton.style.borderRadius = '5px';
-                testButton.style.cursor = 'pointer';
-                testButton.style.margin = '5px';
-                testButton.addEventListener('click', () => {
-                    console.log(`Test button clicked for role: ${role}`);
-                    filterTableByRole(document.getElementById('teamEloTable'), role);
-                });
-                roleFilterContainer.appendChild(testButton);
-            });
-        }
         
         console.log("Table interactivity features applied.");
     }

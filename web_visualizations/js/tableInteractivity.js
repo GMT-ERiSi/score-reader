@@ -377,7 +377,7 @@ function filterTableByRole(table, roleFilter) {
         
         if (roleFilter === 'all' || 
             (roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none')) ||
-            (roleText.toLowerCase() === roleFilter.toLowerCase())) {
+            (roleText.toLowerCase().includes(roleFilter.toLowerCase()))) {
             row.style.display = '';
             visibleCount++;
         } else {
