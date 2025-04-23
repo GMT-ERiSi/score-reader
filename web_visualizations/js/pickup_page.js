@@ -21,7 +21,7 @@ try {
 
             console.log('Loading leaderboardManager.js...');
             const leaderboardManager = await import('./leaderboardManager.js');
-            const { createAdditionalLeaderboards } = leaderboardManager;
+            const { createAdditionalLeaderboards, filterAllLeaderboards } = leaderboardManager; // Import filter function
             console.log('leaderboardManager.js loaded successfully');
 
             console.log('Loading realdata_fixed.js...');
@@ -33,14 +33,16 @@ try {
             console.log(`All modules loaded in ${(moduleEnd - moduleStart).toFixed(2)}ms`);
 
             // Now that modules are loaded, initialize the app
+            // Pass all necessary functions, including the newly imported one
             initializeApp({
-                makeTableSortable, 
-                addTableFilter, 
+                makeTableSortable,
+                addTableFilter,
                 enableTableRowSelection,
                 enhanceChartInteractivity,
                 filterChartByName,
                 addChartControls,
                 createAdditionalLeaderboards,
+                filterAllLeaderboards, // Pass the function here
                 loadAllRealData,
                 addRoleFilter,
                 filterTableByRole
@@ -77,7 +79,8 @@ function initializeApp(modules) {
         createAdditionalLeaderboards,
         loadAllRealData,
         addRoleFilter,
-        filterTableByRole
+        filterTableByRole,
+        filterAllLeaderboards // Destructure the function here
     } = modules;
 
     // Data storage
@@ -366,6 +369,24 @@ function initializeApp(modules) {
             addRoleFilter('pickupEloTable', ['Farmer', 'Flex', 'Support']);
         }
         
+        
+        // Add separate listener to filter leaderboards when role buttons are clicked
+        if (roleFilterContainer) {
+            // Use a flag to prevent adding the listener multiple times if this function is called again
+            if (!roleFilterContainer.dataset.leaderboardListenerAdded) {
+                roleFilterContainer.addEventListener('click', (e) => {
+                    const target = e.target;
+                    // Ensure it's a role button click
+                    if (target.classList.contains('role-filter-button') && target.dataset.role) {
+                        const selectedRole = target.dataset.role;
+                        console.log(`Filtering leaderboards for role: ${selectedRole}`);
+                        filterAllLeaderboards(selectedRole); // Call the leaderboard filter function
+                    }
+                });
+                roleFilterContainer.dataset.leaderboardListenerAdded = 'true'; // Mark listener as added
+                console.log("Added separate event listener for leaderboard role filtering.");
+            }
+        }
         
         console.log("Pickup table interactivity features applied.");
     }
