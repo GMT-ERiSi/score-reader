@@ -1,99 +1,292 @@
+/* Web Visualizations for Star Wars Squadrons Stats */
+
+/* General styling */
 body {
-    font-family: sans-serif;
-    line-height: 1.6;
-    margin: 20px;
-    background-color: #f4f4f4;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
     color: #333;
+    background-color: #f5f5f5;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #222;
+    color: #fff;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+.subtitle {
+    color: #aaa;
+    font-style: italic;
+    margin-top: -10px;
+    margin-bottom: 15px;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+}
+
+nav ul li {
+    margin: 0 1rem;
+}
+
+nav ul li a {
+    color: #ccc;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #fff;
+    background-color: #444;
+}
+
+nav ul li a.active {
+    color: #fff;
+    background-color: #0066cc;
 }
 
 h1, h2, h3 {
-    color: #0056b3; /* A blue tone */
-}
-
-h1 {
-    text-align: center;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+    margin-top: 0;
 }
 
 section {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 30px;
+    margin: 2rem auto;
+    padding: 1rem;
+    max-width: 1200px;
+    background-color: white;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+footer {
+    text-align: center;
+    padding: 1rem;
+    margin-top: 2rem;
+    background-color: #222;
+    color: #ccc;
+}
+
+/* Chart styling */
 .chart-container {
     position: relative;
-    height: 40vh; /* Adjust height as needed */
-    width: 80vw;  /* Adjust width as needed */
-    max-width: 800px; /* Max width for larger screens */
-    margin: 20px auto; /* Center the chart */
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    height: 400px;
+    width: 100%;
+    margin-bottom: 2rem;
 }
 
+/* Table styling */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin: 1rem 0;
 }
 
 th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
+    padding: 0.75rem;
     text-align: left;
+    border-bottom: 1px solid #ddd;
 }
 
 th {
-    background-color: #e9ecef; /* Light grey header */
-    color: #495057;
+    background-color: #f2f2f2;
+    cursor: pointer;
+    position: relative;
 }
 
-tbody tr:nth-child(even) {
-    background-color: #f8f9fa; /* Zebra striping */
+/* Sortable table headers */
+th.sort-asc::after {
+    content: ' ↑';
+    position: absolute;
+    right: 8px;
 }
 
-tbody tr:hover {
-    background-color: #dee2e6; /* Hover effect */
+th.sort-desc::after {
+    content: ' ↓';
+    position: absolute;
+    right: 8px;
 }
 
-/* Basic Responsive */
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Selected row styling */
+tr.selected {
+    background-color: #e6f2ff;
+}
+
+/* Special cells */
+.rank-cell {
+    text-align: center;
+    width: 50px;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
+    section {
+        padding: 0.5rem;
+    }
+    
     .chart-container {
-        width: 95vw;
-        height: 50vh; /* Adjust height for mobile */
+        height: 300px;
     }
-
-    h1 {
-        font-size: 1.8em;
+    
+    th, td {
+        padding: 0.5rem;
     }
-    h2 {
-        font-size: 1.4em;
-    }
-    table, th, td {
-        font-size: 0.9em; /* Slightly smaller font on mobile */
+    
+    th {
+        white-space: nowrap;
     }
 }
 
-@media (max-width: 480px) {
-    body {
-        margin: 10px;
+/* No data messages */
+.no-data-message {
+    color: #666;
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Table filtering and controls */
+.table-filter {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.table-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.show-all-button {
+    padding: 0.5rem 1rem;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.show-all-button:hover {
+    background-color: #0055aa;
+}
+
+/* Chart controls */
+.chart-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.chart-control-button {
+    padding: 0.4rem 0.8rem;
+    margin: 0 0.25rem;
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.chart-control-button:hover {
+    background-color: #e6e6e6;
+}
+
+/* Role filtering */
+.role-filter-container {
+    display: block !important;
+    border: 2px solid #0066cc !important;
+    padding: 15px !important;
+    margin: 20px 0 !important;
+    background-color: #f0f8ff !important;
+    border-radius: 8px !important;
+}
+
+.role-filter-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+    color: #333;
+}
+
+.role-filter-button {
+    padding: 8px 15px;
+    margin: 4px;
+    background-color: #f2f2f2;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.role-filter-button:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+}
+
+.role-filter-button.active {
+    background-color: #0066cc;
+    color: white;
+    border-color: #0055aa;
+}
+
+/* Additional leaderboards container */
+#leaderboards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+}
+
+.leaderboard-section {
+    flex: 1 1 45%;
+    min-width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .leaderboard-section {
+        flex: 1 1 100%;
     }
-    section {
-        padding: 15px;
-    }
-    h1 {
-        font-size: 1.5em;
-    }
-    h2 {
-        font-size: 1.2em;
-    }
-    th, td {
-        padding: 5px;
-    }
+}
+
+/* Error message styling */
+.error-message {
+    color: red;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 1px solid red;
+    background-color: #ffeeee;
+    border-radius: 4px;
+}
+
+/* Debug styling for role cells */
+.role-cell {
+    font-weight: bold;
+    color: #0066cc;
 }

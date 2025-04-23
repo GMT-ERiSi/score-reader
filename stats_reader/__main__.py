@@ -3,7 +3,7 @@ Command-line entry point for stats_reader module
 """
 import argparse
 import sys
-from .stats_db_processor import main as stats_processor_main
+from .stats_db_processor_direct import main as stats_processor_main
 from .data_cleaner import main as data_cleaner_main
 from .elo_ladder import main as elo_ladder_main
 from .reference_manager import main as reference_manager_main

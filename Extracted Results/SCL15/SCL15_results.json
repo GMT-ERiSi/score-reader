@@ -7,7 +7,7 @@
           "players": [
             {
               "position": "Vanguard Three",
-              "player": "NRD_ERISi",
+              "player": "NRD_ERiSi",
               "score": 4775,
               "kills": 42,
               "deaths": 3,
@@ -47,7 +47,7 @@
             }
           ]
         },
-        "empire": {
+        "imperial": {
           "players": [
             {
               "position": "Titan Three",
@@ -101,7 +101,8 @@
             }
           ]
         }
-      }
+      },
+      "match_date": "2022-12-07 21:01:50"
     },
     "Star Wars  Squadrons Screenshot 2023.01.18 - 23.02.43.74.png": {
       "match_result": "NEW REPUBLIC VICTORY",
@@ -150,7 +151,7 @@
             }
           ]
         },
-        "imperial": {
+        "empire": {
           "players": [
             {
               "position": "Titan Three",
@@ -194,7 +195,8 @@
             }
           ]
         }
-      }
+      },
+      "match_date": "2023-01-18 23:02:43"
     },
     "Star Wars  Squadrons Screenshot 2023.01.21 - 23.31.34.38.png": {
       "match_result": "NEW REPUBLIC VICTORY",
@@ -297,7 +299,8 @@
             }
           ]
         }
-      }
+      },
+      "match_date": "2023-01-21 23:31:34"
     }
   }
 }

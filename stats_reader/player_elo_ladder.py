@@ -122,7 +122,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
         
         # Get imperial players
         cursor.execute("""
-        SELECT player_id, player_name, player_hash
+        SELECT player_id, player_name, player_hash, role
         FROM player_stats
         WHERE match_id = ? AND faction = 'IMPERIAL'
         """, (match_id,))
@@ -131,7 +131,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
         
         # Get rebel players
         cursor.execute("""
-        SELECT player_id, player_name, player_hash
+        SELECT player_id, player_name, player_hash, role
         FROM player_stats
         WHERE match_id = ? AND faction = 'REBEL'
         """, (match_id,))
@@ -187,6 +187,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
             imperial_players_history.append({
                 'player_id': player_id,
                 'player_name': player['player_name'],
+                'role': player['role'], # Add role here
                 'old_rating': old_rating,
                 'new_rating': new_rating,
                 'rating_change': new_rating - old_rating
@@ -201,6 +202,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
             rebel_players_history.append({
                 'player_id': player_id,
                 'player_name': player['player_name'],
+                'role': player['role'], # Add role here
                 'old_rating': old_rating,
                 'new_rating': new_rating,
                 'rating_change': new_rating - old_rating
@@ -249,6 +251,22 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
             
             # Only include players who have actually played pickup/ranked matches
             if matches_played > 0:
+                # Get the player's most common role
+                cursor.execute("""
+                SELECT 
+                    ps.role,
+                    COUNT(*) as role_count
+                FROM player_stats ps
+                JOIN matches m ON ps.match_id = m.id
+                WHERE ps.player_id = ? AND m.match_type = ? AND ps.role IS NOT NULL
+                GROUP BY ps.role
+                ORDER BY role_count DESC
+                LIMIT 1
+                """, (player_id, match_type))
+                
+                role_row = cursor.fetchone()
+                player_role = role_row['role'] if role_row else None
+                
                 # Make sure we don't divide by zero
                 win_rate = 0
                 if matches_played > 0:
@@ -258,6 +276,7 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
                     'player_id': player_id,
                     'player_name': player['name'],
                     'player_hash': player['player_hash'],
+                    'role': player_role,  # Include the player's most common role
                     'elo_rating': round(elo_ratings[player_id]),
                     'matches_played': matches_played,
                     'matches_won': matches_won,
@@ -291,10 +310,11 @@ def generate_player_elo_ladder(db_path, output_dir="stats_reports", starting_elo
     # Display top players with fixed formatting
     print(f"Top 10 players by ELO rating in {match_type} matches:")
     print("===========================================================")
-    print(f"{'Rank':<5}{'Player':<25}{'ELO':<8}{'W-L':<10}{'Win %':<8}")
+    print(f"{'Rank':<5}{'Player':<25}{'Role':<10}{'ELO':<8}{'W-L':<10}{'Win %':<8}")
     print("-----------------------------------------------------------")
     for player in ladder[:10]:
-        print(f"{player['rank']:<5}{player['player_name'][:24]:<25}{player['elo_rating']:<8}{player['matches_won']}-{player['matches_lost']:<10}{player['win_rate']}%")
+        role_display = player['role'] if player['role'] else 'None'
+        print(f"{player['rank']:<5}{player['player_name'][:24]:<25}{role_display:<10}{player['elo_rating']:<8}{player['matches_won']}-{player['matches_lost']:<10}{player['win_rate']}%")
     
     conn.close()
     return ladder, elo_history
