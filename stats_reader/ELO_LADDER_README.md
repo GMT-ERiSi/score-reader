@@ -73,3 +73,88 @@ python -m stats_reader.elo_ladder --match-type ranked   # Only ranked player lad
 - **Team ELO (`team`)**: Calculated only from matches with `match_type = 'team'`, based on the ELO ratings of the competing teams.
 - **Player ELO (`pickup`, `ranked`)**: Calculated from individual player performance in matches with `match_type = 'pickup'` or `match_type = 'ranked'`, **after** `player_stats.team_id` has been set to NULL for these matches using `fix_pickup_team_ids.py`. The calculation uses the average ELO of the players on each side of the match to determine expected outcomes and update individual player ratings.
 - **Match Order**: Matches are processed chronologically based on their `match_date`. If multiple matches share the exact same timestamp, they are processed in ascending order of their unique match `id` (the primary key). This typically results in a FIFO (First-In, First-Out) order based on when the matches were added to the database. For the most predictable ELO history, providing unique timestamps (even if estimated) is recommended when possible.
+
+## Detailed Pickup/Ranked ELO Calculation
+
+The player-based ELO calculation for pickup and ranked matches follows a specific process that you can manually verify if needed. Here's how it works in detail:
+
+### Initial Setup
+- All players start with a base ELO rating (default: 1000)
+- The K-factor (default: 32) determines how much ratings change after each match
+
+### Calculation Process for Each Match
+
+1. **Match Processing Order**
+   - Matches are processed strictly in chronological order by match_date
+   - If multiple matches have the same timestamp, they're processed by match ID (lower IDs first)
+
+2. **Team Average ELO Calculation**
+   - For each match, the system calculates the average ELO of all players on each side:
+     ```
+     imperial_avg_elo = sum(imperial_player_ratings) / number_of_imperial_players
+     rebel_avg_elo = sum(rebel_player_ratings) / number_of_rebel_players
+     ```
+
+3. **Expected Outcome Calculation**
+   - The expected win probability is calculated using the standard ELO formula:
+     ```
+     imperial_expected = 1 / (1 + 10^((rebel_avg_elo - imperial_avg_elo) / 400))
+     rebel_expected = 1 - imperial_expected
+     ```
+
+4. **Actual Outcome Determination**
+   - Based on the match result:
+     - Imperial win: imperial_actual = 1.0, rebel_actual = 0.0
+     - Rebel win: imperial_actual = 0.0, rebel_actual = 1.0
+
+5. **Rating Update Calculation**
+   - Each player's rating is updated based on their team's performance:
+     ```
+     new_rating = old_rating + k_factor * (actual_outcome - expected_outcome)
+     ```
+   - All players on the same team receive the same adjustment to their ratings
+
+6. **Storage and Progress**
+   - The updated ratings are stored in memory and used for the next match
+   - The history of rating changes is saved to the appropriate `*_player_elo_history.json` file
+   - The final ratings are saved to the `*_player_elo_ladder.json` file
+
+### Example Calculation
+
+Here's an example calculation for a match between 5 Imperial players and 5 Rebel players:
+
+**Initial Ratings:**
+- Imperial players: [1100, 1050, 1000, 950, 900]
+- Rebel players: [1200, 1150, 1100, 1050, 1000]
+- K-factor: 32
+
+**Step 1: Calculate Team Averages**
+- Imperial average: (1100 + 1050 + 1000 + 950 + 900) / 5 = 1000
+- Rebel average: (1200 + 1150 + 1100 + 1050 + 1000) / 5 = 1100
+
+**Step 2: Calculate Expected Outcomes**
+- Imperial expected: 1 / (1 + 10^((1100 - 1000) / 400)) = 0.36 (36% chance of winning)
+- Rebel expected: 1 - 0.36 = 0.64 (64% chance of winning)
+
+**Step 3: Actual Outcome (Let's say Imperial wins)**
+- Imperial actual: 1.0
+- Rebel actual: 0.0
+
+**Step 4: Update Each Player's Rating**
+- For each Imperial player:
+  - Rating change: 32 * (1.0 - 0.36) = +20.48 points
+- For each Rebel player:
+  - Rating change: 32 * (0.0 - 0.64) = -20.48 points
+
+**Step 5: New Ratings**
+- Imperial players: [1120.48, 1070.48, 1020.48, 970.48, 920.48]
+- Rebel players: [1179.52, 1129.52, 1079.52, 1029.52, 979.52]
+
+### Important Notes About Rating Storage
+
+1. The player ELO ratings are **not** stored in the database itself
+2. Ratings are maintained in memory during processing and saved to JSON files
+3. When you run the ladder generation script, it recalculates all ratings from scratch
+4. This allows for "what-if" scenarios by adjusting parameters like the K-factor
+
+To verify calculations, you can examine the `*_player_elo_history.json` file, which contains the detailed history of each player's rating changes over time.
