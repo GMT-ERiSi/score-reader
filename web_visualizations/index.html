@@ -5,17 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Wars: Squadrons Stats</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Include Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <!-- Chart.js Zoom plugin -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Module support detection -->
+    <!-- Automatic redirect after 2 seconds -->
+    <meta http-equiv="refresh" content="2;url=team.html">
     <script>
-        window.moduleSupport = 'noModule' in HTMLScriptElement.prototype;
-        
         // Create star background effect
         document.addEventListener('DOMContentLoaded', () => {
             createStars();
@@ -45,99 +39,90 @@
             }
         }
     </script>
+    <style>
+        .landing-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .landing-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .landing-option {
+            background-color: #222;
+            border: 2px solid #ffe81f;
+            border-radius: 8px;
+            padding: 20px;
+            width: 250px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .landing-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 232, 31, 0.4);
+        }
+        
+        .landing-option i {
+            font-size: 2.5rem;
+            color: #ffe81f;
+            margin-bottom: 15px;
+        }
+        
+        .landing-option h3 {
+            margin-top: 0;
+            color: #ffe81f;
+        }
+        
+        .message {
+            margin-top: 20px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
     <header>
         <h1>Star Wars: Squadrons - Battle Statistics</h1>
         <p class="subtitle">Galaxy-wide combat performance tracker</p>
-        <nav>
-            <ul>
-                <li><a href="team.html"><i class="fas fa-users"></i> Squadron Stats</a></li>
-                <li><a href="pickup.html"><i class="fas fa-fighter-jet"></i> Pilot Stats</a></li>
-                <li><a href="index.html" class="active"><i class="fas fa-table"></i> Combined View</a></li>
-            </ul>
-        </nav>
     </header>
 
-    <section id="team-section">
-        <h2><i class="fas fa-shield-alt"></i> Squadron ELO Ratings</h2>
-        <div class="chart-container">
-            <canvas id="teamEloChart"></canvas>
+    <div class="landing-container">
+        <h2>Choose your statistics view</h2>
+        
+        <div class="landing-options">
+            <a href="team.html" class="landing-option">
+                <i class="fas fa-users"></i>
+                <h3>Squadron Stats</h3>
+                <p>View team-based statistics and squadron performance</p>
+            </a>
+            
+            <a href="pickup.html" class="landing-option">
+                <i class="fas fa-fighter-jet"></i>
+                <h3>Pilot Stats</h3>
+                <p>View individual pilot statistics and rankings</p>
+            </a>
         </div>
-        <h3>Squadron ELO Ladder</h3>
-        <div class="table-controls">
-            <input type="text" id="teamTableFilter" placeholder="Search squadrons..." class="table-filter">
-            <button id="showAllTeamsButton" class="show-all-button">
-                <i class="fas fa-list"></i> Show All Squadrons
-            </button>
-        </div>
-        <table id="teamEloTable">
-            <thead>
-                <tr>
-                    <th class="rank-cell">Rank</th>
-                    <th>Squadron Name</th>
-                    <th>ELO Rating</th>
-                    <th>W-L</th>
-                    <th>Win Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Team ELO data will be populated here -->
-            </tbody>
-        </table>
-    </section>
-
-    <section id="pickup-section">
-        <h2><i class="fas fa-user-pilot"></i> Pilot ELO Ratings</h2>
-        <div class="chart-container">
-            <canvas id="pickupEloChart"></canvas>
-        </div>
-        <h3>Pilot ELO Ladder</h3>
-        <div class="table-controls">
-            <input type="text" id="pickupTableFilter" placeholder="Search pilots..." class="table-filter">
-            <button id="showAllPlayersButton" class="show-all-button">
-                <i class="fas fa-list"></i> Show All Pilots
-            </button>
-            <div id="roleFilterContainer" class="role-filter-container">
-                <h4 style="margin-top: 0; margin-bottom: 10px;">Filter by Combat Role:</h4>
-                <!-- Role filter buttons will be added here by JavaScript -->
-            </div>
-        </div>
-        <table id="pickupEloTable">
-            <thead>
-                <tr>
-                    <th class="rank-cell">Rank</th>
-                    <th>Pilot Name</th>
-                    <th>Role</th>
-                    <th>ELO Rating</th>
-                    <th>W-L</th>
-                    <th>Win Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Pickup Player ELO data will be populated here -->
-            </tbody>
-        </table>
-    </section>
-
-    <!-- Container for additional leaderboards -->
-    <div id="leaderboards-container">
-        <!-- Additional leaderboards will be dynamically created here -->
-    </div>
-
-    <div class="loading-container" id="loading">
-        <p>Loading battle data from across the galaxy...</p>
-        <div class="lightsaber-loader"></div>
+        
+        <p class="message">Redirecting to Squadron Stats in a moment...</p>
     </div>
 
     <footer>
         <p>Data provided by Imperial and New Republic Intelligence Services</p>
         <p><small>May the Force be with you</small></p>
     </footer>
-
-    <!-- Import modules using type="module" with fallback -->
-    <script type="module" src="script.js"></script>
-    <script nomodule src="js/nomodule-fallback.js"></script>
+    
     <script src="star-wars-theme.js"></script>
 </body>
 </html>
