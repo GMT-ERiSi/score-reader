@@ -111,62 +111,64 @@ function initializeApp(modules) {
         }
 
         // Process data for Chart.js
-        const teamsData = {}; // { team_id: { name: 'Team Name', data: [{x: date, y: rating}] } }
-        const allDates = new Set();
+        const teamsData = {}; // { team_id: { name: 'Team Name', data: [{x: index, y: rating}] } }
 
+        // 1. Add timestamp to each match object for sorting
         teamEloHistory.forEach(match => {
-            // Try to parse the date, with automatic correction for swapped month/day
-            let matchTimestamp;
             try {
-                // Regular parsing attempt
-                matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-                
-                // If the date is invalid, try swapping month and day
-                if (isNaN(matchTimestamp)) {
-                    const dateParts = match.match_date.split(/[\s-:]/);
-                    if (dateParts.length >= 3) {
-                        // Try swapping month and day
-                        const correctedDate = `${dateParts[0]}-${dateParts[2]}-${dateParts[1]} ${dateParts[3] || '12'}:${dateParts[4] || '00'}:${dateParts[5] || '00'}`;
-                        matchTimestamp = new Date(correctedDate.replace(' ', 'T')).getTime();
-                        
-                        if (!isNaN(matchTimestamp)) {
-                            console.log(`Corrected date format for match ID ${match.match_id}: ${match.match_date} → ${correctedDate}`);
-                        }
-                    }
+                // Robust manual parsing for "YYYY-MM-DD HH:MM:SS"
+                const parts = match.match_date.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                if (parts) {
+                    const year = parseInt(parts[1], 10);
+                    const month = parseInt(parts[2], 10) - 1; // Month is 0-indexed in Date
+                    const day = parseInt(parts[3], 10);
+                    const hour = parseInt(parts[4], 10);
+                    const minute = parseInt(parts[5], 10);
+                    const second = parseInt(parts[6], 10);
+                    // Construct date explicitly
+                    const dateObj = new Date(Date.UTC(year, month, day, hour, minute, second)); // Use UTC to avoid timezone issues during parsing
+                    match.timestamp = dateObj.getTime();
+                } else {
+                     console.warn(`Could not parse date format: ${match.match_date} for match ID ${match.match_id}`);
+                     match.timestamp = null; // Mark as invalid if format doesn't match
+                }
+
+                if (isNaN(match.timestamp)) {
+                     console.warn(`Resulting timestamp is NaN for date: ${match.match_date} (match ID ${match.match_id})`);
+                     match.timestamp = null; // Ensure NaN timestamps are treated as null
                 }
             } catch (e) {
-                console.warn(`Error parsing date: ${e.message}`);
-                matchTimestamp = NaN;
+                console.error(`Error during manual date parsing for match ID ${match.match_id}: ${e.message}`);
+                match.timestamp = null;
             }
-            
-            if (isNaN(matchTimestamp)) {
-                console.warn(`Invalid date format found in team history: ${match.match_date} for match ID ${match.match_id}`);
-                return; // Skip this match entry if date is invalid
-            }
-            
-            allDates.add(matchTimestamp); // Use the timestamp
+        });
+
+        // 2. Filter out matches with invalid dates and sort the history by timestamp
+        const sortedHistory = teamEloHistory
+            .filter(match => match.timestamp !== null)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // 3. Process sorted history to assign sequential index
+        let matchIndex = 0;
+        sortedHistory.forEach(match => {
+            matchIndex++; // Increment for each valid, sorted match
 
             // Process Imperial team
             if (!teamsData[match.imperial.team_id]) {
                 teamsData[match.imperial.team_id] = { name: match.imperial.team_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
-            teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.old_rating });
-            // Add rating *after* the match using timestamp
-            teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.new_rating });
-
+            teamsData[match.imperial.team_id].data.push({ x: matchIndex, y: match.imperial.old_rating });
+            teamsData[match.imperial.team_id].data.push({ x: matchIndex, y: match.imperial.new_rating });
 
             // Process Rebel team
             if (!teamsData[match.rebel.team_id]) {
                 teamsData[match.rebel.team_id] = { name: match.rebel.team_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
-            teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.old_rating });
-            // Add rating *after* the match using timestamp
-            teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.new_rating });
+            teamsData[match.rebel.team_id].data.push({ x: matchIndex, y: match.rebel.old_rating });
+            teamsData[match.rebel.team_id].data.push({ x: matchIndex, y: match.rebel.new_rating });
         });
 
-        // Sort data points by date for each team
+        // 4. Sort data points within each team's dataset by index (ensures correct line drawing)
         for (const teamId in teamsData) {
             teamsData[teamId].data.sort((a, b) => a.x - b.x);
         }
@@ -198,21 +200,14 @@ function initializeApp(modules) {
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            tooltipFormat: 'PPP p',
-                            displayFormats: {
-                                day: 'MMM d, yyyy'
-                            }
-                        },
+                        type: 'linear', // Use linear scale for match sequence
                         title: {
                             display: true,
-                            text: 'Match Date'
+                            text: 'Match Sequence' // Update axis title
                         },
                         ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 15
+                            stepSize: 1, // Try to show integer ticks
+                            precision: 0 // Ensure no decimal places on ticks
                         }
                     },
                     y: {

@@ -111,18 +111,48 @@ function initializeApp(modules) {
         }
 
         // Process data for Chart.js
-        const playersData = {}; // { player_id: { name: 'Player Name', data: [{x: date, y: rating}] } }
-        const allDates = new Set();
+        const playersData = {}; // { player_id: { name: 'Player Name', data: [{x: index, y: rating}] } }
         const playersInHistory = new Set(); // Keep track of players who actually have history entries
 
+        // 1. Add timestamp to each match object for sorting
         pickupEloHistory.forEach(match => {
-            // Parse date string reliably and get timestamp for Chart.js
-            const matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-            if (isNaN(matchTimestamp)) { // Check if parsing failed
-                console.warn(`Invalid date format found in pickup history: ${match.match_date} for match ID ${match.match_id}`);
-                return; // Skip this match entry if date is invalid
+            try {
+                // Robust manual parsing for "YYYY-MM-DD HH:MM:SS"
+                const parts = match.match_date.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                if (parts) {
+                    const year = parseInt(parts[1], 10);
+                    const month = parseInt(parts[2], 10) - 1; // Month is 0-indexed in Date
+                    const day = parseInt(parts[3], 10);
+                    const hour = parseInt(parts[4], 10);
+                    const minute = parseInt(parts[5], 10);
+                    const second = parseInt(parts[6], 10);
+                    // Construct date explicitly
+                    const dateObj = new Date(Date.UTC(year, month, day, hour, minute, second)); // Use UTC to avoid timezone issues during parsing
+                    match.timestamp = dateObj.getTime();
+                } else {
+                     console.warn(`Could not parse date format: ${match.match_date} for pickup match ID ${match.match_id}`);
+                     match.timestamp = null; // Mark as invalid if format doesn't match
+                }
+
+                 if (isNaN(match.timestamp)) {
+                     console.warn(`Resulting timestamp is NaN for date: ${match.match_date} (pickup match ID ${match.match_id})`);
+                     match.timestamp = null; // Ensure NaN timestamps are treated as null
+                }
+            } catch (e) {
+                console.error(`Error during manual date parsing for pickup match ID ${match.match_id}: ${e.message}`);
+                match.timestamp = null;
             }
-            allDates.add(matchTimestamp); // Use the timestamp
+        });
+
+        // 2. Filter out matches with invalid dates and sort the history by timestamp
+        const sortedHistory = pickupEloHistory
+            .filter(match => match.timestamp !== null)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // 3. Process sorted history to assign sequential index
+        let matchIndex = 0;
+        sortedHistory.forEach(match => {
+            matchIndex++; // Increment for each valid, sorted match
 
             // Combine imperial and rebel players for processing
             const allPlayersInMatch = [...match.imperial_players, ...match.rebel_players];
@@ -132,14 +162,13 @@ function initializeApp(modules) {
                 if (!playersData[player.player_id]) {
                     playersData[player.player_id] = { name: player.player_name, data: [] };
                 }
-                // Add rating *before* the match using timestamp
-                playersData[player.player_id].data.push({ x: matchTimestamp, y: player.old_rating });
-                // Add rating *after* the match using timestamp
-                playersData[player.player_id].data.push({ x: matchTimestamp, y: player.new_rating });
+                // Add ratings using the matchIndex
+                playersData[player.player_id].data.push({ x: matchIndex, y: player.old_rating });
+                playersData[player.player_id].data.push({ x: matchIndex, y: player.new_rating });
             });
         });
 
-        // Sort data points by date for each player
+        // 4. Sort data points within each player's dataset by index
         for (const playerId in playersData) {
             playersData[playerId].data.sort((a, b) => a.x - b.x);
         }
@@ -178,21 +207,14 @@ function initializeApp(modules) {
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            tooltipFormat: 'PPP p',
-                            displayFormats: {
-                                day: 'MMM d, yyyy'
-                            }
-                        },
+                        type: 'linear', // Use linear scale for match sequence
                         title: {
                             display: true,
-                            text: 'Match Date'
+                            text: 'Match Sequence' // Update axis title
                         },
                         ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 15
+                            stepSize: 1, // Try to show integer ticks
+                            precision: 0 // Ensure no decimal places on ticks
                         }
                     },
                     y: {
