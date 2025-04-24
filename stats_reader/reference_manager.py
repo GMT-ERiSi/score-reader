@@ -638,7 +638,7 @@ def interactive_player_management(ref_db):
             print(f"\nFound {len(players)} players:")
             for player in players:
                 team_name = player['team_name'] or 'No team'
-                role = player['role'] or 'No role'
+                role = player.get('primary_role', 'No role')
                 aliases = ', '.join(player['alias']) if player['alias'] else 'None'
                 print(f"ID: {player['id']}, Name: {player['name']}, Team: {team_name}, Role: {role}, Aliases: {aliases}")
         
@@ -657,7 +657,7 @@ def interactive_player_management(ref_db):
                     print(f"\nPlayers on team {teams[team_choice-1]['name']}:")
                     if players:
                         for player in players:
-                            role = player['role'] or 'No role'
+                            role = player['primary_role'] or 'No role'
                             aliases = ', '.join(player['alias']) if player['alias'] else 'None'
                             print(f"ID: {player['id']}, Name: {player['name']}, Role: {role}, Aliases: {aliases}")
                     else:
@@ -753,7 +753,7 @@ def interactive_player_management(ref_db):
                 continue # Go back to player menu if no players exist
             for player in players:
                 team_name = player['team_name'] or 'No team'
-                role = player['role'] or 'No role'
+                role = player['primary_role'] or 'No role'
                 print(f"ID: {player['id']:<5} Name: {player['name']:<25} Team: {team_name:<20} Role: {role}")
             print("------------------------------------")
             # --- Now ask for the ID ---
@@ -877,7 +877,7 @@ def interactive_player_management(ref_db):
             if player:
                 match_score = player.get('match_score', 'Exact match')
                 team_name = player['team_name'] or 'No team'
-                role = player['role'] or 'No role'
+                role = player['primary_role'] or 'No role'
                 aliases = player['alias'].split(',') if player['alias'] else []
                 print(f"\nFound player: {player['name']} (ID: {player['id']})")
                 print(f"Team: {team_name}")
