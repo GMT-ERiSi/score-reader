@@ -54,6 +54,7 @@ Screenshots/**
 # Ignore db files
 *.db
 !squadrons_reference.db
+!squadrons_pickup.db
 
 # Ignore stats_reports
 stats_reports/**
