@@ -266,7 +266,7 @@ function initializeApp(modules) {
             if (table && !table.querySelector('.no-data-message')) {
                 const msgRow = table.insertRow();
                 const cell = msgRow.insertCell();
-                cell.colSpan = 6; // Span across all columns
+                cell.colSpan = 5; // Span across all columns (updated from 6 to 5 since we removed a column)
                 cell.textContent = 'Team ELO ladder data not available.';
                 cell.className = 'no-data-message';
                 cell.style.textAlign = 'center';
@@ -289,9 +289,6 @@ function initializeApp(modules) {
 
             const nameCell = row.insertCell();
             nameCell.textContent = team.team_name;
-            
-            const primaryRolesCell = row.insertCell();
-            primaryRolesCell.textContent = 'Various'; // Placeholder for primary roles
             
             const eloCell = row.insertCell();
             eloCell.textContent = team.elo_rating;
@@ -329,128 +326,6 @@ function initializeApp(modules) {
             });
         }
         
-        // CRITICAL FIX: Ensure the role filter container is visible and positioned correctly
-        const roleFilterContainer = document.getElementById('teamRoleFilterContainer');
-        if (roleFilterContainer) {
-            // Force visibility and styling
-            roleFilterContainer.style.display = 'flex';
-            roleFilterContainer.style.flexWrap = 'wrap';
-            roleFilterContainer.style.gap = '8px';
-            roleFilterContainer.style.padding = '10px';
-            roleFilterContainer.style.border = '3px solid #ff0000'; // Red border to make it obvious
-            roleFilterContainer.style.backgroundColor = '#f8f8f8';
-            roleFilterContainer.style.margin = '15px 0';
-            roleFilterContainer.style.position = 'relative'; // Ensure it's in the normal flow
-            roleFilterContainer.style.zIndex = '100'; // Ensure it's on top
-            
-            // Add a label at the top
-            const label = document.createElement('div');
-            label.textContent = 'ROLE FILTER BUTTONS:';
-            label.style.fontWeight = 'bold';
-            label.style.width = '100%';
-            label.style.marginBottom = '10px';
-            roleFilterContainer.prepend(label);
-            
-            console.log("Force-styled the role filter container");
-        }
-        
-        // Extract unique roles from player stats
-        const uniqueRoles = new Set();
-        playerStats.forEach(player => {
-            if (player.role) {
-                uniqueRoles.add(player.role);
-            }
-        });
-        
-        console.log(`Found ${uniqueRoles.size} unique roles for team players:`, Array.from(uniqueRoles));
-        
-        if (uniqueRoles.size > 0) {
-            // Add role filter using the roles we found
-            console.log("Adding role filter buttons for team page");
-            // --- Setup Role Filter for Leaderboards ---
-            const leaderboardRoleContainer = document.getElementById('teamRoleFilterContainer');
-            if (leaderboardRoleContainer) {
-                leaderboardRoleContainer.innerHTML = ''; // Clear existing content
-
-                // Add heading
-                const heading = document.createElement('h4');
-                heading.textContent = 'Filter Leaderboards by Role:';
-                heading.style.marginTop = '0';
-                heading.style.marginBottom = '10px';
-                heading.style.width = '100%'; // Make heading span full width
-                leaderboardRoleContainer.appendChild(heading);
-
-                const buttonContainer = document.createElement('div');
-                buttonContainer.style.display = 'flex';
-                buttonContainer.style.flexWrap = 'wrap';
-                buttonContainer.style.gap = '8px';
-                leaderboardRoleContainer.appendChild(buttonContainer);
-
-                const rolesToDisplay = uniqueRoles.size > 0 ? Array.from(uniqueRoles) : ['Farmer', 'Flex', 'Support'];
-                const allRoles = ['all', ...rolesToDisplay, 'none'];
-
-                allRoles.forEach(role => {
-                    const button = document.createElement('button');
-                    button.textContent = role === 'all' ? 'All Roles' : (role === 'none' ? 'No Role' : role);
-                    button.className = 'role-filter-button';
-                    button.dataset.role = role;
-
-                    // Style buttons (similar to tableInteractivity)
-                    button.style.padding = '8px 15px';
-                    button.style.margin = '4px';
-                    button.style.border = '1px solid #ddd';
-                    button.style.borderRadius = '4px';
-                    button.style.cursor = 'pointer';
-                    button.style.fontWeight = 'bold';
-
-                    if (role === 'all') {
-                        button.classList.add('active');
-                        button.style.backgroundColor = '#0066cc';
-                        button.style.color = 'white';
-                        button.style.borderColor = '#0055aa';
-                    } else {
-                        button.style.backgroundColor = '#f2f2f2';
-                        button.style.color = '#333';
-                    }
-                    buttonContainer.appendChild(button);
-                });
-
-                // Add event listener to the container
-                leaderboardRoleContainer.addEventListener('click', (e) => {
-                    const target = e.target;
-                    if (!target.classList.contains('role-filter-button')) {
-                        return;
-                    }
-
-                    const selectedRole = target.dataset.role;
-                    console.log(`Leaderboard role filter clicked: ${selectedRole}`);
-
-                    // Update button active states
-                    leaderboardRoleContainer.querySelectorAll('.role-filter-button').forEach(btn => {
-                        const isActive = btn.dataset.role === selectedRole;
-                        btn.classList.toggle('active', isActive);
-                        btn.style.backgroundColor = isActive ? '#0066cc' : '#f2f2f2';
-                        btn.style.color = isActive ? 'white' : '#333';
-                        btn.style.borderColor = isActive ? '#0055aa' : '#ddd';
-                    });
-
-                    // Filter the leaderboards
-                    filterAllLeaderboards(selectedRole);
-                    
-                    // Dispatch a custom event for other components to listen for
-                    const roleFilterEvent = new CustomEvent('roleFilterChanged', {
-                        detail: {
-                            role: selectedRole
-                        }
-                    });
-                    document.dispatchEvent(roleFilterEvent);
-                });
-                console.log("Role filter for leaderboards added.");
-            } else {
-                console.warn("Role filter container 'teamRoleFilterContainer' not found.");
-            }
-        } // End of check for roleFilterContainer
-
         console.log("Table interactivity features applied.");
     }
 
