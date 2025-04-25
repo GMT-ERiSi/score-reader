@@ -342,6 +342,34 @@ tr.selected {
     box-shadow: 0 0 10px rgba(255, 58, 48, 0.5);
 }
 
+.ladder-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.ladder-tab {
+    padding: 8px 16px;
+    background-color: #333;
+    color: #ccc;
+    border: 1px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ladder-tab.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+.ladder-tab:hover:not(.active) {
+    background-color: #444;
+    color: white;
+}
+
 /* Additional leaderboards container */
 #leaderboards-container {
     display: flex;

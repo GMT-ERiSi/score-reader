@@ -86,8 +86,13 @@ function initializeApp(modules) {
     // Data storage
     let pickupEloHistory = [];
     let pickupEloLadder = [];
+    let flexEloLadder = [];    
+    let supportEloLadder = []; 
+    let farmerEloLadder = [];  
+    let currentLadder = 'general'; // Add this line to track which ladder is shown
     let playerStats = []; // For additional leaderboards
     let playerRoles = {}; // For role filtering
+    let tableInteractivityApplied = false; // Initialize to false
 
     // Chart instances
     let pickupEloChartInstance = null;
@@ -316,8 +321,101 @@ function initializeApp(modules) {
         console.log("Pickup Player ELO Table populated.");
     }
 
+    function renderEloTable(ladderData) {
+        console.log(`Rendering ${currentLadder} ELO Table...`);
+        if (!pickupEloTableBody || !ladderData || ladderData.length === 0) {
+            console.warn(`${currentLadder} ELO table body or data not available.`);
+            const table = document.getElementById('pickupEloTable');
+            if (table && !table.querySelector('.no-data-message')) {
+                const msgRow = table.insertRow();
+                const cell = msgRow.insertCell();
+                cell.colSpan = 6;
+                cell.textContent = `${currentLadder} ELO ladder data not available.`;
+                cell.className = 'no-data-message';
+                cell.style.textAlign = 'center';
+            }
+            return;
+        }
+        
+        // Clear previous data
+        pickupEloTableBody.innerHTML = '';
+    
+        // Ensure ladder is sorted by rank
+        const sortedLadder = ladderData.sort((a, b) => a.rank - b.rank);
+        
+        // Populate table rows
+        sortedLadder.forEach(player => {
+            const row = pickupEloTableBody.insertRow();
+    
+            const rankCell = row.insertCell();
+            rankCell.textContent = player.rank;
+            rankCell.classList.add('rank-cell');
+    
+            const nameCell = row.insertCell();
+            nameCell.textContent = player.player_name;
+            
+            const roleCell = row.insertCell();
+            const roleText = player.role || 'None';
+            roleCell.textContent = roleText;
+            row.setAttribute('data-role', roleText);
+            roleCell.classList.add('role-cell');
+    
+            const eloCell = row.insertCell();
+            eloCell.textContent = player.elo_rating;
+    
+            const wlCell = row.insertCell();
+            wlCell.textContent = `${player.matches_won}-${player.matches_lost}`;
+    
+            const winRateCell = row.insertCell();
+            winRateCell.textContent = `${player.win_rate}%`;
+        });
+        
+        console.log(`${currentLadder} ELO Table populated.`);
+        
+        // Reapply table interactivity
+        // makeTableSortable('pickupEloTable');
+        // addTableFilter('pickupEloTable', 'Search players...');
+        // enableTableRowSelection('pickupEloTable', (playerName) => {
+            // filterChartByName(pickupEloChartInstance, playerName);
+        //});
+    }
+
+    // Add this function to handle ladder switching
+    function switchLadder(ladderType) {
+        currentLadder = ladderType;
+        
+        // Update active tab
+        document.querySelectorAll('.ladder-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.ladder === ladderType);
+        });
+        
+        // Get the ladder data based on the type
+        let ladderData;
+        switch (ladderType) {
+            case 'flex':
+                ladderData = flexEloLadder;
+                break;
+            case 'support':
+                ladderData = supportEloLadder;
+                break;
+            case 'farmer':
+                ladderData = farmerEloLadder;
+                break;
+            default:
+                ladderData = pickupEloLadder;
+                break;
+        }
+        
+        // Update the table
+        renderEloTable(ladderData);
+    }
+
     // Function to apply interactive features to tables
     function applyTableInteractivity() {
+        // Only apply table interactivity once
+        if (tableInteractivityApplied) {
+            return;
+        }
         console.log("Applying pickup table interactivity features...");
         
         // Make pickup ELO table sortable
@@ -418,6 +516,25 @@ function initializeApp(modules) {
         }
         
         console.log("Pickup table interactivity features applied.");
+
+                // Add ladder tab event listeners
+        document.querySelectorAll('.ladder-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const ladderType = tab.dataset.ladder;
+                switchLadder(ladderType);
+            });
+        });
+
+        // Check URL for initial tab selection
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialLadder = urlParams.get('ladder');
+        if (initialLadder && ['general', 'flex', 'support', 'farmer'].includes(initialLadder)) {
+            switchLadder(initialLadder);
+        } else {
+            switchLadder('general'); // Default to general ladder
+        }
+        // Mark as applied
+        tableInteractivityApplied = true;
     }
 
     async function renderVisualizations() {
@@ -426,7 +543,7 @@ function initializeApp(modules) {
 
             // Call individual rendering functions
             renderPickupEloChart();
-            renderPickupEloTable();
+            renderEloTable(pickupEloLadder);
             
             // Apply interactivity
             applyTableInteractivity();
@@ -470,6 +587,9 @@ function initializeApp(modules) {
             // Store data for use in rendering
             pickupEloHistory = data.pickupEloHistory;
             pickupEloLadder = data.pickupEloLadder;
+            flexEloLadder = data.flexEloLadder;        
+            supportEloLadder = data.supportEloLadder;  
+            farmerEloLadder = data.farmerEloLadder;    
             playerRoles = data.playerRoles;
             
             // Filter player stats to only include pickup-related stats
