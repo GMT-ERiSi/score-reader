@@ -1,3 +1,74 @@
+/* X-Wing icon styling */
+.nav-icon, .landing-icon {
+    display: inline-block;
+    vertical-align: middle;
+    filter: brightness(0.9);
+    object-fit: contain;
+    background: transparent;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+}
+
+/* Very aggressive X-wing icon style to remove any background */
+.xwing-icon {
+    width: 28px;
+    height: 28px;
+    background-color: transparent !important;
+    background-image: none !important;
+    background: none !important;
+    mix-blend-mode: multiply !important; 
+    object-fit: contain !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+.landing-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 15px;
+}
+
+/* Make the landing page X-wing icon larger with same aggressive styling */
+.landing-option .xwing-icon {
+    width: 64px;
+    height: 64px;
+    background-color: transparent !important;
+    background-image: none !important;
+    background: none !important;
+    mix-blend-mode: multiply !important; 
+    object-fit: contain !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+}
+
+/* Apply to all ancestors of xwing-icon */
+.xwing-icon,
+*:has(> .xwing-icon),
+*:has(> * > .xwing-icon),
+*:has(> * > * > .xwing-icon) {
+    background-color: transparent !important;
+    background-image: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+
+nav a:hover .nav-icon, 
+nav a.active .nav-icon {
+    filter: brightness(1.2);
+}
+
 /* Star Wars: Squadrons Stats Visualizations - Space Battle Theme */
 
 /* Import fonts */
