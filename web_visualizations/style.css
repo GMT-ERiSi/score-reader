@@ -11,9 +11,33 @@ body {
     margin: 0;
     padding: 0;
     color: #e0e0e0;
-    background-color: #1e2023;
+    background-color: #000000;
     line-height: 1.6;
     position: relative;
+    overflow-x: hidden;
+}
+
+/* Floating logos styling */
+.floating-logos-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.floating-logo {
+    position: absolute;
+    transform-origin: center center;
+}
+
+.floating-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 header {

@@ -9,36 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Automatic redirect after 2 seconds -->
     <meta http-equiv="refresh" content="2;url=team.html">
-    <script>
-        // Create star background effect
-        document.addEventListener('DOMContentLoaded', () => {
-            createStars();
-        });
-        
-        function createStars() {
-            const body = document.body;
-            const starCount = 100;
-            
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                
-                // Random position
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                
-                // Random size
-                const size = Math.random() * 2 + 1;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                
-                // Random animation delay
-                star.style.animationDelay = `${Math.random() * 3}s`;
-                
-                body.appendChild(star);
-            }
-        }
-    </script>
+    <!-- Floating logos background script -->
+    <script src="js/floating-logos.js"></script>
     <style>
         .landing-container {
             display: flex;
