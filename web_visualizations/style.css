@@ -2,7 +2,7 @@
 .nav-icon, .landing-icon {
     display: inline-block;
     vertical-align: middle;
-    filter: brightness(0.9);
+    /* filter: brightness(0.9); Removed to fix darkness issue */
     object-fit: contain;
     background: transparent;
 }
@@ -17,10 +17,10 @@
 .xwing-icon {
     width: 28px;
     height: 28px;
-    background-color: transparent !important;
-    background-image: none !important;
-    background: none !important;
-    mix-blend-mode: multiply !important; 
+    background-color: transparent; /* Removed !important */
+    background-image: none; /* Removed !important */
+    background: none !important; /* Re-added !important */
+    /* mix-blend-mode: multiply !important;  Removed to fix darkness/transparency issue */
     object-fit: contain !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -40,10 +40,10 @@
 .landing-option .xwing-icon {
     width: 64px;
     height: 64px;
-    background-color: transparent !important;
-    background-image: none !important;
-    background: none !important;
-    mix-blend-mode: multiply !important; 
+    background-color: transparent; /* Removed !important */
+    background-image: none; /* Removed !important */
+    background: none !important; /* Re-added !important */
+    /* mix-blend-mode: multiply !important; Removed to fix darkness/transparency issue */
     object-fit: contain !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -53,16 +53,7 @@
     -webkit-box-shadow: none !important;
 }
 
-/* Apply to all ancestors of xwing-icon */
-.xwing-icon,
-*:has(> .xwing-icon),
-*:has(> * > .xwing-icon),
-*:has(> * > * > .xwing-icon) {
-    background-color: transparent !important;
-    background-image: none !important;
-    background: none !important;
-    box-shadow: none !important;
-}
+/* Ancestor rule removed as it might cause issues */
 
 nav a:hover .nav-icon, 
 nav a.active .nav-icon {
