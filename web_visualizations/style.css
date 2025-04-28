@@ -1,3 +1,9 @@
+@font-face {
+    font-family: 'AurebeshTech'; /* Renamed font family */
+    src: url('fonts/AurebeshAF-LegendsTech.otf') format('opentype'); /* Updated font file */
+    font-weight: normal;
+    font-style: normal;
+}
 /* X-Wing icon styling */
 .nav-icon, .landing-icon {
     display: inline-block;
@@ -684,3 +690,45 @@ tr.selected {
 
 /* You can remove or comment out the old faction-cards styling if you want,
    or keep it if you plan to use it elsewhere */
+/* Styles for Aurebesh Squadron Names */
+/* Header Graffiti Styles - Aligned Numerals */
+.header-graffiti {
+    display: flex;
+    /* flex-direction: row; is default */
+    justify-content: center; /* Center the single row within the container */
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 0px;
+    max-width: 95%; /* Make container even wider */
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden; /* Prevent potential overflow */
+}
+
+.graffiti-row {
+    display: flex;
+    justify-content: center; /* Center items within the row */
+    flex-wrap: wrap; /* Allow wrapping on very small screens */
+    /* Removed width: 100% */
+    gap: 15px; /* Slightly larger gap between numerals */
+    /* Removed margin-bottom */
+}
+
+.graffiti-item {
+    /* Removed absolute positioning */
+    white-space: nowrap;
+    font-weight: bold;
+    font-size: 1.0rem; /* Consistent font size */
+}
+
+.aurebesh-tech {
+    font-family: 'AurebeshTech', sans-serif; /* Apply tech font */
+}
+
+/* Glow color - Only Red */
+.glow-red {
+    color: #FF0000;
+    text-shadow: 0 0 6px #FF0000, 0 0 12px #FF0000;
+}
+
+/* Removed other glow colors and individual positioning styles */
