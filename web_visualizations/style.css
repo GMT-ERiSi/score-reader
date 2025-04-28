@@ -4,6 +4,12 @@
     font-weight: normal;
     font-style: normal;
 }
+@font-face {
+    font-family: 'AurebeshLegends';
+    src: url('fonts/AurebeshAF-Legends.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
 /* X-Wing icon styling */
 .nav-icon, .landing-icon {
     display: inline-block;
@@ -110,7 +116,7 @@ header {
 }
 
 header h1 {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'AurebeshLegends', sans-serif; /* Changed to Aurebesh Legends */
     font-weight: 700;
     color: #ff3a30;
     letter-spacing: 2px;
