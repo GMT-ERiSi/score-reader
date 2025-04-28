@@ -2,9 +2,7 @@
 .nav-icon, .landing-icon {
     display: inline-block;
     vertical-align: middle;
-    /* filter: brightness(0.9); Removed to fix darkness issue */
     object-fit: contain;
-    background: transparent;
 }
 
 .nav-icon {
@@ -13,21 +11,11 @@
     margin-right: 5px;
 }
 
-/* Very aggressive X-wing icon style to remove any background */
 .xwing-icon {
     width: 28px;
     height: 28px;
-    background-color: transparent; /* Removed !important */
-    background-image: none; /* Removed !important */
-    background: none !important; /* Re-added !important */
-    /* mix-blend-mode: multiply !important;  Removed to fix darkness/transparency issue */
-    object-fit: contain !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
+    padding: 0;
+    margin-right: 5px;
 }
 
 .landing-icon {
@@ -36,29 +24,17 @@
     margin-bottom: 15px;
 }
 
-/* Make the landing page X-wing icon larger with same aggressive styling */
 .landing-option .xwing-icon {
     width: 64px;
     height: 64px;
-    background-color: transparent; /* Removed !important */
-    background-image: none; /* Removed !important */
-    background: none !important; /* Re-added !important */
-    /* mix-blend-mode: multiply !important; Removed to fix darkness/transparency issue */
-    object-fit: contain !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
+    margin: 0 auto 15px auto;
 }
-
-/* Ancestor rule removed as it might cause issues */
 
 nav a:hover .nav-icon, 
 nav a.active .nav-icon {
     filter: brightness(1.2);
 }
+
 
 
 /* Star Wars: Squadrons Stats Visualizations - Space Battle Theme */
