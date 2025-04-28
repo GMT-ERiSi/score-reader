@@ -201,6 +201,20 @@ class FloatingLogosBackground {
             
             // Add to body as first child to be behind everything
             document.body.insertBefore(container, document.body.firstChild);
+            
+            // Create Death Star background element
+            const deathStar = document.createElement('div');
+            deathStar.className = 'death-star-bg';
+            
+            // Alternative approach: use an img element instead of background-image
+            const deathStarImg = document.createElement('img');
+            deathStarImg.src = 'images/Death Star.png';
+            deathStarImg.style.width = '110%';
+            deathStarImg.style.height = '110%';
+            deathStarImg.style.objectFit = 'contain';
+            deathStar.appendChild(deathStarImg);
+            
+            document.body.insertBefore(deathStar, document.body.firstChild);
         }
         
         this.container = document.getElementById(containerId);
