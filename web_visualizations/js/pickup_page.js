@@ -267,6 +267,88 @@ function initializeApp(modules) {
         }
         return color;
     }
+    
+    // Function to filter chart by player role
+    function filterChartByRole(chartInstance, role, ladderData) {
+        if (!chartInstance) {
+            console.warn('Cannot filter: Chart instance not provided');
+            return;
+        }
+        
+        try {
+            // Store original datasets if not already stored
+            if (!chartInstance._originalDatasets) {
+                chartInstance._originalDatasets = [...chartInstance.data.datasets];
+            }
+            
+            // If role is 'all', show all datasets
+            if (role === 'all') {
+                chartInstance.data.datasets = [...chartInstance._originalDatasets];
+                chartInstance.update();
+                
+                // Update filter status message
+                updateChartFilterMessage('Showing all pilots');
+                return;
+            }
+            
+            console.log(`Filtering chart to show players with role: ${role}`);
+            
+            // Get player names with the selected role
+            const playersWithRole = role === 'none' 
+                ? ladderData.filter(player => !player.role || player.role.toLowerCase() === 'none').map(player => player.player_name)
+                : ladderData.filter(player => player.role && player.role.toLowerCase() === role.toLowerCase()).map(player => player.player_name);
+            
+            console.log(`Found ${playersWithRole.length} players with role ${role}: ${playersWithRole.join(', ')}`);
+            
+            // Filter datasets to show only the selected players
+            const filteredDatasets = chartInstance._originalDatasets.filter(dataset => 
+                playersWithRole.includes(dataset.label)
+            );
+            
+            if (filteredDatasets.length === 0) {
+                console.warn(`No datasets found matching the selected role: ${role}`);
+                // If no matching datasets, show a message but don't clear the chart
+                updateChartFilterMessage(`No pilots found with role: ${role}`);
+                return;
+            }
+            
+            // Apply filtered datasets
+            chartInstance.data.datasets = filteredDatasets;
+            chartInstance.update();
+            
+            // Update filter status message
+            updateChartFilterMessage(`Showing pilots with role: ${role}`);
+        } catch (error) {
+            console.error('Error filtering chart by role:', error);
+        }
+    }
+    
+    // Function to update the chart filter message
+    function updateChartFilterMessage(message) {
+        const chartContainer = document.querySelector('.chart-container');
+        if (!chartContainer) return;
+        
+        // Check if filter message already exists
+        let filterMsg = chartContainer.querySelector('.chart-filter-message');
+        
+        if (!filterMsg) {
+            // Create new message element
+            filterMsg = document.createElement('div');
+            filterMsg.className = 'chart-filter-message';
+            filterMsg.style.textAlign = 'center';
+            filterMsg.style.padding = '5px';
+            filterMsg.style.marginTop = '10px';
+            filterMsg.style.fontSize = '14px';
+            filterMsg.style.color = '#999';
+            filterMsg.style.fontStyle = 'italic';
+            
+            // Insert after the chart
+            chartContainer.appendChild(filterMsg);
+        }
+        
+        // Update message content
+        filterMsg.textContent = message;
+    }
 
     function renderPickupEloTable() {
         console.log("Rendering Pickup Player ELO Table...");
@@ -429,11 +511,28 @@ function initializeApp(modules) {
         const showAllButton = document.getElementById('showAllPlayersButton');
         if (showAllButton) {
             showAllButton.addEventListener('click', () => {
-                filterChartByName(pickupEloChartInstance, null); // Clear filters
+                // Reset all chart filters
+                filterChartByName(pickupEloChartInstance, null);
+                
+                // Reset the role filter buttons to "All Roles"
+                const allRolesButton = document.querySelector('.role-filter-button[data-role="all"]');
+                if (allRolesButton) {
+                    // Simulate a click on the All Roles button
+                    allRolesButton.click();
+                } else {
+                    // If no 'all' button, just reset the chart and update the message
+                    if (pickupEloChartInstance && pickupEloChartInstance._originalDatasets) {
+                        pickupEloChartInstance.data.datasets = [...pickupEloChartInstance._originalDatasets];
+                        pickupEloChartInstance.update();
+                        updateChartFilterMessage('Showing all pilots');
+                    }
+                }
                 
                 // Clear any selected rows
                 const selectedRows = document.querySelectorAll('#pickupEloTable tbody tr.selected');
                 selectedRows.forEach(row => row.classList.remove('selected'));
+                
+                console.log('Chart reset to show all players');
             });
         }
         
@@ -482,12 +581,15 @@ function initializeApp(modules) {
             addRoleFilter('pickupEloTable', Array.from(uniqueRoles));
             console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
 
-            // Connect role filter button clicks to filter all leaderboards
+            // Connect role filter button clicks to filter all leaderboards and chart
             document.addEventListener('roleFilterChanged', (e) => {
-                const selectedRole = e.detail.role;
-                console.log(`Filtering leaderboards for role: ${selectedRole}`);
-                filterAllLeaderboards(selectedRole);
-            });
+            const selectedRole = e.detail.role;
+            console.log(`Filtering leaderboards and chart for role: ${selectedRole}`);
+            filterAllLeaderboards(selectedRole);
+                
+            // Also filter the chart based on role
+            filterChartByRole(pickupEloChartInstance, selectedRole, pickupEloLadder);
+        });
         } else {
             console.log("No roles found, not adding role filter");
             
@@ -497,7 +599,7 @@ function initializeApp(modules) {
         }
         
         
-        // Add separate listener to filter leaderboards when role buttons are clicked
+        // Add separate listener to filter leaderboards and chart when role buttons are clicked
         if (roleFilterContainer) {
             // Use a flag to prevent adding the listener multiple times if this function is called again
             if (!roleFilterContainer.dataset.leaderboardListenerAdded) {
@@ -506,12 +608,17 @@ function initializeApp(modules) {
                     // Ensure it's a role button click
                     if (target.classList.contains('role-filter-button') && target.dataset.role) {
                         const selectedRole = target.dataset.role;
-                        console.log(`Filtering leaderboards for role: ${selectedRole}`);
-                        filterAllLeaderboards(selectedRole); // Call the leaderboard filter function
+                        console.log(`Filtering leaderboards and chart for role: ${selectedRole}`);
+                        
+                        // Filter the leaderboards
+                        filterAllLeaderboards(selectedRole);
+                        
+                        // Filter the chart based on role
+                        filterChartByRole(pickupEloChartInstance, selectedRole, pickupEloLadder);
                     }
                 });
                 roleFilterContainer.dataset.leaderboardListenerAdded = 'true'; // Mark listener as added
-                console.log("Added separate event listener for leaderboard role filtering.");
+                console.log("Added separate event listener for role filtering.");
             }
         }
         
