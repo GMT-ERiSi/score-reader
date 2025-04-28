@@ -237,7 +237,8 @@ class FloatingLogosBackground {
             'images/sabacc_emblem.png',
             'images/siren3.png',
             'images/tangerine-squadron.png',
-            'images/TRA.png'
+            'images/TRA.png',
+            'images/the-randolorians.png'
         ];
         
         // Make sure the Remnant Squadron is included
@@ -327,8 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const stars = document.querySelectorAll('.star');
     stars.forEach(star => star.remove());
     
-    // Create the floating logos background with 11 logos (show all available logos)
-    window.logosBackground = new FloatingLogosBackground().start(11);
+    // Create the floating logos background with 12 logos (show all available logos)
+    window.logosBackground = new FloatingLogosBackground().start(12);
     
     // Set the background to black
     document.body.style.backgroundColor = '#000';
