@@ -37,8 +37,8 @@ jobs:
         run: |
           mkdir -p ./web_visualizations/elo_reports_pickup
           mkdir -p ./web_visualizations/stats_reports
-          cp ./elo_reports_pickup/pickup_player_elo_ladder.json ./web_visualizations/elo_reports_pickup/
-          cp ./stats_reports/elo_ladder_team.json ./web_visualizations/stats_reports/
+          cp ./elo_reports_pickup/*.json ./web_visualizations/elo_reports_pickup/
+          cp ./stats_reports/*.json ./web_visualizations/stats_reports/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
