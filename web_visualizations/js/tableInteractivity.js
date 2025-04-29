@@ -255,7 +255,7 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
     heading.textContent = 'Filter Players by Role';
     heading.style.marginTop = '0';
     heading.style.marginBottom = '10px';
-    heading.style.color = '#333';
+    heading.style.color = '#ffffff'; // Changed from #333 to white
     roleFilterContainer.appendChild(heading);
     
     // Create button container
@@ -287,8 +287,9 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
         button.className = 'role-filter-button';
         button.style.padding = '8px 15px';
         button.style.margin = '4px';
-        button.style.backgroundColor = '#f2f2f2';
-        button.style.border = '1px solid #ddd';
+        button.style.backgroundColor = '#333333'; // Darker background for better contrast
+        button.style.color = '#e0e0e0'; // Light text color
+        button.style.border = '1px solid #555'; // Brighter border
         button.style.borderRadius = '4px';
         button.style.cursor = 'pointer';
         button.style.fontWeight = 'bold';
@@ -303,8 +304,9 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
     noneButton.className = 'role-filter-button';
     noneButton.style.padding = '8px 15px';
     noneButton.style.margin = '4px';
-    noneButton.style.backgroundColor = '#f2f2f2';
-    noneButton.style.border = '1px solid #ddd';
+    noneButton.style.backgroundColor = '#333333'; // Darker background for better contrast
+    noneButton.style.color = '#e0e0e0'; // Light text color
+    noneButton.style.border = '1px solid #555'; // Brighter border
     noneButton.style.borderRadius = '4px';
     noneButton.style.cursor = 'pointer';
     noneButton.style.fontWeight = 'bold';
@@ -325,8 +327,8 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
         // Remove 'active' class from all buttons
         roleFilterContainer.querySelectorAll('.role-filter-button').forEach(btn => {
             btn.classList.remove('active');
-            btn.style.backgroundColor = '#f2f2f2';
-            btn.style.color = '#333';
+            btn.style.backgroundColor = '#333333';
+            btn.style.color = '#e0e0e0';
         });
         
         // Add 'active' class to the clicked button
@@ -353,8 +355,8 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
         roleFilterContainer.querySelectorAll('.role-filter-button').forEach(btn => {
             const isActive = btn.dataset.role === role;
             btn.classList.toggle('active', isActive);
-            btn.style.backgroundColor = isActive ? '#0066cc' : '#f2f2f2';
-            btn.style.color = isActive ? 'white' : '#333';
+            btn.style.backgroundColor = isActive ? '#0066cc' : '#333333';
+            btn.style.color = isActive ? 'white' : '#e0e0e0';
         });
     });
     

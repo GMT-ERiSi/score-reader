@@ -502,7 +502,7 @@ function initializeApp(modules) {
         
         // Make pickup ELO table sortable
         makeTableSortable('pickupEloTable');
-        addTableFilter('pickupEloTable', 'Search players...');
+        // Removed addTableFilter call since we removed the search field
         enableTableRowSelection('pickupEloTable', (playerName) => {
             filterChartByName(pickupEloChartInstance, playerName);
         });

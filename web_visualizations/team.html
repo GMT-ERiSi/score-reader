@@ -62,7 +62,6 @@
         </div>
         <h3>Squadron ELO Ladder</h3>
         <div class="table-controls">
-            <input type="text" id="teamTableFilter" placeholder="Search squadrons..." class="table-filter">
             <button id="showAllTeamsButton" class="show-all-button">
                 <i class="fas fa-list"></i> Show All Squadrons
             </button>
@@ -94,6 +93,20 @@
         </div>
     </section>
 
+    <!-- Role filter container exactly like the pickup page with explicit styling -->
+    <div id="roleFilterContainer" class="role-filter-container" style="display: block !important; border: 2px solid #555 !important; padding: 15px !important; margin: 20px 0 !important; background-color: rgba(40, 40, 45, 0.7) !important; border-radius: 8px !important; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3) !important;">
+        <h4 style="margin-top: 0; margin-bottom: 10px; color: #ffffff;">Filter Players by Role:</h4>
+        <!-- Role filter buttons will be added here by JavaScript -->
+        <!-- Fallback buttons in case JavaScript doesn't add them -->
+        <div id="roleButtonContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button class="role-filter-button active" data-role="all" style="padding: 8px 15px; margin: 4px; background-color: #0066cc; color: white; border: 1px solid #0055aa; border-radius: 4px; cursor: pointer; font-weight: bold;">All Roles</button>
+            <button class="role-filter-button" data-role="Flex" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">Flex</button>
+            <button class="role-filter-button" data-role="Support" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">Support</button>
+            <button class="role-filter-button" data-role="Farmer" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">Farmer</button>
+            <button class="role-filter-button" data-role="none" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">No Role</button>
+        </div>
+    </div>
+
     <!-- Container for additional leaderboards -->
     <div id="leaderboards-container">
         <!-- Additional leaderboards will be dynamically created here -->
@@ -113,5 +126,9 @@
     <script type="module" src="js/team_page.js"></script>
     <script nomodule src="js/nomodule-fallback.js"></script>
     <script src="star-wars-theme.js"></script>
+    <!-- Script to remove search fields -->
+    <script src="js/remove-search.js"></script>
+    <!-- Direct role filter handling -->
+    <script src="js/team-role-filter.js"></script>
 </body>
 </html>

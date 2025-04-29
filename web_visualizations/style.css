@@ -325,24 +325,13 @@ tr.selected {
 }
 
 /* Table filtering and controls */
-.table-filter {
-    padding: 0.8rem;
-    border: 1px solid #444;
-    background-color: rgba(30, 32, 35, 0.8);
-    color: #e0e0e0;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    width: 100%;
-    max-width: 300px;
-}
-
-.table-filter::placeholder {
-    color: #999;
-}
+/* We've removed the table-filter, filter-input, and clear-filter classes
+   since we no longer need the search fields */
 
 .table-controls {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center; /* Center the show all button */
     align-items: center;
     gap: 1rem;
     margin-bottom: 1rem;
@@ -358,6 +347,10 @@ tr.selected {
     transition: all 0.3s ease;
     font-weight: 600;
     letter-spacing: 1px;
+    height: 40px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
 }
 
 .show-all-button:hover {
@@ -395,23 +388,24 @@ tr.selected {
     border: 2px solid #555 !important;
     padding: 15px !important;
     margin: 20px 0 !important;
-    background-color: rgba(40, 40, 45, 0.5) !important; /* Reduced from 0.7 to 0.5 for more transparency */
+    background-color: rgba(40, 40, 45, 0.7) !important; /* Increased opacity from 0.5 for better visibility */
     border-radius: 8px !important;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3) !important;
+    margin-top: 2rem !important;
 }
 
 .role-filter-label {
     font-weight: bold;
     margin-bottom: 10px;
     display: block;
-    color: #dddddd;
+    color: #ffffff;
 }
 
 .role-filter-button {
     padding: 8px 15px;
     margin: 4px;
-    background-color: rgba(60, 60, 65, 0.7);
-    border: 1px solid #444;
+    background-color: rgba(45, 45, 50, 0.9);
+    border: 1px solid #555; /* Slightly brighter border */
     color: #e0e0e0;
     border-radius: 4px;
     cursor: pointer;
@@ -738,3 +732,16 @@ tr.selected {
 }
 
 /* Removed other glow colors and individual positioning styles */
+
+/* Hide search fields */
+input[placeholder="Search pilots..."],
+input[placeholder="Search squadrons..."], 
+.table-filter {
+    display: none !important;
+}
+
+/* Center Show All buttons */
+.show-all-button {
+    display: block;
+    margin: 0 auto;
+}

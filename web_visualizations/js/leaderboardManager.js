@@ -339,7 +339,7 @@ async function createAdditionalLeaderboards(containerSelector, playerStatsData) 
             // Apply interactivity if table was created successfully
             if (tableId) {
                 makeTableSortable(tableId);
-                addTableFilter(tableId, 'Search players...');
+                // Removed addTableFilter call to be consistent with main tables
             }
         });
         

@@ -309,7 +309,7 @@ function initializeApp(modules) {
         
         // Make team ELO table sortable
         makeTableSortable('teamEloTable');
-        addTableFilter('teamEloTable', 'Search teams...');
+        // Removed addTableFilter call since we removed the search field
         enableTableRowSelection('teamEloTable', (teamName) => {
             filterChartByName(teamEloChartInstance, teamName);
         });
@@ -339,7 +339,67 @@ function initializeApp(modules) {
             
             // Apply interactivity
             applyTableInteractivity();
-            await createAdditionalLeaderboards('#leaderboards-container', playerStats);
+            
+            // Create leaderboards
+            const leaderboardSection = await createAdditionalLeaderboards('#leaderboards-container', playerStats);
+            
+            // Only add role filters if we have player stats
+            if (playerStats && playerStats.length > 0) {
+                // Extract unique roles from player stats
+                const uniqueRoles = new Set();
+                
+                // Debug: Check each player's role
+                console.log("Checking roles for each player:");
+                playerStats.forEach(player => {
+                    console.log(`  Player ${player.player_name}: role = "${player.role || 'null/undefined'}"`);
+                    if (player.role) {
+                        uniqueRoles.add(player.role);
+                    }
+                });
+                
+                console.log(`Found ${uniqueRoles.size} unique roles: ${Array.from(uniqueRoles).join(', ')}`);
+                
+                // Only add role filter if we have role data
+                if (uniqueRoles.size > 0) {
+                    console.log("Adding role filter buttons");
+                    addRoleFilter('aiKillsTable', Array.from(uniqueRoles));
+                    console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
+
+                    // Connect role filter button clicks to filter all leaderboards
+                    document.addEventListener('roleFilterChanged', (e) => {
+                        const selectedRole = e.detail.role;
+                        console.log(`Filtering leaderboards and chart for role: ${selectedRole}`);
+                        filterAllLeaderboards(selectedRole);
+                    });
+                } else {
+                    console.log("No roles found, not adding role filter");
+                    
+                    // Even if we don't have roles in the data, let's add some default role buttons for testing
+                    console.log("Adding default role buttons");
+                    addRoleFilter('aiKillsTable', ['Farmer', 'Flex', 'Support']);
+                }
+                
+                // Add separate listener to filter leaderboards when role buttons are clicked
+                const roleFilterContainer = document.getElementById('roleFilterContainer');
+                if (roleFilterContainer) {
+                    // Use a flag to prevent adding the listener multiple times if this function is called again
+                    if (!roleFilterContainer.dataset.leaderboardListenerAdded) {
+                        roleFilterContainer.addEventListener('click', (e) => {
+                            const target = e.target;
+                            // Ensure it's a role button click
+                            if (target.classList.contains('role-filter-button') && target.dataset.role) {
+                                const selectedRole = target.dataset.role;
+                                console.log(`Filtering leaderboards for role: ${selectedRole}`);
+                                
+                                // Filter the leaderboards
+                                filterAllLeaderboards(selectedRole);
+                            }
+                        });
+                        roleFilterContainer.dataset.leaderboardListenerAdded = 'true'; // Mark listener as added
+                        console.log("Added separate event listener for role filtering.");
+                    }
+                }
+            }
             
             console.log("All team visualizations rendered successfully");
         } catch (error) {
@@ -391,6 +451,30 @@ function initializeApp(modules) {
             
             // Render visualizations
             await renderVisualizations();
+            
+            // Add event listeners to the hardcoded role filter buttons
+            const roleFilterButtons = document.querySelectorAll('.role-filter-button');
+            roleFilterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const role = button.dataset.role;
+                    console.log(`Role button clicked: ${role}`);
+                    
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.role-filter-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = '#333333';
+                        btn.style.color = '#e0e0e0';
+                    });
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    button.style.backgroundColor = '#0066cc';
+                    button.style.color = 'white';
+                    
+                    // Filter leaderboards
+                    filterAllLeaderboards(role);
+                });
+            });
             
             console.log("Team page initialization complete");
         } catch (error) {
