@@ -1,0 +1,1 @@
+"""Stats Reader module for Star Wars Squadrons data"""

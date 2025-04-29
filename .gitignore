@@ -39,6 +39,7 @@ obj/
 .idea/
 *.swp
 *.swo
+.roo/
 
 # Operating System Files
 .DS_Store
@@ -46,3 +47,26 @@ Thumbs.db
 
 # Extraction Results
 Screenshots/extraction_results.json
+
+# Screenshots themselves only to be kept locally
+Screenshots/**
+
+# Ignore db files
+*.db
+!squadrons_reference.db
+!squadrons_pickup.db
+
+# Ignore stats_reports
+stats_reports/**
+!stats_reports/.gitkeep
+
+# Ignore stats_reports
+stats_reports/**
+!stats_reports/.gitkeep
+
+# Ignore elo_reports_pickup
+elo_reports_pickup/**
+!elo_reports_pickup/.gitkeep
+
+# Ignore todo
+todo.txt

@@ -1,0 +1,20 @@
+# To revert back to using stats_db_processor.py, add this at the top of the original stats_db_processor.py file:
+
+# Import functions from modular components
+from modules.database_utils import create_database, get_or_create_season, get_or_create_team, update_match_types_batch
+from modules.player_processor import generate_player_hash, get_or_create_player, process_player_stats, player_resolution_cache
+from modules.match_processor import process_match_data, process_seasons_data
+from modules.report_generator import generate_stats_reports
+
+# After adding these imports, we can remove the original function definitions
+# for these functions from the stats_db_processor.py file, but keep the main()
+# function and any other code at the bottom of the file.
+
+# Also, would need to revert this import in the __main__.py file
+# from .stats_db_processor_direct import main as stats_processor_main
+# to use stats_db_processor instead
+
+# Alternatively, keep using  stats_db_processor_direct.py instead whilst testing the modular code
+
+
+

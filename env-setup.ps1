@@ -23,19 +23,32 @@ function Test-PythonVersionInstalled {
 }
 
 # Repository URL for the readme
-$repoUrl = "https://github.com/yourusername/game-score-extractor"
+$repoUrl = "https://github.com/Harry84/score-reader"
 
 # Create project structure
 Write-Host "Creating minimal project structure..." -ForegroundColor Green
 $projectRoot = $PWD.Path
-$screenshotsDir = Join-Path -Path $projectRoot -ChildPath "Screenshots"
+$parentDir = Split-Path -Parent $projectRoot
+$screenshotsDir = Join-Path -Path $parentDir -ChildPath "Screenshots"
 
-# Create Screenshots directory if it doesn't exist
+# Create Screenshots directory at the parent level if it doesn't exist
 if (-not (Test-Path $screenshotsDir)) {
     New-Item -Path $screenshotsDir -ItemType Directory
-    Write-Host "Created Screenshots directory" -ForegroundColor Cyan
+    Write-Host "Created Screenshots directory at parent level" -ForegroundColor Cyan
 } else {
     Write-Host "Screenshots directory already exists" -ForegroundColor Yellow
+}
+
+# Create season subfolders
+$subFolders = @("SCL12", "SCL13", "SCL14", "TeamPickup", "FNF", "TEST")
+foreach ($folder in $subFolders) {
+    $subfolderPath = Join-Path -Path $screenshotsDir -ChildPath $folder
+    if (-not (Test-Path $subfolderPath)) {
+        New-Item -Path $subfolderPath -ItemType Directory
+        Write-Host "Created $folder subfolder" -ForegroundColor Cyan
+    } else {
+        Write-Host "$folder subfolder already exists" -ForegroundColor Yellow
+    }
 }
 
 # Create local.settings.json for local development
@@ -162,7 +175,7 @@ This project uses Claude's AI vision capabilities to extract scores from game sc
 
 4. Edit the `.env` file to add your Claude API key
 
-5. Place your screenshots in the `Screenshots` folder
+5. Place your screenshots in the appropriate folders within the `../Screenshots` directory (created at the parent level of the project)
 
 ## Usage
 
@@ -219,7 +232,7 @@ if (Test-PyenvInstalled) {
     Write-Host "2. Activate the virtual environment: .\venv\Scripts\Activate.ps1" -ForegroundColor White
     Write-Host "3. Install dependencies: pip install -r requirements.txt" -ForegroundColor White
     Write-Host "4. Edit the .env file with your Claude API key" -ForegroundColor White
-    Write-Host "5. Add your screenshots to the Screenshots folder" -ForegroundColor White
+    Write-Host "5. Add your screenshots to the appropriate folders within the ../Screenshots directory" -ForegroundColor White
     
 } else {
     Write-Host "pyenv-win is not installed! Please install it first: " -ForegroundColor Red

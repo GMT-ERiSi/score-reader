@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squadron Stats - Star Wars: Squadrons</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- Chart.js Zoom plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Module support detection -->
+    <script>
+        window.moduleSupport = 'noModule' in HTMLScriptElement.prototype;
+        window.isTeamPage = true; // Flag to identify this is the team page
+    </script>
+    <!-- Floating logos background script -->
+    <script src="js/floating-logos.js"></script>
+</head>
+<body>
+    <!-- Death Star background -->
+    <div class="death-star-bg">
+        <img src="images/Death Star.png" alt="Death Star" style="width: 110%; height: 110%; object-fit: contain;">
+    </div>
+    <header>
+        <h1>Squadrons ELO Ladder</h1>
+        <div class="header-graffiti">
+            <div class="graffiti-row">
+                <span class="graffiti-item aurebesh-tech glow-red">1138</span>
+                <span class="graffiti-item aurebesh-tech glow-red">7</span>
+                <span class="graffiti-item aurebesh-tech glow-red">21870</span>
+                <span class="graffiti-item aurebesh-tech glow-red">32</span>
+                <span class="graffiti-item aurebesh-tech glow-red">999</span>
+                <span class="graffiti-item aurebesh-tech glow-red">6</span>
+                <span class="graffiti-item aurebesh-tech glow-red">1401</span>
+                <span class="graffiti-item aurebesh-tech glow-red">50</span>
+                <span class="graffiti-item aurebesh-tech glow-red">5</span>
+                <span class="graffiti-item aurebesh-tech glow-red">422</span>
+                <span class="graffiti-item aurebesh-tech glow-red">19</span>
+                <span class="graffiti-item aurebesh-tech glow-red">1980</span>
+                <span class="graffiti-item aurebesh-tech glow-red">83</span>
+                <span class="graffiti-item aurebesh-tech glow-red">20151</span>
+                <span class="graffiti-item aurebesh-tech glow-red">3</span>
+                <span class="graffiti-item aurebesh-tech glow-red">007</span>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="team.html" class="active"><img src="images/tiefighter.png" class="nav-icon tiefighter-icon" alt="TIE Fighter" /> Squadron Stats</a></li>
+                <li><a href="pickup.html"><img src="images/xwing.png" class="nav-icon xwing-icon" alt="X-Wing" /> Pilot Stats</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="team-section">
+        <h2>Squadron ELO Ratings</h2>
+        <div class="chart-container">
+            <canvas id="teamEloChart"></canvas>
+        </div>
+        <h3>Squadron ELO Ladder</h3>
+        <div class="table-controls">
+            <button id="showAllTeamsButton" class="show-all-button">
+                <i class="fas fa-list"></i> Show All Squadrons
+            </button>
+        </div>
+        
+        <!-- Role filter container removed -->
+        <table id="teamEloTable">
+            <thead>
+                <tr>
+                    <th class="rank-cell">Rank</th>
+                    <th>Squadron Name</th>
+                    <th>ELO Rating</th>
+                    <th>W-L</th>
+                    <th>Win Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Team ELO data will be populated here -->
+            </tbody>
+        </table>
+        
+        <!-- Faction comparison section - compact single row version -->
+        <div class="faction-stats-compact">
+            <span class="faction-label">Faction Stats:</span>
+            <span class="faction-stat imperial">Imperial Win Rate: <span id="imperialWinRate">Loading...</span></span>
+            <span class="faction-stat imperial">Avg ELO: <span id="imperialAvgElo">Loading...</span></span>
+            <span class="faction-stat rebel">New Republic Win Rate: <span id="rebelWinRate">Loading...</span></span>
+            <span class="faction-stat rebel">Avg ELO: <span id="rebelAvgElo">Loading...</span></span>
+        </div>
+    </section>
+
+    <!-- Role filter container exactly like the pickup page with explicit styling and better alignment -->
+    <section style="margin: 2rem auto; padding: 0; max-width: 1200px;">
+        <div id="roleFilterContainer" class="role-filter-container" style="display: block !important; border: 2px solid #555 !important; padding: 15px !important; margin: 20px 0 !important; background-color: rgba(40, 40, 45, 0.7) !important; border-radius: 8px !important; box-shadow: 0 0 15px rgba(0, 0, 0, 0.3) !important;">
+            <h4 style="margin-top: 0; margin-bottom: 10px; color: #ffffff;">Filter Players by Role:</h4>
+            <!-- Role filter buttons will be added here by JavaScript -->
+            <!-- Fallback buttons in case JavaScript doesn't add them -->
+            <div id="roleButtonContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <button class="role-filter-button active" data-role="all" style="padding: 8px 15px; margin: 4px; background-color: #0066cc; color: white; border: 1px solid #0055aa; border-radius: 4px; cursor: pointer; font-weight: bold;">All Roles</button>
+                <button class="role-filter-button" data-role="Flex" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">Flex</button>
+                <button class="role-filter-button" data-role="Support" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">Support</button>
+                <button class="role-filter-button" data-role="Farmer" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">Farmer</button>
+                <button class="role-filter-button" data-role="none" style="padding: 8px 15px; margin: 4px; background-color: #333333; color: #e0e0e0; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold;">No Role</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Container for additional leaderboards -->
+    <div id="leaderboards-container">
+        <!-- Additional leaderboards will be dynamically created here -->
+    </div>
+
+    <div class="loading-container" id="loading">
+        <p>Loading squadron data from across the galaxy...</p>
+        <div class="lightsaber-loader"></div>
+    </div>
+
+    <footer>
+        <p>Data provided by Imperial and New Republic Intelligence Services</p>
+        <p><small>May the Force be with you</small></p>
+    </footer>
+
+    <!-- Import modules using type="module" with fallback -->
+    <script type="module" src="js/team_page.js"></script>
+    <script nomodule src="js/nomodule-fallback.js"></script>
+    <script src="star-wars-theme.js"></script>
+    <!-- Script to remove search fields -->
+    <script src="js/remove-search.js"></script>
+    <!-- Direct role filter handling (Removed - handled by team_page.js now) -->
+</body>
+</html>

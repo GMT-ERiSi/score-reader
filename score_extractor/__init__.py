@@ -4,7 +4,6 @@ import json
 import logging
 import mimetypes
 import azure.functions as func
-from PIL import Image
 from io import BytesIO
 import requests
 import time
@@ -58,9 +57,50 @@ def extract_scores_from_image(image_path):
     mime_type = get_mime_type(image_path)
     logger.info(f"Using MIME type: {mime_type} for image: {image_path}")
     
-    # Create the prompt with the image
+    # Create the prompt with the image and expected output format
     prompt = """
-    Extract this score screen to a json. Pay close attention to the horizontal alignment such that the cap ship damage scores are attributed to the correct players and all the data from a row is kept together.
+    Extract this Star Wars Squadrons score screen to a json. Pay close attention to the horizontal alignment such that the cap ship damage scores are attributed to the correct players and all the data from a row is kept together.  Also ensure that players are grouped by team even if not all 5 players are on a team.
+    
+    Please follow this exact format for the output:
+    ```json
+    {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "playername1",
+              "score": 1675,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 18,
+              "cap_ship_damage": 30139
+            },
+            ...
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "playername2",
+              "score": 555,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 35,
+              "cap_ship_damage": 0
+            },
+            ...
+          ]
+        }
+      }
+    }
+    ```
+    
+    Return only the JSON with no additional text.
     """
     
     # Call the Claude API with retries
@@ -143,6 +183,33 @@ def extract_scores_from_image(image_path):
                 logger.error(f"All API request attempts failed")
                 raise RuntimeError(f"Failed to get response from Claude API: {str(e)}")
 
+def extract_scores_from_multiple_images(image_paths):
+    """
+    Process multiple game score screen images with Claude API and extract structured data.
+    
+    Args:
+        image_paths (list): List of paths to image files
+        
+    Returns:
+        dict: Extracted scores for each image as JSON, keyed by filename
+    """
+    results = {}
+    
+    for image_path in image_paths:
+        try:
+            filename = os.path.basename(image_path)
+            logger.info(f"Processing image: {filename}")
+            
+            result = extract_scores_from_image(image_path)
+            results[filename] = result
+            
+            logger.info(f"Successfully processed {filename}")
+        except Exception as e:
+            logger.error(f"Error processing {image_path}: {str(e)}")
+            results[os.path.basename(image_path)] = {"error": str(e)}
+    
+    return results
+
 # Azure Function entry point
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
@@ -181,6 +248,46 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             )
         except Exception as e:
             logging.error(f"Error processing base64 image: {str(e)}")
+            return func.HttpResponse(
+                json.dumps({"error": str(e)}),
+                status_code=500,
+                mimetype="application/json"
+            )
+    
+    # If it's multiple base64 images
+    elif "images_base64" in req_body:
+        try:
+            results = {}
+            for idx, img_data in enumerate(req_body["images_base64"]):
+                # Get image name if provided, otherwise use index
+                img_name = req_body.get("image_names", {}).get(str(idx), f"image_{idx}")
+                
+                # Decode base64 string to image
+                image_data = base64.b64decode(img_data)
+                
+                # Save to temp file
+                temp_image_path = f"/tmp/temp_image_{idx}.jpg"
+                with open(temp_image_path, "wb") as temp_file:
+                    temp_file.write(image_data)
+                
+                # Process the image
+                try:
+                    img_result = extract_scores_from_image(temp_image_path)
+                    results[img_name] = img_result
+                except Exception as e:
+                    results[img_name] = {"error": str(e)}
+                
+                # Clean up
+                if os.path.exists(temp_image_path):
+                    os.remove(temp_image_path)
+            
+            return func.HttpResponse(
+                json.dumps(results),
+                status_code=200,
+                mimetype="application/json"
+            )
+        except Exception as e:
+            logging.error(f"Error processing multiple base64 images: {str(e)}")
             return func.HttpResponse(
                 json.dumps({"error": str(e)}),
                 status_code=500,
@@ -226,9 +333,58 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json"
             )
     
+    # If it's multiple URLs to images
+    elif "image_urls" in req_body:
+        try:
+            results = {}
+            for idx, url in enumerate(req_body["image_urls"]):
+                # Get image name if provided, otherwise use URL or index
+                img_name = req_body.get("image_names", {}).get(str(idx), os.path.basename(url) or f"image_{idx}")
+                
+                try:
+                    # Download the image
+                    response = requests.get(url)
+                    response.raise_for_status()
+                    
+                    # Save to temp file with correct extension based on content type
+                    content_type = response.headers.get('Content-Type', 'image/jpeg')
+                    extension = '.jpg'
+                    if 'png' in content_type:
+                        extension = '.png'
+                    elif 'gif' in content_type:
+                        extension = '.gif'
+                    
+                    temp_image_path = f"/tmp/temp_image_{idx}{extension}"
+                    with open(temp_image_path, "wb") as temp_file:
+                        temp_file.write(response.content)
+                    
+                    # Process the image
+                    img_result = extract_scores_from_image(temp_image_path)
+                    results[img_name] = img_result
+                    
+                    # Clean up
+                    if os.path.exists(temp_image_path):
+                        os.remove(temp_image_path)
+                
+                except Exception as e:
+                    results[img_name] = {"error": str(e)}
+            
+            return func.HttpResponse(
+                json.dumps(results),
+                status_code=200,
+                mimetype="application/json"
+            )
+        except Exception as e:
+            logging.error(f"Error processing multiple image URLs: {str(e)}")
+            return func.HttpResponse(
+                json.dumps({"error": str(e)}),
+                status_code=500,
+                mimetype="application/json"
+            )
+    
     else:
         return func.HttpResponse(
-            json.dumps({"error": "Request must contain either 'image_base64' or 'image_url'"}),
+            json.dumps({"error": "Request must contain either 'image_base64', 'images_base64', 'image_url', or 'image_urls'"}),
             status_code=400,
             mimetype="application/json"
         )

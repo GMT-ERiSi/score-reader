@@ -1,0 +1,1000 @@
+{
+  "LSS": {
+    "2025.04.17 19.30.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "Silence",
+              "score": 1785,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 15,
+              "cap_ship_damage": 93561
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Humunkulus_Hunk",
+              "score": 1340,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 9,
+              "cap_ship_damage": 50212
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "MilesAway--",
+              "score": 1205,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 34236
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "TomateC",
+              "score": 1065,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 9,
+              "cap_ship_damage": 36746
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Schneeflockchen",
+              "score": 825,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 275
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Two",
+              "player": "Hadysun",
+              "score": 540,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 26,
+              "cap_ship_damage": 15658
+            },
+            {
+              "position": "Titan Two",
+              "player": "Trevorevenge",
+              "score": 430,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            },
+            {
+              "position": "Titan Four",
+              "player": "Edmond_Fonda",
+              "score": 384,
+              "kills": 2,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 158
+            },
+            {
+              "position": "Titan One",
+              "player": "VonVampyris",
+              "score": 180,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 6855
+            },
+            {
+              "position": "Titan Four",
+              "player": "SeriouslyAkaryn",
+              "score": 0,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 718
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-17 19:30:00"
+    },
+    "2025.04.17 19.42.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "Silence",
+              "score": 1435,
+              "kills": 0,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 15,
+              "cap_ship_damage": 96832
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Trevorevenge",
+              "score": 1300,
+              "kills": 5,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 2646
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "SeriouslyAKaryn",
+              "score": 1140,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 8,
+              "cap_ship_damage": 50639
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Hadysun",
+              "score": 845,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 49217
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Edmond_Fonda",
+              "score": 810,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 136
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Five",
+              "player": "Tomatec",
+              "score": 800,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 35,
+              "cap_ship_damage": 10439
+            },
+            {
+              "position": "Titan Two",
+              "player": "Schneeflockchen",
+              "score": 585,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 52
+            },
+            {
+              "position": "Titan Three",
+              "player": "Humunkulus_Hunk",
+              "score": 445,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 11,
+              "cap_ship_damage": 5831
+            },
+            {
+              "position": "Titan One",
+              "player": "VonVampyris",
+              "score": 65,
+              "kills": 0,
+              "deaths": 4,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 0
+            },
+            {
+              "position": "Titan One",
+              "player": "MilesAway--",
+              "score": 30,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-17 19:42:00"
+    },
+    "2025.04.17 19.59.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "Silence",
+              "score": 2435,
+              "kills": 6,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 105493
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "TomateC",
+              "score": 2200,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 43,
+              "cap_ship_damage": 32835
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Raven419",
+              "score": 1960,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 38399
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Humunkulus_Hunk",
+              "score": 1890,
+              "kills": 3,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 14,
+              "cap_ship_damage": 54351
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Schneeflockchen",
+              "score": 1486,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 5,
+              "ai_kills": 0,
+              "cap_ship_damage": 286
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "SeriouslyAKaryn",
+              "score": 1490,
+              "kills": 2,
+              "deaths": 4,
+              "assists": 1,
+              "ai_kills": 21,
+              "cap_ship_damage": 67874
+            },
+            {
+              "position": "Titan Three",
+              "player": "Trevorrevenge",
+              "score": 1125,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 42953
+            },
+            {
+              "position": "Titan One",
+              "player": "MilesAway--",
+              "score": 1120,
+              "kills": 2,
+              "deaths": 3,
+              "assists": 1,
+              "ai_kills": 18,
+              "cap_ship_damage": 30970
+            },
+            {
+              "position": "Titan Four",
+              "player": "Edmond_Fonda",
+              "score": 1004,
+              "kills": 1,
+              "deaths": 4,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            },
+            {
+              "position": "Titan Two",
+              "player": "Hadysun",
+              "score": 850,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 25155
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-17 19:59:00"
+    },
+    "2025.04.17 20.18.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "Silence",
+              "score": 2490,
+              "kills": 2,
+              "deaths": 1,
+              "assists": 4,
+              "ai_kills": 30,
+              "cap_ship_damage": 89336
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Trevorevenge",
+              "score": 2095,
+              "kills": 9,
+              "deaths": 2,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 18760
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Edmond_Fonda",
+              "score": 1945,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 29876
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "SeriouslyAKaryn",
+              "score": 1725,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 0,
+              "ai_kills": 18,
+              "cap_ship_damage": 54945
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "MilesAway--",
+              "score": 1555,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 61419
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "Humunkulus_Hunk",
+              "score": 1645,
+              "kills": 1,
+              "deaths": 4,
+              "assists": 1,
+              "ai_kills": 29,
+              "cap_ship_damage": 96639
+            },
+            {
+              "position": "Titan Five",
+              "player": "Raven419",
+              "score": 1505,
+              "kills": 3,
+              "deaths": 5,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 27432
+            },
+            {
+              "position": "Titan One",
+              "player": "Schneeflockchen",
+              "score": 1340,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 309
+            },
+            {
+              "position": "Titan Two",
+              "player": "Hadysun",
+              "score": 680,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 40
+            },
+            {
+              "position": "1",
+              "player": "TomateC",
+              "score": 1330,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 0,
+              "ai_kills": 40,
+              "cap_ship_damage": 54460
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-17 20:18:00"
+    },
+    "2025.04.17 20.33.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "new_republic": {
+          "players": [
+            {
+              "position": "Vanguard Three",
+              "player": "Silence",
+              "score": 1965,
+              "kills": 2,
+              "deaths": 3,
+              "assists": 1,
+              "ai_kills": 22,
+              "cap_ship_damage": 85670
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Hadysun",
+              "score": 1555,
+              "kills": 3,
+              "deaths": 1,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 29950
+            },
+            {
+              "position": "Vanguard One",
+              "player": "GMT_ERISI",
+              "score": 1120,
+              "kills": 4,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 3,
+              "cap_ship_damage": 48529
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Schneeflockchen",
+              "score": 1087,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 2301
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "VonVampyris",
+              "score": 705,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 8128
+            }
+          ]
+        },
+        "empire": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "MilesAway--",
+              "score": 940,
+              "kills": 3,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 23,
+              "cap_ship_damage": 14861
+            },
+            {
+              "position": "Titan One",
+              "player": "Trevorevenge",
+              "score": 770,
+              "kills": 4,
+              "deaths": 3,
+              "assists": 5,
+              "ai_kills": 0,
+              "cap_ship_damage": 104
+            },
+            {
+              "position": "Titan Two",
+              "player": "Edmond_Fonda",
+              "score": 612,
+              "kills": 0,
+              "deaths": 4,
+              "assists": 5,
+              "ai_kills": 1,
+              "cap_ship_damage": 88
+            },
+            {
+              "position": "Titan Three",
+              "player": "SeriouslyAKaryn",
+              "score": 610,
+              "kills": 3,
+              "deaths": 1,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            },
+            {
+              "position": "Titan Five",
+              "player": "Bombad Gastald",
+              "score": 125,
+              "kills": 1,
+              "deaths": 1,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 3288
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-17 20:33:00"
+    },
+    "2025.04.17 20.51.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Five",
+              "player": "Fox",
+              "score": 1870,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 38,
+              "cap_ship_damage": 45033
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Edmond_Fonda",
+              "score": 1565,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 47357
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Trevorevenge",
+              "score": 1445,
+              "kills": 4,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 80
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "VonVampyris",
+              "score": 420,
+              "kills": 0,
+              "deaths": 6,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 6016
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Silence",
+              "score": 305,
+              "kills": 0,
+              "deaths": 0,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 25390
+            }
+          ]
+        },
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan One",
+              "player": "Schneeflocken",
+              "score": 1310,
+              "kills": 0,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 59,
+              "cap_ship_damage": 40243
+            },
+            {
+              "position": "Titan Four",
+              "player": "Bombad Gastald",
+              "score": 1245,
+              "kills": 8,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 32446
+            },
+            {
+              "position": "Titan Two",
+              "player": "SeriouslyAkaryn",
+              "score": 906,
+              "kills": 1,
+              "deaths": 4,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 3185
+            },
+            {
+              "position": "Titan Three",
+              "player": "MilesAway--",
+              "score": 350,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 1,
+              "ai_kills": 1,
+              "cap_ship_damage": 16637
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-17 20:51:00"
+    },
+    "2025.04.24 - 20.29.53.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "GMT_ERiSi",
+              "score": 2535,
+              "kills": 8,
+              "deaths": 1,
+              "assists": 1,
+              "ai_kills": 2,
+              "cap_ship_damage": 63086
+            },
+            {
+              "position": "Titan Two",
+              "player": "Schneefloeckchen",
+              "score": 1830,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 0,
+              "ai_kills": 34,
+              "cap_ship_damage": 93988
+            },
+            {
+              "position": "Titan One",
+              "player": "Edmond_Fonda",
+              "score": 1665,
+              "kills": 2,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 48819
+            },
+            {
+              "position": "Titan Five",
+              "player": "Raven419",
+              "score": 1300,
+              "kills": 0,
+              "deaths": 5,
+              "assists": 0,
+              "ai_kills": 19,
+              "cap_ship_damage": 49599
+            },
+            {
+              "position": "Titan Five",
+              "player": "Trevorevenge",
+              "score": 1127,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 6,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Two",
+              "player": "Silence",
+              "score": 2855,
+              "kills": 2,
+              "deaths": 4,
+              "assists": 6,
+              "ai_kills": 0,
+              "cap_ship_damage": 41314
+            },
+            {
+              "position": "Vanguard One",
+              "player": "Hadysun",
+              "score": 1525,
+              "kills": 3,
+              "deaths": 1,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 34431
+            },
+            {
+              "position": "Vanguard One",
+              "player": "TRA_Satake",
+              "score": 1030,
+              "kills": 6,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 4,
+              "cap_ship_damage": 19885
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Melatanar",
+              "score": 985,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 2,
+              "ai_kills": 5,
+              "cap_ship_damage": 39141
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Hoss_Johnson",
+              "score": 885,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 0,
+              "ai_kills": 21,
+              "cap_ship_damage": 29321
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-24 12:00:00"
+    },
+    "2025.04.24 20.12.00.png": {
+      "match_result": "IMPERIAL VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Four",
+              "player": "Silence",
+              "score": 3930,
+              "kills": 9,
+              "deaths": 2,
+              "assists": 4,
+              "ai_kills": 33,
+              "cap_ship_damage": 189902
+            },
+            {
+              "position": "Titan Two",
+              "player": "Trevorrevenge",
+              "score": 2351,
+              "kills": 2,
+              "deaths": 2,
+              "assists": 11,
+              "ai_kills": 0,
+              "cap_ship_damage": 2127
+            },
+            {
+              "position": "Titan One",
+              "player": "Edmond_Fonda",
+              "score": 1660,
+              "kills": 3,
+              "deaths": 4,
+              "assists": 6,
+              "ai_kills": 0,
+              "cap_ship_damage": 34329
+            },
+            {
+              "position": "Titan Three",
+              "player": "TRA_Satake",
+              "score": 1240,
+              "kills": 6,
+              "deaths": 1,
+              "assists": 4,
+              "ai_kills": 0,
+              "cap_ship_damage": 10168
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard One",
+              "player": "Humunkulus_Hunk",
+              "score": 2125,
+              "kills": 0,
+              "deaths": 6,
+              "assists": 1,
+              "ai_kills": 36,
+              "cap_ship_damage": 55340
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Hoss_Johnson",
+              "score": 1415,
+              "kills": 0,
+              "deaths": 6,
+              "assists": 0,
+              "ai_kills": 36,
+              "cap_ship_damage": 44650
+            },
+            {
+              "position": "Vanguard Two",
+              "player": "Hadysun",
+              "score": 1350,
+              "kills": 1,
+              "deaths": 2,
+              "assists": 1,
+              "ai_kills": 2,
+              "cap_ship_damage": 26284
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Melatanar",
+              "score": 1185,
+              "kills": 1,
+              "deaths": 4,
+              "assists": 0,
+              "ai_kills": 1,
+              "cap_ship_damage": 31794
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Schneeflockchen",
+              "score": 998,
+              "kills": 1,
+              "deaths": 3,
+              "assists": 2,
+              "ai_kills": 0,
+              "cap_ship_damage": 185
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-24 20:12:00"
+    },
+    "2025.04.24 20.49.00.png": {
+      "match_result": "NEW REPUBLIC VICTORY",
+      "teams": {
+        "imperial": {
+          "players": [
+            {
+              "position": "Titan Three",
+              "player": "Silence",
+              "score": 1755,
+              "kills": 8,
+              "deaths": 4,
+              "assists": 0,
+              "ai_kills": 0,
+              "cap_ship_damage": 62866
+            },
+            {
+              "position": "Titan Two",
+              "player": "Schneeflocken",
+              "score": 1685,
+              "kills": 0,
+              "deaths": 3,
+              "assists": 0,
+              "ai_kills": 56,
+              "cap_ship_damage": 75311
+            },
+            {
+              "position": "Titan Four",
+              "player": "Hoss_Johnson",
+              "score": 870,
+              "kills": 0,
+              "deaths": 8,
+              "assists": 0,
+              "ai_kills": 14,
+              "cap_ship_damage": 37742
+            },
+            {
+              "position": "Titan One",
+              "player": "Edmond_Fonda",
+              "score": 696,
+              "kills": 0,
+              "deaths": 6,
+              "assists": 3,
+              "ai_kills": 0,
+              "cap_ship_damage": 0
+            }
+          ]
+        },
+        "rebel": {
+          "players": [
+            {
+              "position": "Vanguard Two",
+              "player": "Hadysun",
+              "score": 1980,
+              "kills": 4,
+              "deaths": 0,
+              "assists": 1,
+              "ai_kills": 0,
+              "cap_ship_damage": 76301
+            },
+            {
+              "position": "Vanguard Four",
+              "player": "Melatanar",
+              "score": 1975,
+              "kills": 8,
+              "deaths": 3,
+              "assists": 3,
+              "ai_kills": 1,
+              "cap_ship_damage": 8289
+            },
+            {
+              "position": "Vanguard Three",
+              "player": "Trevorevenge",
+              "score": 1974,
+              "kills": 1,
+              "deaths": 0,
+              "assists": 6,
+              "ai_kills": 1,
+              "cap_ship_damage": 8155
+            },
+            {
+              "position": "Vanguard Five",
+              "player": "Raven419",
+              "score": 1800,
+              "kills": 0,
+              "deaths": 4,
+              "assists": 0,
+              "ai_kills": 22,
+              "cap_ship_damage": 91156
+            },
+            {
+              "position": "Vanguard One",
+              "player": "TRA_Satake",
+              "score": 1785,
+              "kills": 6,
+              "deaths": 2,
+              "assists": 5,
+              "ai_kills": 10,
+              "cap_ship_damage": 6432
+            }
+          ]
+        }
+      },
+      "match_date": "2025-04-24 20:49:00"
+    }
+  }
+}
