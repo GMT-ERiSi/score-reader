@@ -1,0 +1,52 @@
+[
+  {
+    "team_id": 3,
+    "team_name": "RND",
+    "elo_rating": 1053,
+    "matches_played": 13,
+    "matches_won": 9,
+    "matches_lost": 4,
+    "win_rate": 69.2,
+    "rank": 1
+  },
+  {
+    "team_id": 4,
+    "team_name": "GMT",
+    "elo_rating": 1029,
+    "matches_played": 5,
+    "matches_won": 3,
+    "matches_lost": 2,
+    "win_rate": 60.0,
+    "rank": 2
+  },
+  {
+    "team_id": 2,
+    "team_name": "KE",
+    "elo_rating": 1003,
+    "matches_played": 4,
+    "matches_won": 2,
+    "matches_lost": 2,
+    "win_rate": 50.0,
+    "rank": 3
+  },
+  {
+    "team_id": 5,
+    "team_name": "TBD",
+    "elo_rating": 968,
+    "matches_played": 4,
+    "matches_won": 1,
+    "matches_lost": 3,
+    "win_rate": 25.0,
+    "rank": 4
+  },
+  {
+    "team_id": 1,
+    "team_name": "NWS",
+    "elo_rating": 947,
+    "matches_played": 8,
+    "matches_won": 2,
+    "matches_lost": 6,
+    "win_rate": 25.0,
+    "rank": 5
+  }
+]
