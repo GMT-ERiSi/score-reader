@@ -86,8 +86,13 @@ function initializeApp(modules) {
     // Data storage
     let pickupEloHistory = [];
     let pickupEloLadder = [];
+    let flexEloLadder = [];    
+    let supportEloLadder = []; 
+    let farmerEloLadder = [];  
+    let currentLadder = 'general'; // Add this line to track which ladder is shown
     let playerStats = []; // For additional leaderboards
     let playerRoles = {}; // For role filtering
+    let tableInteractivityApplied = false; // Initialize to false
 
     // Chart instances
     let pickupEloChartInstance = null;
@@ -111,18 +116,48 @@ function initializeApp(modules) {
         }
 
         // Process data for Chart.js
-        const playersData = {}; // { player_id: { name: 'Player Name', data: [{x: date, y: rating}] } }
-        const allDates = new Set();
+        const playersData = {}; // { player_id: { name: 'Player Name', data: [{x: index, y: rating}] } }
         const playersInHistory = new Set(); // Keep track of players who actually have history entries
 
+        // 1. Add timestamp to each match object for sorting
         pickupEloHistory.forEach(match => {
-            // Parse date string reliably and get timestamp for Chart.js
-            const matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-            if (isNaN(matchTimestamp)) { // Check if parsing failed
-                console.warn(`Invalid date format found in pickup history: ${match.match_date} for match ID ${match.match_id}`);
-                return; // Skip this match entry if date is invalid
+            try {
+                // Robust manual parsing for "YYYY-MM-DD HH:MM:SS"
+                const parts = match.match_date.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                if (parts) {
+                    const year = parseInt(parts[1], 10);
+                    const month = parseInt(parts[2], 10) - 1; // Month is 0-indexed in Date
+                    const day = parseInt(parts[3], 10);
+                    const hour = parseInt(parts[4], 10);
+                    const minute = parseInt(parts[5], 10);
+                    const second = parseInt(parts[6], 10);
+                    // Construct date explicitly
+                    const dateObj = new Date(Date.UTC(year, month, day, hour, minute, second)); // Use UTC to avoid timezone issues during parsing
+                    match.timestamp = dateObj.getTime();
+                } else {
+                     console.warn(`Could not parse date format: ${match.match_date} for pickup match ID ${match.match_id}`);
+                     match.timestamp = null; // Mark as invalid if format doesn't match
+                }
+
+                 if (isNaN(match.timestamp)) {
+                     console.warn(`Resulting timestamp is NaN for date: ${match.match_date} (pickup match ID ${match.match_id})`);
+                     match.timestamp = null; // Ensure NaN timestamps are treated as null
+                }
+            } catch (e) {
+                console.error(`Error during manual date parsing for pickup match ID ${match.match_id}: ${e.message}`);
+                match.timestamp = null;
             }
-            allDates.add(matchTimestamp); // Use the timestamp
+        });
+
+        // 2. Filter out matches with invalid dates and sort the history by timestamp
+        const sortedHistory = pickupEloHistory
+            .filter(match => match.timestamp !== null)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // 3. Process sorted history to assign sequential index
+        let matchIndex = 0;
+        sortedHistory.forEach(match => {
+            matchIndex++; // Increment for each valid, sorted match
 
             // Combine imperial and rebel players for processing
             const allPlayersInMatch = [...match.imperial_players, ...match.rebel_players];
@@ -132,14 +167,13 @@ function initializeApp(modules) {
                 if (!playersData[player.player_id]) {
                     playersData[player.player_id] = { name: player.player_name, data: [] };
                 }
-                // Add rating *before* the match using timestamp
-                playersData[player.player_id].data.push({ x: matchTimestamp, y: player.old_rating });
-                // Add rating *after* the match using timestamp
-                playersData[player.player_id].data.push({ x: matchTimestamp, y: player.new_rating });
+                // Add ratings using the matchIndex
+                playersData[player.player_id].data.push({ x: matchIndex, y: player.old_rating });
+                playersData[player.player_id].data.push({ x: matchIndex, y: player.new_rating });
             });
         });
 
-        // Sort data points by date for each player
+        // 4. Sort data points within each player's dataset by index
         for (const playerId in playersData) {
             playersData[playerId].data.sort((a, b) => a.x - b.x);
         }
@@ -178,21 +212,14 @@ function initializeApp(modules) {
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            tooltipFormat: 'PPP p',
-                            displayFormats: {
-                                day: 'MMM d, yyyy'
-                            }
-                        },
+                        type: 'linear', // Use linear scale for match sequence
                         title: {
                             display: true,
-                            text: 'Match Date'
+                            text: 'Match Sequence' // Update axis title
                         },
                         ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 15
+                            stepSize: 1, // Try to show integer ticks
+                            precision: 0 // Ensure no decimal places on ticks
                         }
                     },
                     y: {
@@ -239,6 +266,94 @@ function initializeApp(modules) {
             color += letters[Math.floor(Math.random() * 16)];
         }
         return color;
+    }
+    
+    // Function to filter chart by player role
+    function filterChartByRole(chartInstance, role, ladderData) {
+        if (!chartInstance) {
+            console.warn('Cannot filter: Chart instance not provided');
+            return;
+        }
+        
+        try {
+            // Store original datasets if not already stored
+            if (!chartInstance._originalDatasets) {
+                chartInstance._originalDatasets = [...chartInstance.data.datasets];
+            }
+            
+            // If role is 'all', show all datasets
+            if (role === 'all') {
+                console.log('Role filter "All Roles" selected - resetting chart to show all pilots');
+                
+                // Ensure we have a deep copy of the original datasets
+                chartInstance.data.datasets = JSON.parse(JSON.stringify(chartInstance._originalDatasets));
+                chartInstance.update();
+                
+                // Verify the reset was successful
+                console.log(`Chart reset complete: now showing ${chartInstance.data.datasets.length} datasets`);
+                
+                // Update filter status message
+                updateChartFilterMessage('Showing all pilots');
+                return;
+            }
+            
+            console.log(`Filtering chart to show players with role: ${role}`);
+            
+            // Get player names with the selected role
+            const playersWithRole = role === 'none' 
+                ? ladderData.filter(player => !player.role || player.role.toLowerCase() === 'none').map(player => player.player_name)
+                : ladderData.filter(player => player.role && player.role.toLowerCase() === role.toLowerCase()).map(player => player.player_name);
+            
+            console.log(`Found ${playersWithRole.length} players with role ${role}: ${playersWithRole.join(', ')}`);
+            
+            // Filter datasets to show only the selected players
+            const filteredDatasets = chartInstance._originalDatasets.filter(dataset => 
+                playersWithRole.includes(dataset.label)
+            );
+            
+            if (filteredDatasets.length === 0) {
+                console.warn(`No datasets found matching the selected role: ${role}`);
+                // If no matching datasets, show a message but don't clear the chart
+                updateChartFilterMessage(`No pilots found with role: ${role}`);
+                return;
+            }
+            
+            // Apply filtered datasets
+            chartInstance.data.datasets = filteredDatasets;
+            chartInstance.update();
+            
+            // Update filter status message
+            updateChartFilterMessage(`Showing pilots with role: ${role}`);
+        } catch (error) {
+            console.error('Error filtering chart by role:', error);
+        }
+    }
+    
+    // Function to update the chart filter message
+    function updateChartFilterMessage(message) {
+        const chartContainer = document.querySelector('.chart-container');
+        if (!chartContainer) return;
+        
+        // Check if filter message already exists
+        let filterMsg = chartContainer.querySelector('.chart-filter-message');
+        
+        if (!filterMsg) {
+            // Create new message element
+            filterMsg = document.createElement('div');
+            filterMsg.className = 'chart-filter-message';
+            filterMsg.style.textAlign = 'center';
+            filterMsg.style.padding = '5px';
+            filterMsg.style.marginTop = '10px';
+            filterMsg.style.fontSize = '14px';
+            filterMsg.style.color = '#999';
+            filterMsg.style.fontStyle = 'italic';
+            
+            // Insert after the chart
+            chartContainer.appendChild(filterMsg);
+        }
+        
+        // Update message content
+        filterMsg.textContent = message;
     }
 
     function renderPickupEloTable() {
@@ -294,13 +409,106 @@ function initializeApp(modules) {
         console.log("Pickup Player ELO Table populated.");
     }
 
+    function renderEloTable(ladderData) {
+        console.log(`Rendering ${currentLadder} ELO Table...`);
+        if (!pickupEloTableBody || !ladderData || ladderData.length === 0) {
+            console.warn(`${currentLadder} ELO table body or data not available.`);
+            const table = document.getElementById('pickupEloTable');
+            if (table && !table.querySelector('.no-data-message')) {
+                const msgRow = table.insertRow();
+                const cell = msgRow.insertCell();
+                cell.colSpan = 6;
+                cell.textContent = `${currentLadder} ELO ladder data not available.`;
+                cell.className = 'no-data-message';
+                cell.style.textAlign = 'center';
+            }
+            return;
+        }
+        
+        // Clear previous data
+        pickupEloTableBody.innerHTML = '';
+    
+        // Ensure ladder is sorted by rank
+        const sortedLadder = ladderData.sort((a, b) => a.rank - b.rank);
+        
+        // Populate table rows
+        sortedLadder.forEach(player => {
+            const row = pickupEloTableBody.insertRow();
+    
+            const rankCell = row.insertCell();
+            rankCell.textContent = player.rank;
+            rankCell.classList.add('rank-cell');
+    
+            const nameCell = row.insertCell();
+            nameCell.textContent = player.player_name;
+            
+            const roleCell = row.insertCell();
+            const roleText = player.role || 'None';
+            roleCell.textContent = roleText;
+            row.setAttribute('data-role', roleText);
+            roleCell.classList.add('role-cell');
+    
+            const eloCell = row.insertCell();
+            eloCell.textContent = player.elo_rating;
+    
+            const wlCell = row.insertCell();
+            wlCell.textContent = `${player.matches_won}-${player.matches_lost}`;
+    
+            const winRateCell = row.insertCell();
+            winRateCell.textContent = `${player.win_rate}%`;
+        });
+        
+        console.log(`${currentLadder} ELO Table populated.`);
+        
+        // Reapply table interactivity
+        // makeTableSortable('pickupEloTable');
+        // addTableFilter('pickupEloTable', 'Search players...');
+        // enableTableRowSelection('pickupEloTable', (playerName) => {
+            // filterChartByName(pickupEloChartInstance, playerName);
+        //});
+    }
+
+    // Add this function to handle ladder switching
+    function switchLadder(ladderType) {
+        currentLadder = ladderType;
+        
+        // Update active tab
+        document.querySelectorAll('.ladder-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.ladder === ladderType);
+        });
+        
+        // Get the ladder data based on the type
+        let ladderData;
+        switch (ladderType) {
+            case 'flex':
+                ladderData = flexEloLadder;
+                break;
+            case 'support':
+                ladderData = supportEloLadder;
+                break;
+            case 'farmer':
+                ladderData = farmerEloLadder;
+                break;
+            default:
+                ladderData = pickupEloLadder;
+                break;
+        }
+        
+        // Update the table
+        renderEloTable(ladderData);
+    }
+
     // Function to apply interactive features to tables
     function applyTableInteractivity() {
+        // Only apply table interactivity once
+        if (tableInteractivityApplied) {
+            return;
+        }
         console.log("Applying pickup table interactivity features...");
         
         // Make pickup ELO table sortable
         makeTableSortable('pickupEloTable');
-        addTableFilter('pickupEloTable', 'Search players...');
+        // Removed addTableFilter call since we removed the search field
         enableTableRowSelection('pickupEloTable', (playerName) => {
             filterChartByName(pickupEloChartInstance, playerName);
         });
@@ -309,11 +517,28 @@ function initializeApp(modules) {
         const showAllButton = document.getElementById('showAllPlayersButton');
         if (showAllButton) {
             showAllButton.addEventListener('click', () => {
-                filterChartByName(pickupEloChartInstance, null); // Clear filters
+                // Reset all chart filters
+                filterChartByName(pickupEloChartInstance, null);
+                
+                // Reset the role filter buttons to "All Roles"
+                const allRolesButton = document.querySelector('.role-filter-button[data-role="all"]');
+                if (allRolesButton) {
+                    // Simulate a click on the All Roles button
+                    allRolesButton.click();
+                } else {
+                    // If no 'all' button, just reset the chart and update the message
+                    if (pickupEloChartInstance && pickupEloChartInstance._originalDatasets) {
+                        pickupEloChartInstance.data.datasets = [...pickupEloChartInstance._originalDatasets];
+                        pickupEloChartInstance.update();
+                        updateChartFilterMessage('Showing all pilots');
+                    }
+                }
                 
                 // Clear any selected rows
                 const selectedRows = document.querySelectorAll('#pickupEloTable tbody tr.selected');
                 selectedRows.forEach(row => row.classList.remove('selected'));
+                
+                console.log('Chart reset to show all players');
             });
         }
         
@@ -362,12 +587,15 @@ function initializeApp(modules) {
             addRoleFilter('pickupEloTable', Array.from(uniqueRoles));
             console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
 
-            // Connect role filter button clicks to filter all leaderboards
+            // Connect role filter button clicks to filter all leaderboards and chart
             document.addEventListener('roleFilterChanged', (e) => {
-                const selectedRole = e.detail.role;
-                console.log(`Filtering leaderboards for role: ${selectedRole}`);
-                filterAllLeaderboards(selectedRole);
-            });
+            const selectedRole = e.detail.role;
+            console.log(`Filtering leaderboards and chart for role: ${selectedRole}`);
+            filterAllLeaderboards(selectedRole);
+                
+            // Also filter the chart based on role
+            filterChartByRole(pickupEloChartInstance, selectedRole, pickupEloLadder);
+        });
         } else {
             console.log("No roles found, not adding role filter");
             
@@ -377,7 +605,7 @@ function initializeApp(modules) {
         }
         
         
-        // Add separate listener to filter leaderboards when role buttons are clicked
+        // Add separate listener to filter leaderboards and chart when role buttons are clicked
         if (roleFilterContainer) {
             // Use a flag to prevent adding the listener multiple times if this function is called again
             if (!roleFilterContainer.dataset.leaderboardListenerAdded) {
@@ -386,16 +614,40 @@ function initializeApp(modules) {
                     // Ensure it's a role button click
                     if (target.classList.contains('role-filter-button') && target.dataset.role) {
                         const selectedRole = target.dataset.role;
-                        console.log(`Filtering leaderboards for role: ${selectedRole}`);
-                        filterAllLeaderboards(selectedRole); // Call the leaderboard filter function
+                        console.log(`Filtering leaderboards and chart for role: ${selectedRole}`);
+                        
+                        // Filter the leaderboards
+                        filterAllLeaderboards(selectedRole);
+                        
+                        // Filter the chart based on role
+                        filterChartByRole(pickupEloChartInstance, selectedRole, pickupEloLadder);
                     }
                 });
                 roleFilterContainer.dataset.leaderboardListenerAdded = 'true'; // Mark listener as added
-                console.log("Added separate event listener for leaderboard role filtering.");
+                console.log("Added separate event listener for role filtering.");
             }
         }
         
         console.log("Pickup table interactivity features applied.");
+
+                // Add ladder tab event listeners
+        document.querySelectorAll('.ladder-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const ladderType = tab.dataset.ladder;
+                switchLadder(ladderType);
+            });
+        });
+
+        // Check URL for initial tab selection
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialLadder = urlParams.get('ladder');
+        if (initialLadder && ['general', 'flex', 'support', 'farmer'].includes(initialLadder)) {
+            switchLadder(initialLadder);
+        } else {
+            switchLadder('general'); // Default to general ladder
+        }
+        // Mark as applied
+        tableInteractivityApplied = true;
     }
 
     async function renderVisualizations() {
@@ -404,7 +656,7 @@ function initializeApp(modules) {
 
             // Call individual rendering functions
             renderPickupEloChart();
-            renderPickupEloTable();
+            renderEloTable(pickupEloLadder);
             
             // Apply interactivity
             applyTableInteractivity();
@@ -448,6 +700,9 @@ function initializeApp(modules) {
             // Store data for use in rendering
             pickupEloHistory = data.pickupEloHistory;
             pickupEloLadder = data.pickupEloLadder;
+            flexEloLadder = data.flexEloLadder;        
+            supportEloLadder = data.supportEloLadder;  
+            farmerEloLadder = data.farmerEloLadder;    
             playerRoles = data.playerRoles;
             
             // Filter player stats to only include pickup-related stats

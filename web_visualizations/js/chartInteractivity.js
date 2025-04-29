@@ -34,17 +34,32 @@ function enhanceChartInteractivity(chartInstance) {
                     const value = context.raw.y;
                     return `${label}: ${Math.round(value)}`;
                 },
-                // Customize tooltip title (usually the date)
+                // Customize tooltip title (handle both date and sequence)
                 title: function(tooltipItems) {
-                    // Convert timestamp to formatted date
-                    const date = new Date(tooltipItems[0].parsed.x);
-                    return date.toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
+                    if (!tooltipItems.length) {
+                        return '';
+                    }
+                    const chartInstance = tooltipItems[0].chart; // Get the chart instance
+                    const xAxisType = chartInstance.config.options.scales.x.type;
+                    const xValue = tooltipItems[0].parsed.x;
+
+                    if (xAxisType === 'linear') {
+                        // If linear axis, assume it's our match sequence
+                        return `Match ${xValue}`;
+                    } else {
+                        // Otherwise, assume it's a date/time axis
+                        const date = new Date(xValue);
+                        if (isNaN(date)) {
+                            return 'Invalid Date'; // Handle potential errors
+                        }
+                        return date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }
                 }
             }
         };

@@ -111,62 +111,64 @@ function initializeApp(modules) {
         }
 
         // Process data for Chart.js
-        const teamsData = {}; // { team_id: { name: 'Team Name', data: [{x: date, y: rating}] } }
-        const allDates = new Set();
+        const teamsData = {}; // { team_id: { name: 'Team Name', data: [{x: index, y: rating}] } }
 
+        // 1. Add timestamp to each match object for sorting
         teamEloHistory.forEach(match => {
-            // Try to parse the date, with automatic correction for swapped month/day
-            let matchTimestamp;
             try {
-                // Regular parsing attempt
-                matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-                
-                // If the date is invalid, try swapping month and day
-                if (isNaN(matchTimestamp)) {
-                    const dateParts = match.match_date.split(/[\s-:]/);
-                    if (dateParts.length >= 3) {
-                        // Try swapping month and day
-                        const correctedDate = `${dateParts[0]}-${dateParts[2]}-${dateParts[1]} ${dateParts[3] || '12'}:${dateParts[4] || '00'}:${dateParts[5] || '00'}`;
-                        matchTimestamp = new Date(correctedDate.replace(' ', 'T')).getTime();
-                        
-                        if (!isNaN(matchTimestamp)) {
-                            console.log(`Corrected date format for match ID ${match.match_id}: ${match.match_date} → ${correctedDate}`);
-                        }
-                    }
+                // Robust manual parsing for "YYYY-MM-DD HH:MM:SS"
+                const parts = match.match_date.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                if (parts) {
+                    const year = parseInt(parts[1], 10);
+                    const month = parseInt(parts[2], 10) - 1; // Month is 0-indexed in Date
+                    const day = parseInt(parts[3], 10);
+                    const hour = parseInt(parts[4], 10);
+                    const minute = parseInt(parts[5], 10);
+                    const second = parseInt(parts[6], 10);
+                    // Construct date explicitly
+                    const dateObj = new Date(Date.UTC(year, month, day, hour, minute, second)); // Use UTC to avoid timezone issues during parsing
+                    match.timestamp = dateObj.getTime();
+                } else {
+                     console.warn(`Could not parse date format: ${match.match_date} for match ID ${match.match_id}`);
+                     match.timestamp = null; // Mark as invalid if format doesn't match
+                }
+
+                if (isNaN(match.timestamp)) {
+                     console.warn(`Resulting timestamp is NaN for date: ${match.match_date} (match ID ${match.match_id})`);
+                     match.timestamp = null; // Ensure NaN timestamps are treated as null
                 }
             } catch (e) {
-                console.warn(`Error parsing date: ${e.message}`);
-                matchTimestamp = NaN;
+                console.error(`Error during manual date parsing for match ID ${match.match_id}: ${e.message}`);
+                match.timestamp = null;
             }
-            
-            if (isNaN(matchTimestamp)) {
-                console.warn(`Invalid date format found in team history: ${match.match_date} for match ID ${match.match_id}`);
-                return; // Skip this match entry if date is invalid
-            }
-            
-            allDates.add(matchTimestamp); // Use the timestamp
+        });
+
+        // 2. Filter out matches with invalid dates and sort the history by timestamp
+        const sortedHistory = teamEloHistory
+            .filter(match => match.timestamp !== null)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        // 3. Process sorted history to assign sequential index
+        let matchIndex = 0;
+        sortedHistory.forEach(match => {
+            matchIndex++; // Increment for each valid, sorted match
 
             // Process Imperial team
             if (!teamsData[match.imperial.team_id]) {
                 teamsData[match.imperial.team_id] = { name: match.imperial.team_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
-            teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.old_rating });
-            // Add rating *after* the match using timestamp
-            teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.new_rating });
-
+            teamsData[match.imperial.team_id].data.push({ x: matchIndex, y: match.imperial.old_rating });
+            teamsData[match.imperial.team_id].data.push({ x: matchIndex, y: match.imperial.new_rating });
 
             // Process Rebel team
             if (!teamsData[match.rebel.team_id]) {
                 teamsData[match.rebel.team_id] = { name: match.rebel.team_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
-            teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.old_rating });
-            // Add rating *after* the match using timestamp
-            teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.new_rating });
+            teamsData[match.rebel.team_id].data.push({ x: matchIndex, y: match.rebel.old_rating });
+            teamsData[match.rebel.team_id].data.push({ x: matchIndex, y: match.rebel.new_rating });
         });
 
-        // Sort data points by date for each team
+        // 4. Sort data points within each team's dataset by index (ensures correct line drawing)
         for (const teamId in teamsData) {
             teamsData[teamId].data.sort((a, b) => a.x - b.x);
         }
@@ -198,21 +200,14 @@ function initializeApp(modules) {
                 maintainAspectRatio: false,
                 scales: {
                     x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            tooltipFormat: 'PPP p',
-                            displayFormats: {
-                                day: 'MMM d, yyyy'
-                            }
-                        },
+                        type: 'linear', // Use linear scale for match sequence
                         title: {
                             display: true,
-                            text: 'Match Date'
+                            text: 'Match Sequence' // Update axis title
                         },
                         ticks: {
-                            autoSkip: true,
-                            maxTicksLimit: 15
+                            stepSize: 1, // Try to show integer ticks
+                            precision: 0 // Ensure no decimal places on ticks
                         }
                     },
                     y: {
@@ -261,6 +256,8 @@ function initializeApp(modules) {
         return color;
     }
     
+    // Fixed function for team_page.js to properly display win rate
+
     function renderTeamEloTable() {
         console.log("Rendering Team ELO Table...");
         if (!teamEloTableBody || !teamEloLadder || teamEloLadder.length === 0) {
@@ -269,7 +266,7 @@ function initializeApp(modules) {
             if (table && !table.querySelector('.no-data-message')) {
                 const msgRow = table.insertRow();
                 const cell = msgRow.insertCell();
-                cell.colSpan = 6; // Span across all columns
+                cell.colSpan = 5; // Span across all columns (updated from 6 to 5 since we removed a column)
                 cell.textContent = 'Team ELO ladder data not available.';
                 cell.className = 'no-data-message';
                 cell.style.textAlign = 'center';
@@ -293,8 +290,6 @@ function initializeApp(modules) {
             const nameCell = row.insertCell();
             nameCell.textContent = team.team_name;
             
-            // Role cell removed
-
             const eloCell = row.insertCell();
             eloCell.textContent = team.elo_rating;
 
@@ -302,6 +297,7 @@ function initializeApp(modules) {
             wlCell.textContent = `${team.matches_won}-${team.matches_lost}`;
 
             const winRateCell = row.insertCell();
+            // Use the win_rate directly from the data
             winRateCell.textContent = `${team.win_rate}%`;
         });
         console.log("Team ELO Table populated.");
@@ -313,7 +309,7 @@ function initializeApp(modules) {
         
         // Make team ELO table sortable
         makeTableSortable('teamEloTable');
-        addTableFilter('teamEloTable', 'Search teams...');
+        // Removed addTableFilter call since we removed the search field
         enableTableRowSelection('teamEloTable', (teamName) => {
             filterChartByName(teamEloChartInstance, teamName);
         });
@@ -330,128 +326,6 @@ function initializeApp(modules) {
             });
         }
         
-        // CRITICAL FIX: Ensure the role filter container is visible and positioned correctly
-        const roleFilterContainer = document.getElementById('teamRoleFilterContainer');
-        if (roleFilterContainer) {
-            // Force visibility and styling
-            roleFilterContainer.style.display = 'flex';
-            roleFilterContainer.style.flexWrap = 'wrap';
-            roleFilterContainer.style.gap = '8px';
-            roleFilterContainer.style.padding = '10px';
-            roleFilterContainer.style.border = '3px solid #ff0000'; // Red border to make it obvious
-            roleFilterContainer.style.backgroundColor = '#f8f8f8';
-            roleFilterContainer.style.margin = '15px 0';
-            roleFilterContainer.style.position = 'relative'; // Ensure it's in the normal flow
-            roleFilterContainer.style.zIndex = '100'; // Ensure it's on top
-            
-            // Add a label at the top
-            const label = document.createElement('div');
-            label.textContent = 'ROLE FILTER BUTTONS:';
-            label.style.fontWeight = 'bold';
-            label.style.width = '100%';
-            label.style.marginBottom = '10px';
-            roleFilterContainer.prepend(label);
-            
-            console.log("Force-styled the role filter container");
-        }
-        
-        // Extract unique roles from player stats
-        const uniqueRoles = new Set();
-        playerStats.forEach(player => {
-            if (player.role) {
-                uniqueRoles.add(player.role);
-            }
-        });
-        
-        console.log(`Found ${uniqueRoles.size} unique roles for team players:`, Array.from(uniqueRoles));
-        
-        if (uniqueRoles.size > 0) {
-            // Add role filter using the roles we found
-            console.log("Adding role filter buttons for team page");
-            // --- Setup Role Filter for Leaderboards ---
-            const leaderboardRoleContainer = document.getElementById('teamRoleFilterContainer');
-            if (leaderboardRoleContainer) {
-                leaderboardRoleContainer.innerHTML = ''; // Clear existing content
-
-                // Add heading
-                const heading = document.createElement('h4');
-                heading.textContent = 'Filter Leaderboards by Role:';
-                heading.style.marginTop = '0';
-                heading.style.marginBottom = '10px';
-                heading.style.width = '100%'; // Make heading span full width
-                leaderboardRoleContainer.appendChild(heading);
-
-                const buttonContainer = document.createElement('div');
-                buttonContainer.style.display = 'flex';
-                buttonContainer.style.flexWrap = 'wrap';
-                buttonContainer.style.gap = '8px';
-                leaderboardRoleContainer.appendChild(buttonContainer);
-
-                const rolesToDisplay = uniqueRoles.size > 0 ? Array.from(uniqueRoles) : ['Farmer', 'Flex', 'Support'];
-                const allRoles = ['all', ...rolesToDisplay, 'none'];
-
-                allRoles.forEach(role => {
-                    const button = document.createElement('button');
-                    button.textContent = role === 'all' ? 'All Roles' : (role === 'none' ? 'No Role' : role);
-                    button.className = 'role-filter-button';
-                    button.dataset.role = role;
-
-                    // Style buttons (similar to tableInteractivity)
-                    button.style.padding = '8px 15px';
-                    button.style.margin = '4px';
-                    button.style.border = '1px solid #ddd';
-                    button.style.borderRadius = '4px';
-                    button.style.cursor = 'pointer';
-                    button.style.fontWeight = 'bold';
-
-                    if (role === 'all') {
-                        button.classList.add('active');
-                        button.style.backgroundColor = '#0066cc';
-                        button.style.color = 'white';
-                        button.style.borderColor = '#0055aa';
-                    } else {
-                        button.style.backgroundColor = '#f2f2f2';
-                        button.style.color = '#333';
-                    }
-                    buttonContainer.appendChild(button);
-                });
-
-                // Add event listener to the container
-                leaderboardRoleContainer.addEventListener('click', (e) => {
-                    const target = e.target;
-                    if (!target.classList.contains('role-filter-button')) {
-                        return;
-                    }
-
-                    const selectedRole = target.dataset.role;
-                    console.log(`Leaderboard role filter clicked: ${selectedRole}`);
-
-                    // Update button active states
-                    leaderboardRoleContainer.querySelectorAll('.role-filter-button').forEach(btn => {
-                        const isActive = btn.dataset.role === selectedRole;
-                        btn.classList.toggle('active', isActive);
-                        btn.style.backgroundColor = isActive ? '#0066cc' : '#f2f2f2';
-                        btn.style.color = isActive ? 'white' : '#333';
-                        btn.style.borderColor = isActive ? '#0055aa' : '#ddd';
-                    });
-
-                    // Filter the leaderboards
-                    filterAllLeaderboards(selectedRole);
-                    
-                    // Dispatch a custom event for other components to listen for
-                    const roleFilterEvent = new CustomEvent('roleFilterChanged', {
-                        detail: {
-                            role: selectedRole
-                        }
-                    });
-                    document.dispatchEvent(roleFilterEvent);
-                });
-                console.log("Role filter for leaderboards added.");
-            } else {
-                console.warn("Role filter container 'teamRoleFilterContainer' not found.");
-            }
-        } // End of check for roleFilterContainer
-
         console.log("Table interactivity features applied.");
     }
 
@@ -465,7 +339,41 @@ function initializeApp(modules) {
             
             // Apply interactivity
             applyTableInteractivity();
-            await createAdditionalLeaderboards('#leaderboards-container', playerStats);
+            
+            // Create leaderboards
+            const leaderboardSection = await createAdditionalLeaderboards('#leaderboards-container', playerStats);
+            
+            // Only add role filters if we have player stats
+            if (playerStats && playerStats.length > 0) {
+                // Extract unique roles from player stats
+                const uniqueRoles = new Set();
+                
+                // Debug: Check each player's role
+                console.log("Checking roles for each player:");
+                playerStats.forEach(player => {
+                    console.log(`  Player ${player.player_name}: role = "${player.role || 'null/undefined'}"`);
+                    if (player.role) {
+                        uniqueRoles.add(player.role);
+                    }
+                });
+                
+                console.log(`Found ${uniqueRoles.size} unique roles: ${Array.from(uniqueRoles).join(', ')}`);
+                
+                // Only add role filter if we have role data
+                if (uniqueRoles.size > 0) {
+                    console.log("Adding role filter buttons");
+                    addRoleFilter('aiKillsTable', Array.from(uniqueRoles));
+                    console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
+
+                } else {
+                    console.log("No roles found, not adding role filter");
+                    
+                    // Even if we don't have roles in the data, let's add some default role buttons for testing
+                    console.log("Adding default role buttons");
+                    addRoleFilter('aiKillsTable', ['Farmer', 'Flex', 'Support']);
+                }
+                
+            }
             
             console.log("All team visualizations rendered successfully");
         } catch (error) {
@@ -517,6 +425,30 @@ function initializeApp(modules) {
             
             // Render visualizations
             await renderVisualizations();
+            
+            // Add event listeners to the hardcoded role filter buttons
+            const roleFilterButtons = document.querySelectorAll('.role-filter-button');
+            roleFilterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const role = button.dataset.role;
+                    console.log(`Role button clicked: ${role}`);
+                    
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.role-filter-button').forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.style.backgroundColor = '#333333';
+                        btn.style.color = '#e0e0e0';
+                    });
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    button.style.backgroundColor = '#0066cc';
+                    button.style.color = 'white';
+                    
+                    // Filter leaderboards
+                    filterAllLeaderboards(role);
+                });
+            });
             
             console.log("Team page initialization complete");
         } catch (error) {

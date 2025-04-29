@@ -115,6 +115,66 @@ async function loadPickupEloHistory() {
     }
 }
 
+// Load flex ELO ladder data
+async function loadFlexEloLadder() {
+    try {
+        console.log('Attempting to load flex ELO ladder from: ../elo_reports_pickup/pickup_flex_elo_ladder.json');
+        const response = await fetch('../elo_reports_pickup/pickup_flex_elo_ladder.json');
+        
+        if (!response.ok) {
+            console.error(`Failed to load flex ELO ladder data: ${response.status} ${response.statusText}`);
+            return [];
+        }
+        
+        const data = await response.json();
+        console.log(`Successfully loaded flex ELO ladder with ${data.length} players`);
+        return data;
+    } catch (error) {
+        console.error('Error loading flex ELO ladder:', error);
+        return [];
+    }
+}
+
+// Load support ELO ladder data
+async function loadSupportEloLadder() {
+    try {
+        console.log('Attempting to load support ELO ladder from: ../elo_reports_pickup/pickup_support_elo_ladder.json');
+        const response = await fetch('../elo_reports_pickup/pickup_support_elo_ladder.json');
+        
+        if (!response.ok) {
+            console.error(`Failed to load support ELO ladder data: ${response.status} ${response.statusText}`);
+            return [];
+        }
+        
+        const data = await response.json();
+        console.log(`Successfully loaded support ELO ladder with ${data.length} players`);
+        return data;
+    } catch (error) {
+        console.error('Error loading support ELO ladder:', error);
+        return [];
+    }
+}
+
+// Load farmer ELO ladder data
+async function loadFarmerEloLadder() {
+    try {
+        console.log('Attempting to load farmer ELO ladder from: ../elo_reports_pickup/pickup_farmer_elo_ladder.json');
+        const response = await fetch('../elo_reports_pickup/pickup_farmer_elo_ladder.json');
+        
+        if (!response.ok) {
+            console.error(`Failed to load farmer ELO ladder data: ${response.status} ${response.statusText}`);
+            return [];
+        }
+        
+        const data = await response.json();
+        console.log(`Successfully loaded farmer ELO ladder with ${data.length} players`);
+        return data;
+    } catch (error) {
+        console.error('Error loading farmer ELO ladder:', error);
+        return [];
+    }
+}
+
 // Load player performance data (for additional leaderboards)
 async function loadPlayerStats() {
     try {
@@ -378,7 +438,7 @@ async function loadAllRealData() {
         loadPickupEloLadder(),
         loadPickupEloHistory(),
         loadPlayerStats(),
-        loadPlayerRoles()
+        loadPlayerRoles() 
     ]);
     
     console.log('Real data loaded successfully');
@@ -446,7 +506,10 @@ async function loadAllRealData() {
         pickupEloLadder: pickupLadderWithRoles,
         pickupEloHistory: pickupHistory,
         playerStats: processedPlayerStats,
-        playerRoles: playerRoles
+        playerRoles: playerRoles,
+        flexEloLadder: await loadFlexEloLadder(),    
+        supportEloLadder: await loadSupportEloLadder(), 
+        farmerEloLadder: await loadFarmerEloLadder()  
     };
 }
 

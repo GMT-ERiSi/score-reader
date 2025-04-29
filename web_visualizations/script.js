@@ -280,66 +280,67 @@ function renderTeamEloChart() {
     }
 
     // Process data for Chart.js
-    const teamsData = {}; // { team_id: { name: 'Team Name', data: [{x: date, y: rating}] } }
-    const allDates = new Set();
+    const teamsData = {}; // { team_id: { name: 'Team Name', data: [{x: matchIndex, y: rating}] } }
 
+    // 1. Add timestamp to each match object for sorting
     teamEloHistory.forEach(match => {
-        // Try to parse the date, with automatic correction for swapped month/day
-        let matchTimestamp;
         try {
-            // Regular parsing attempt
-            matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-            
-            // If the date is invalid, try swapping month and day
-            if (isNaN(matchTimestamp)) {
-                const dateParts = match.match_date.split(/[\s-:]/);
-                if (dateParts.length >= 3) {
-                    // Try swapping month and day
-                    const correctedDate = `${dateParts[0]}-${dateParts[2]}-${dateParts[1]} ${dateParts[3] || '12'}:${dateParts[4] || '00'}:${dateParts[5] || '00'}`;
-                    matchTimestamp = new Date(correctedDate.replace(' ', 'T')).getTime();
-                    
-                    if (!isNaN(matchTimestamp)) {
-                        console.log(`Corrected date format for match ID ${match.match_id}: ${match.match_date} → ${correctedDate}`);
-                    }
-                }
+            // Robust manual parsing for "YYYY-MM-DD HH:MM:SS"
+            const parts = match.match_date.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            if (parts) {
+                const year = parseInt(parts[1], 10);
+                const month = parseInt(parts[2], 10) - 1; // Month is 0-indexed in Date
+                const day = parseInt(parts[3], 10);
+                const hour = parseInt(parts[4], 10);
+                const minute = parseInt(parts[5], 10);
+                const second = parseInt(parts[6], 10);
+                // Construct date explicitly
+                const dateObj = new Date(Date.UTC(year, month, day, hour, minute, second)); // Use UTC to avoid timezone issues during parsing
+                match.timestamp = dateObj.getTime();
+            } else {
+                 console.warn(`Could not parse date format: ${match.match_date} for match ID ${match.match_id}`);
+                 match.timestamp = null; // Mark as invalid if format doesn't match
+            }
+
+            if (isNaN(match.timestamp)) {
+                 console.warn(`Resulting timestamp is NaN for date: ${match.match_date} (match ID ${match.match_id})`);
+                 match.timestamp = null; // Ensure NaN timestamps are treated as null
             }
         } catch (e) {
-            console.warn(`Error parsing date: ${e.message}`);
-            matchTimestamp = NaN;
+            console.error(`Error during manual date parsing for match ID ${match.match_id}: ${e.message}`);
+            match.timestamp = null;
         }
-        
-        if (isNaN(matchTimestamp)) {
-            console.warn(`Invalid date format found in team history: ${match.match_date} for match ID ${match.match_id}`);
-            return; // Skip this match entry if date is invalid
-        }
-        
-        allDates.add(matchTimestamp); // Use the timestamp
+    });
+
+    // 2. Filter out matches with invalid dates and sort the history by timestamp
+    const sortedHistory = teamEloHistory
+        .filter(match => match.timestamp !== null)
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+    // 3. Process sorted history to assign sequential index
+    let matchIndex = 0;
+    sortedHistory.forEach(match => {
+        matchIndex++; // Increment for each valid, sorted match
 
         // Process Imperial team
         if (!teamsData[match.imperial.team_id]) {
             teamsData[match.imperial.team_id] = { name: match.imperial.team_name, data: [] };
         }
-        // Add rating *before* the match using timestamp
-        teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.old_rating });
-        // Add rating *after* the match using timestamp
-        teamsData[match.imperial.team_id].data.push({ x: matchTimestamp, y: match.imperial.new_rating });
-
+        teamsData[match.imperial.team_id].data.push({ x: matchIndex, y: match.imperial.old_rating });
+        teamsData[match.imperial.team_id].data.push({ x: matchIndex, y: match.imperial.new_rating });
 
         // Process Rebel team
         if (!teamsData[match.rebel.team_id]) {
             teamsData[match.rebel.team_id] = { name: match.rebel.team_name, data: [] };
         }
-        // Add rating *before* the match using timestamp
-        teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.old_rating });
-        // Add rating *after* the match using timestamp
-        teamsData[match.rebel.team_id].data.push({ x: matchTimestamp, y: match.rebel.new_rating });
+        teamsData[match.rebel.team_id].data.push({ x: matchIndex, y: match.rebel.old_rating });
+        teamsData[match.rebel.team_id].data.push({ x: matchIndex, y: match.rebel.new_rating });
     });
 
-    // Sort data points by date for each team
+    // 4. Sort data points within each team's dataset by index (ensures correct line drawing)
     for (const teamId in teamsData) {
-        teamsData[teamId].data.sort((a, b) => new Date(a.x) - new Date(b.x));
+        teamsData[teamId].data.sort((a, b) => a.x - b.x);
     }
-
 
     const datasets = Object.values(teamsData).map(team => ({
         label: team.name,
@@ -367,21 +368,14 @@ function renderTeamEloChart() {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    type: 'time',
-                    time: {
-                        unit: 'day', // Adjust time unit as needed (day, week, month)
-                        tooltipFormat: 'PPP p', // Format for tooltips e.g., Aug 15, 2024, 12:00:00 PM
-                        displayFormats: {
-                            day: 'MMM d, yyyy' // Format for axis labels
-                        }
-                    },
+                    type: 'linear', // Use linear scale for match sequence
                     title: {
                         display: true,
-                        text: 'Match Date'
+                        text: 'Match Sequence' // Update axis title
                     },
                     ticks: {
-                        autoSkip: true,
-                        maxTicksLimit: 15 // Limit number of ticks on x-axis
+                        stepSize: 1, // Try to show integer ticks
+                        precision: 0 // Ensure no decimal places on ticks
                     }
                 },
                 y: {
@@ -445,18 +439,48 @@ function renderPickupEloChart() {
     }
 
     // Process data for Chart.js
-    const playersData = {}; // { player_id: { name: 'Player Name', data: [{x: date, y: rating}] } }
-    const allDates = new Set();
+    const playersData = {}; // { player_id: { name: 'Player Name', data: [{x: matchIndex, y: rating}] } }
     const playersInHistory = new Set(); // Keep track of players who actually have history entries
 
+    // 1. Add timestamp to each match object for sorting
     pickupEloHistory.forEach(match => {
-        // Parse date string reliably and get timestamp for Chart.js
-        const matchTimestamp = new Date(match.match_date.replace(' ', 'T')).getTime();
-        if (isNaN(matchTimestamp)) { // Check if parsing failed
-            console.warn(`Invalid date format found in pickup history: ${match.match_date} for match ID ${match.match_id}`);
-            return; // Skip this match entry if date is invalid
+        try {
+            // Robust manual parsing for "YYYY-MM-DD HH:MM:SS"
+            const parts = match.match_date.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            if (parts) {
+                const year = parseInt(parts[1], 10);
+                const month = parseInt(parts[2], 10) - 1; // Month is 0-indexed in Date
+                const day = parseInt(parts[3], 10);
+                const hour = parseInt(parts[4], 10);
+                const minute = parseInt(parts[5], 10);
+                const second = parseInt(parts[6], 10);
+                // Construct date explicitly
+                const dateObj = new Date(Date.UTC(year, month, day, hour, minute, second)); // Use UTC to avoid timezone issues during parsing
+                match.timestamp = dateObj.getTime();
+            } else {
+                 console.warn(`Could not parse date format: ${match.match_date} for pickup match ID ${match.match_id}`);
+                 match.timestamp = null; // Mark as invalid if format doesn't match
+            }
+
+            if (isNaN(match.timestamp)) {
+                 console.warn(`Resulting timestamp is NaN for date: ${match.match_date} (pickup match ID ${match.match_id})`);
+                 match.timestamp = null; // Ensure NaN timestamps are treated as null
+            }
+        } catch (e) {
+            console.error(`Error during manual date parsing for pickup match ID ${match.match_id}: ${e.message}`);
+            match.timestamp = null;
         }
-        allDates.add(matchTimestamp); // Use the timestamp
+    });
+
+    // 2. Filter out matches with invalid dates and sort the history by timestamp
+    const sortedHistory = pickupEloHistory
+        .filter(match => match.timestamp !== null)
+        .sort((a, b) => a.timestamp - b.timestamp);
+
+    // 3. Process sorted history to assign sequential index
+    let matchIndex = 0;
+    sortedHistory.forEach(match => {
+        matchIndex++; // Increment for each valid, sorted match
 
         // Combine imperial and rebel players for processing
         const allPlayersInMatch = [...match.imperial_players, ...match.rebel_players];
@@ -466,16 +490,15 @@ function renderPickupEloChart() {
             if (!playersData[player.player_id]) {
                 playersData[player.player_id] = { name: player.player_name, data: [] };
             }
-            // Add rating *before* the match using timestamp
-            playersData[player.player_id].data.push({ x: matchTimestamp, y: player.old_rating });
-            // Add rating *after* the match using timestamp
-            playersData[player.player_id].data.push({ x: matchTimestamp, y: player.new_rating });
+            // Add ratings using the matchIndex
+            playersData[player.player_id].data.push({ x: matchIndex, y: player.old_rating });
+            playersData[player.player_id].data.push({ x: matchIndex, y: player.new_rating });
         });
     });
 
-    // Sort data points by date for each player
+    // 4. Sort data points within each player's dataset by index
     for (const playerId in playersData) {
-        playersData[playerId].data.sort((a, b) => new Date(a.x) - new Date(b.x));
+        playersData[playerId].data.sort((a, b) => a.x - b.x);
     }
 
     // --- Filtering Logic (Optional - Show only Top N players by final ELO) ---
@@ -512,21 +535,14 @@ function renderPickupEloChart() {
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    type: 'time',
-                    time: {
-                        unit: 'day',
-                        tooltipFormat: 'PPP p',
-                        displayFormats: {
-                            day: 'MMM d, yyyy'
-                        }
-                    },
+                    type: 'linear', // Use linear scale for match sequence
                     title: {
                         display: true,
-                        text: 'Match Date'
+                        text: 'Match Sequence' // Update axis title
                     },
                     ticks: {
-                        autoSkip: true,
-                        maxTicksLimit: 15
+                        stepSize: 1, // Try to show integer ticks
+                        precision: 0 // Ensure no decimal places on ticks
                     }
                 },
                 y: {
@@ -565,195 +581,23 @@ function renderPickupEloChart() {
     console.log("Pickup Player ELO Chart rendered.");
 }
 
-function renderTeamEloTable() {
-    console.log("Rendering Team ELO Table...");
-    if (!teamEloTableBody || !teamEloLadder || teamEloLadder.length === 0) {
-        console.warn("Team ELO table body or data not available.");
-        const table = document.getElementById('teamEloTable');
-        if (table && !table.querySelector('.no-data-message')) {
-            const msgRow = table.insertRow();
-            const cell = msgRow.insertCell();
-            cell.colSpan = 5; // Span across all columns
-            cell.textContent = 'Team ELO ladder data not available.';
-            cell.className = 'no-data-message';
-            cell.style.textAlign = 'center';
-        }
-        return;
-    }
-    // Clear previous data
-    teamEloTableBody.innerHTML = '';
+// Function to render team table is not used in combined view
 
-    // Ensure ladder is sorted by rank (it should be already, but just in case)
-    const sortedLadder = teamEloLadder.sort((a, b) => a.rank - b.rank);
+// Function to render pickup table is not used in combined view
 
-    // Populate table rows
-    sortedLadder.forEach(team => {
-        const row = teamEloTableBody.insertRow();
+// Function to apply interactive features to tables is not used in combined view
 
-        const rankCell = row.insertCell();
-        rankCell.textContent = team.rank;
-        rankCell.classList.add('rank-cell');
-
-        const nameCell = row.insertCell();
-        nameCell.textContent = team.team_name;
-
-        const eloCell = row.insertCell();
-        eloCell.textContent = team.elo_rating;
-
-        const wlCell = row.insertCell();
-        wlCell.textContent = `${team.matches_won}-${team.matches_lost}`;
-
-        const winRateCell = row.insertCell();
-        winRateCell.textContent = `${team.win_rate}%`;
-    });
-    console.log("Team ELO Table populated.");
-}
-
-function renderPickupEloTable() {
-    console.log("Rendering Pickup Player ELO Table...");
-    if (!pickupEloTableBody || !pickupEloLadder || pickupEloLadder.length === 0) {
-        console.warn("Pickup ELO table body or data not available.");
-        const table = document.getElementById('pickupEloTable');
-        if (table && !table.querySelector('.no-data-message')) {
-            const msgRow = table.insertRow();
-            const cell = msgRow.insertCell();
-            cell.colSpan = 6; // Span across all columns (including new Role column)
-            cell.textContent = 'Pickup Player ELO ladder data not available.';
-            cell.className = 'no-data-message';
-            cell.style.textAlign = 'center';
-        }
-        return;
-    }
-    // Clear previous data
-    pickupEloTableBody.innerHTML = '';
-
-    // Ensure ladder is sorted by rank
-    const sortedLadder = pickupEloLadder.sort((a, b) => a.rank - b.rank);
-    
-    // Update the header row to include Role
-    const pickupTable = document.getElementById('pickupEloTable');
-    const headerRow = pickupTable.querySelector('thead tr');
-    
-    // Check if the Role column already exists
-    let hasRoleColumn = false;
-    headerRow.querySelectorAll('th').forEach(th => {
-        if (th.textContent.trim().toLowerCase() === 'role') {
-            hasRoleColumn = true;
-        }
-    });
-    
-    // Add Role column header if it doesn't exist
-    if (!hasRoleColumn) {
-        // Insert Role header after Player column (which is the 2nd column)
-        const playerHeader = headerRow.querySelectorAll('th')[1];
-        if (playerHeader) {
-            const roleHeader = document.createElement('th');
-            roleHeader.textContent = 'Role';
-            headerRow.insertBefore(roleHeader, playerHeader.nextSibling);
-        }
-    }
-
-    // Populate table rows
-    sortedLadder.forEach(player => {
-        const row = pickupEloTableBody.insertRow();
-
-        const rankCell = row.insertCell();
-        rankCell.textContent = player.rank;
-        rankCell.classList.add('rank-cell');
-
-        const nameCell = row.insertCell();
-        nameCell.textContent = player.player_name; // Use player_name
-        
-        // Add role cell
-        const roleCell = row.insertCell();
-        roleCell.textContent = player.role || 'None';
-
-        const eloCell = row.insertCell();
-        eloCell.textContent = player.elo_rating;
-
-        const wlCell = row.insertCell();
-        wlCell.textContent = `${player.matches_won}-${player.matches_lost}`;
-
-        const winRateCell = row.insertCell();
-        winRateCell.textContent = `${player.win_rate}%`;
-    });
-    console.log("Pickup Player ELO Table populated.");
-}
-
-// Function to apply interactive features to tables (Phase 2 feature)
-function applyTableInteractivity() {
-    console.log("Applying table interactivity features...");
-    
-    // Make team ELO table sortable
-    makeTableSortable('teamEloTable');
-    addTableFilter('teamEloTable', 'Search teams...');
-    enableTableRowSelection('teamEloTable', (teamName) => {
-        filterChartByName(teamEloChartInstance, teamName);
-    });
-    
-    // Make pickup ELO table sortable
-    makeTableSortable('pickupEloTable');
-    addTableFilter('pickupEloTable', 'Search players...');
-    enableTableRowSelection('pickupEloTable', (playerName) => {
-        filterChartByName(pickupEloChartInstance, playerName);
-    });
-    
-    // Add role filter to pickup table if we have role data
-    if (window.playerRoles && Object.keys(window.playerRoles).length > 0) {
-        // Find unique roles in our data
-        const uniqueRoles = new Set();
-        pickupEloLadder.forEach(player => {
-            if (player.role) {
-                uniqueRoles.add(player.role);
-            }
-        });
-        
-        // Only add role filter if we have role data
-        if (uniqueRoles.size > 0) {
-            addRoleFilter('pickupEloTable', Array.from(uniqueRoles));
-            console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
-        }
-    }
-    
-    console.log("Table interactivity features applied.");
-}
-
-// Function to create additional leaderboards (Phase 2 feature)
-async function createLeaderboards() {
-    console.log("Creating additional leaderboards...");
-    
-    try {
-        // Check if playerStats already has valid data (from real data loading)
-        if (!playerStats || playerStats.length === 0) {
-            console.log("No player stats data found, generating dummy data");
-            // Only generate dummy stats if we don't already have valid player stats
-            playerStats = generateDummyPlayerStats();
-        } else {
-            console.log(`Using existing player stats data (${playerStats.length} players)`);
-        }
-        
-        // Create leaderboards with the player stats data (real or dummy)
-        await createAdditionalLeaderboards('#leaderboards-container', playerStats);
-        
-        console.log("Additional leaderboards created.");
-    } catch (error) {
-        console.error("Error creating additional leaderboards:", error);
-    }
-}
+// Function to create additional leaderboards is not used in combined view
 
 async function renderVisualizations() {
     try {
         console.log("Starting visualization rendering...");
 
-        // Call individual rendering functions
+        // Call only chart rendering functions for combined view
         renderTeamEloChart();
         renderPickupEloChart();
-        renderTeamEloTable();
-        renderPickupEloTable();
         
-        // Apply Phase 2 enhancements
-        applyTableInteractivity();
-        await createLeaderboards();
+        // Table rendering and additional leaderboards removed from combined view
         
         console.log("All visualizations rendered successfully");
     } catch (error) {
@@ -767,7 +611,7 @@ async function renderVisualizations() {
 }
 
 // --- Initialization ---
-// Load real data instead of using dummy data - set variable to 
+// Load real data instead of using dummy data
 async function initializeData() {
     try {
         console.log("Initializing data...");

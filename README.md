@@ -28,6 +28,7 @@ Star Wars Squadrons Score Reader
 ├── stats_reader/               - Module for processing data and managing the database
 │   ├── elo_ladder.py           - ELO rating system for teams
 │   ├── player_elo_ladder.py    - ELO rating system for individual players (pickup/ranked)
+│   ├── role_elo_calculator.py  - Role-specific ELO rating system for players
 │   ├── reference_manager.py    - Manages the reference database
 │   ├── stats_db_processor_direct.py - Processes extracted data into the database (using modules)
 │   ├── stats_db_processor.py   - (Legacy/Alternative processor)
@@ -39,6 +40,9 @@ Star Wars Squadrons Score Reader
 ├── elo_reports_pickup/         - Generated pickup ELO reports
 │   ├── pickup_player_elo_ladder.json - ELO ratings for players in pickup matches
 │   ├── pickup_player_elo_history.json - History of ELO changes for pickup players
+│   ├── pickup_flex_elo_ladder.json - ELO ratings for Flex role players
+│   ├── pickup_support_elo_ladder.json - ELO ratings for Support role players
+│   ├── pickup_farmer_elo_ladder.json - ELO ratings for Farmer role players
 │   └── ...
 │
 ├── stats_reports/              - Generated team statistical reports
@@ -185,7 +189,7 @@ For processing pickup or ranked matches:
     python -m stats_reader.stats_db_processor_direct --input "Extracted Results/SCL15/SCL15_results_cleaned.json" --reference-db squadrons_reference.db
     # The default db for the --db argument is squadrons_stats.db (i.e. if you don't specify a db name via the arg)
     # To process towards a db of your choice (for example to have a separate database for pickup vs SPBL vs SCL vs ranked):
-    -   python -m stats_reader.stats_db_processor_direct --input "Extracted Results/SCL15/SCL15_results_cleaned.json" --reference-db squadrons_reference.db --db squadrons_pickup.db
+    python -m stats_reader.stats_db_processor_direct --input "Extracted Results/SCL15/SCL15_results_cleaned.json" --reference-db squadrons_reference.db --db squadrons_pickup.db
     ```
 
     When prompted during processing:
@@ -195,33 +199,58 @@ For processing pickup or ranked matches:
         -   Set player team_ids to NULL for proper pickup/ranked tracking
     -   You will be prompted to confirm/enter player roles for each match.
 
-3b. **Generate Player Roles File** (Required for Web Visualizations):
+4. **Generate Player Roles File** (Required for Web Visualizations):
     ```bash
     # Use the appropriate DB and output directory if you used a custom one in step 3
-    python generate_player_roles_json.py squadrons_stats.db stats_reports
     # Example for custom pickup DB:
-    # python generate_player_roles_json.py squadrons_pickup.db elo_reports_pickup
+    python generate_player_roles_json.py squadrons_pickup.db elo_reports_pickup
     ```
     This creates `player_roles.json` in the specified output directory.
 
-4.  **Generate player-based ELO ladder**:
+5.  **Generate player-based ELO ladder**:
     ```bash
-    # For pickup matches (preferred method)
-    python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "elo_reports_pickup" --match-type pickup
-
-    # For ranked matches
-    python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "stats_reports" --match-type ranked
+    # For pickup matches (preferred method) with custom DB:
+    python -m stats_reader.player_elo_ladder --db squadrons_pickup.db --output "elo_reports_pickup" --match-type pickup
     ```
 
-    This will create:
-    -   For pickup matches: Reports in the `elo_reports_pickup` directory
-        -   `pickup_player_elo_ladder.json`: Current ELO ratings for individual players
-        -   `pickup_player_elo_history.json`: Full history of player ELO changes (including roles)
-    -   For ranked matches: Reports in the `stats_reports` directory
-        -   `ranked_player_elo_ladder.json`: Current ELO ratings for ranked players
-        -   `ranked_player_elo_history.json`: Full history of ranked player ELO changes (including roles)
+    This will create the following reports in the `elo_reports_pickup` directory:
+    -   `pickup_player_elo_ladder.json`: Current ELO ratings for individual players
+    -   `pickup_player_elo_history.json`: Full history of player ELO changes (including roles)
 
-5.  **View generated reports** to analyze player performance.
+5a. **Generate role-specific ELO ladders**:
+    ```bash
+    # Generate role-specific ELO ladders for pickup matches:
+    python -m stats_reader.role_elo_calculator --db squadrons_pickup.db --output "elo_reports_pickup" --match-type pickup
+    ```
+
+    This will create the following additional reports in the `elo_reports_pickup` directory:
+    -   `pickup_flex_elo_ladder.json`: ELO ratings for players in the Flex role
+    -   `pickup_support_elo_ladder.json`: ELO ratings for players in the Support role
+    -   `pickup_farmer_elo_ladder.json`: ELO ratings for players in the Farmer role
+    -   `pickup_flex_elo_history.json`: History of ELO changes for Flex role players
+    -   `pickup_support_elo_history.json`: History of ELO changes for Support role players
+    -   `pickup_farmer_elo_history.json`: History of ELO changes for Farmer role players
+
+6.  **Generate Role-Specific Performance Reports** (Required for Additional Leaderboards):
+    ```bash
+    # This step is critical for the web visualization's additional leaderboards to work
+    python generate_role_reports.py squadrons_pickup.db elo_reports_pickup
+    ```
+
+    This will generate several important files in the `elo_reports_pickup` directory:
+    -   `player_performance_pickup_role_flex.json`
+    -   `player_performance_pickup_role_farmer.json`
+    -   `player_performance_pickup_role_support.json`
+    -   `role_distribution.json`
+    -   `role_distribution_by_match_type.json`
+    -   `player_teams_roles.json`
+
+    These files are needed for the web visualization to display the additional leaderboards (AI Kills, Damage, Net Kills, and Least Deaths).
+
+7.  **View generated reports** in the web visualization:
+    ```bash
+    # Navigate to the web_visualizations directory and open pickup.html in a browser
+    ```
 
 ## Key Differences between Team and Pickup/Ranked Processing
 
@@ -286,6 +315,9 @@ If you want to process only a specific folder of screenshots (e.g., for a season
 
     # For pickup matches
     python -m stats_reader.player_elo_ladder --db squadrons_stats.db --output "elo_reports_pickup" --match-type pickup
+    
+    # Generate role-specific ELO ladders (for pickup matches)
+    python -m stats_reader.role_elo_calculator --db squadrons_stats.db --output "elo_reports_pickup" --match-type pickup
     ```
 
 ## Workflow Components
@@ -301,6 +333,7 @@ Each step in the workflow corresponds to specific components in the project:
 | 4. Process Match Data      | `stats_reader/stats_db_processor_direct.py`  | Adds cleaned match data to the stats database (with match type & role selection)         |
 | 5a. Generate Team ELO      | `stats_reader/elo_ladder.py`               | Calculates team ELO ratings and generates ladders                                        |
 | 5b. Generate Player ELO    | `stats_reader/player_elo_ladder.py`        | Calculates individual player ELO ratings for pickup/ranked matches (includes role history) |
+| 5c. Generate Role ELO      | `stats_reader/role_elo_calculator.py`      | Calculates role-specific ELO ratings for pickup/ranked matches                           |
 
 ## Reference Database
 
@@ -358,11 +391,14 @@ For pickup and ranked matches, the system takes a different approach:
 -   **Faction-Based Stats**: Players are still tracked based on their faction (Imperial/Rebel)
 -   **Player-Centric ELO**: The ELO system rates individual players instead of teams
 -   **Specialized Reports**: Dedicated reports track player performance in pickup/ranked matches
+-   **Role-Specific ELO**: The system can also track separate ELO ratings for each role (Flex, Support, Farmer)
 
 The player ELO system works by:
 1.  Calculating the average ELO of all players on each faction in a match
 2.  Updating individual player ratings based on match outcomes
 3.  Ranking players based on their personal skill level
+
+For role-specific ELO, the system uses the general ELO for team average calculation, but updates role-specific ratings only for players in that role.
 
 ### Important Note for Pickup ELO
 
@@ -399,6 +435,33 @@ python -m stats_reader.fix_pickup_team_ids --db squadrons_stats.db
 -   **Stats Processing**: More details in `stats_reader/README.md`
 -   **ELO Ladder System**: Configuration and details in `stats_reader/ELO_LADDER_README.md`
 -   **Utilities**: Maintenance scripts documented in `utilities/README.md`
+
+## Processing Ranked Matches
+
+For ranked matches, follow a similar workflow but with these commands:
+
+```bash
+# Process ranked match data
+python -m stats_reader.stats_db_processor_direct --input "Extracted Results/[FOLDER]/[FOLDER]_results_cleaned.json" --reference-db squadrons_reference.db --db squadrons_ranked.db
+
+# Generate roles file
+python generate_player_roles_json.py squadrons_ranked.db stats_reports
+
+# Generate ELO ladder
+python -m stats_reader.player_elo_ladder --db squadrons_ranked.db --output "stats_reports" --match-type ranked
+
+# Generate role-specific ELO ladders
+python -m stats_reader.role_elo_calculator --db squadrons_ranked.db --output "stats_reports" --match-type ranked
+
+# Generate role-specific performance reports
+python generate_role_reports.py squadrons_ranked.db stats_reports
+```
+
+This will create the ranked player reports in the `stats_reports` directory:
+- `ranked_player_elo_ladder.json`: Current ELO ratings for ranked players
+- `ranked_player_elo_history.json`: Full history of ranked player ELO changes (including roles)
+- Role-specific ladder files (e.g., `ranked_flex_elo_ladder.json`)
+- Role-specific performance files for the web visualization
 
 ## Notes
 

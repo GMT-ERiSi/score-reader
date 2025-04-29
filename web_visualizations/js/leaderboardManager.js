@@ -290,6 +290,13 @@ async function createAdditionalLeaderboards(containerSelector, playerStatsData) 
     const section = document.createElement('section');
     section.id = 'additional-leaderboards';
     section.innerHTML = '<h2>Additional Leaderboards</h2>';
+    section.style.maxWidth = '1200px';
+    section.style.margin = '2rem auto';
+    section.style.padding = '1.5rem';
+    section.style.backgroundColor = 'rgba(30, 32, 35, 0.8)';
+    section.style.borderRadius = '8px';
+    section.style.border = '1px solid #444';
+    section.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
     container.appendChild(section);
     
     try {
@@ -339,7 +346,7 @@ async function createAdditionalLeaderboards(containerSelector, playerStatsData) 
             // Apply interactivity if table was created successfully
             if (tableId) {
                 makeTableSortable(tableId);
-                addTableFilter(tableId, 'Search players...');
+                // Removed addTableFilter call to be consistent with main tables
             }
         });
         
@@ -362,169 +369,88 @@ function filterAllLeaderboards(roleFilter) {
     // Get all tables in the leaderboard container
     const tables = leaderboardContainer.querySelectorAll('table');
     
-    // If we have role-specific data available, use it for filtering
-    if (window.roleSpecificData && roleFilter !== 'all' && roleFilter !== 'none') {
-        // Generate the data for the specified role
-        const roleData = window.roleSpecificData[roleFilter] || [];
-        
-        if (roleData.length > 0) {
-            console.log(`Using ${roleData.length} players from role-specific data for ${roleFilter}`);
-            
-            // For each table, regenerate content with role-specific data
-            tables.forEach(table => {
-                const tableId = table.id;
-                
-                // Process data based on table type
-                let processedData = [];
-                
-                if (tableId === 'aiKillsTable') {
-                    // Sort by AI kills
-                    processedData = [...roleData].sort((a, b) => (b.total_ai_kills || 0) - (a.total_ai_kills || 0));
-                } 
-                else if (tableId === 'damageTable') {
-                    // Sort by damage
-                    processedData = [...roleData].sort((a, b) => (b.total_cap_ship_damage || 0) - (a.total_cap_ship_damage || 0));
-                }
-                else if (tableId === 'netKillsTable') {
-                    // Calculate and sort by net kills
-                    processedData = [...roleData].map(player => ({
-                        ...player,
-                        net_kills: (player.total_kills || 0) - (player.total_deaths || 0),
-                        net_kills_per_game: player.games_played > 0 ? 
-                            parseFloat(((player.total_kills || 0) - (player.total_deaths || 0)) / player.games_played).toFixed(2) : '0.00',
-                        player_kills: player.total_kills,
-                        deaths: player.total_deaths
-                    })).sort((a, b) => b.net_kills - a.net_kills);
-                }
-                else if (tableId === 'leastDeathsTable') {
-                    // Calculate deaths per match and sort
-                    processedData = [...roleData].map(player => ({
-                        ...player,
-                        deaths: player.total_deaths,
-                        deaths_per_match: player.games_played > 0 ? 
-                            (player.total_deaths || 0) / player.games_played : 0
-                    }))
-                    .filter(player => player.games_played >= 3)
-                    .sort((a, b) => a.deaths_per_match - b.deaths_per_match);
-                }
-                
-                // Rank the players
-                processedData.forEach((player, index) => {
-                    player.rank = index + 1;
-                    player.player_name = player.name; // Map to the expected field name
-                    player.matches_played = player.games_played;
-                });
-                
-                // Get the table body
-                const tableBody = table.querySelector('tbody');
-                if (tableBody) {
-                    // Clear current content
-                    tableBody.innerHTML = '';
-                    
-                    // Re-add rows for this role
-                    processedData.forEach(player => {
-                        const row = document.createElement('tr');
-                        row.setAttribute('data-role', roleFilter);
-                        
-                        // Add cells appropriate for each table type
-                        if (tableId === 'aiKillsTable') {
-                            row.innerHTML = `
-                                <td class="rank-cell">${player.rank}</td>
-                                <td>${player.name}</td>
-                                <td>${roleFilter}</td>
-                                <td>${player.total_ai_kills || 0}</td>
-                                <td>${player.games_played}</td>
-                                <td>${player.ai_kills_per_game ? player.ai_kills_per_game.toFixed(2) : '0.00'}</td>
-                            `;
-                        }
-                        else if (tableId === 'damageTable') {
-                            row.innerHTML = `
-                                <td class="rank-cell">${player.rank}</td>
-                                <td>${player.name}</td>
-                                <td>${roleFilter}</td>
-                                <td>${player.total_cap_ship_damage || 0}</td>
-                                <td>${player.games_played}</td>
-                                <td>${player.damage_per_game ? player.damage_per_game.toFixed(0) : '0'}</td>
-                            `;
-                        }
-                        else if (tableId === 'netKillsTable') {
-                            row.innerHTML = `
-                                <td class="rank-cell">${player.rank}</td>
-                                <td>${player.name}</td>
-                                <td>${roleFilter}</td>
-                                <td>${player.net_kills}</td>
-                                <td>${player.net_kills_per_game}</td>
-                                <td>${player.total_kills || 0}</td>
-                                <td>${player.total_deaths || 0}</td>
-                                <td>${player.games_played}</td>
-                            `;
-                        }
-                        else if (tableId === 'leastDeathsTable') {
-                            row.innerHTML = `
-                                <td class="rank-cell">${player.rank}</td>
-                                <td>${player.name}</td>
-                                <td>${roleFilter}</td>
-                                <td>${player.total_deaths || 0}</td>
-                                <td>${player.games_played}</td>
-                                <td>${player.deaths_per_match.toFixed(2)}</td>
-                            `;
-                        }
-                        
-                        tableBody.appendChild(row);
-                    });
-                    
-                    // Add "no results" message if needed
-                    if (processedData.length === 0) {
-                        let noResultsMsg = table.parentNode.querySelector('.no-results-message');
-                        if (!noResultsMsg) {
-                            noResultsMsg = document.createElement('p');
-                            noResultsMsg.className = 'no-results-message';
-                            noResultsMsg.textContent = `No players found for role: ${roleFilter}`;
-                            table.parentNode.insertBefore(noResultsMsg, table.nextSibling);
-                        }
-                        noResultsMsg.style.display = 'block';
-                    }
-                }
+    // Special handling for 'all' role - show all rows
+    if (roleFilter === 'all') {
+        console.log('Showing ALL rows for all tables - All Roles selected');
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                // Make sure to remove any previous display style
+                row.style.display = '';
             });
             
-            return; // Skip the normal filtering process if we've regenerated the tables
-        }
+            // Update rank numbers for visible rows
+            updateRankNumbersForVisible(table);
+            
+            // Hide any "no results" messages
+            const noResultsMsg = table.parentNode.querySelector('.no-results-message');
+            if (noResultsMsg) {
+                noResultsMsg.style.display = 'none';
+            }
+            
+            console.log(`Reset complete: ${rows.length} rows now visible in table ${table.id}`);
+        });
+        
+        // Special diagnostic log to verify the reset is complete
+        console.log('ALL ROLES reset complete!');
+        return;
     }
     
-    // If we reach here, we're using the normal filter approach (for 'all' or 'none' filters, or if role data isn't available)
+    // Filter rows based on the data-role attribute
+    console.log("Filtering existing rows by data-role attribute");
     tables.forEach(table => {
         const rows = table.querySelectorAll('tbody tr');
         let visibleCount = 0;
         
         rows.forEach(row => {
-            const rowRole = row.getAttribute('data-role');
+            // Get the role from the data-role attribute, default to 'None' if missing
+            const rowRole = row.getAttribute('data-role') || 'None';
             
-            if (roleFilter === 'all' ||
-                (roleFilter === 'none' && rowRole.toLowerCase() === 'none') ||
-                (rowRole && rowRole.toLowerCase() === roleFilter.toLowerCase())) {
-                row.style.display = '';
+            // Determine if the row should be visible
+            let shouldShow = false;
+            if (roleFilter === 'none' && rowRole === 'None') {
+                shouldShow = true; // Show rows explicitly marked as 'None' or without a role
+            } else if (rowRole.toLowerCase() === roleFilter.toLowerCase()) {
+                shouldShow = true; // Show rows matching the selected role (case-insensitive)
+            }
+            
+            // Set display style
+            if (shouldShow) {
+                row.style.display = ''; // Show
                 visibleCount++;
             } else {
-                row.style.display = 'none';
+                row.style.display = 'none'; // Hide
             }
         });
         
-        // Update rank numbers for visible rows in this table
+        // Update ranks for visible rows
         updateRankNumbersForVisible(table);
         
-        // Show/hide "no results" message for this table
+        // Show/hide "no results" message
         let noResultsMsg = table.parentNode.querySelector('.no-results-message');
-        if (visibleCount === 0 && roleFilter !== 'all') {
+        if (visibleCount === 0) {
             if (!noResultsMsg) {
                 noResultsMsg = document.createElement('p');
                 noResultsMsg.className = 'no-results-message';
-                noResultsMsg.textContent = 'No matching players found for this role.';
-                table.parentNode.insertBefore(noResultsMsg, table.nextSibling);
+                // Insert after the table's parent div if it exists, otherwise after the table
+                const parentDiv = table.closest('.leaderboard-section');
+                if (parentDiv) {
+                    parentDiv.appendChild(noResultsMsg);
+                } else {
+                    table.parentNode.insertBefore(noResultsMsg, table.nextSibling);
+                }
             }
+            noResultsMsg.textContent = `No players found for role: ${roleFilter}`;
             noResultsMsg.style.display = 'block';
+            noResultsMsg.style.color = '#ff3a30'; // Make it stand out
+            noResultsMsg.style.fontStyle = 'italic';
+            noResultsMsg.style.textAlign = 'center';
+            noResultsMsg.style.padding = '10px';
         } else if (noResultsMsg) {
-            noResultsMsg.style.display = 'none';
+            noResultsMsg.style.display = 'none'; // Hide if there are results
         }
+        
+        console.log(`Filtered table ${table.id} by data-role: ${visibleCount} rows visible`);
     });
 }
 
