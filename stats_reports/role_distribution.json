@@ -1,0 +1,29 @@
+[
+  {
+    "role": "Farmer",
+    "unique_players": 11,
+    "total_appearances": 29,
+    "avg_score": 1515.86,
+    "avg_kills": 1.45,
+    "avg_deaths": 2.97,
+    "overall_kd_ratio": 0.49
+  },
+  {
+    "role": "Flex",
+    "unique_players": 11,
+    "total_appearances": 39,
+    "avg_score": 1212.44,
+    "avg_kills": 2.33,
+    "avg_deaths": 1.9,
+    "overall_kd_ratio": 1.23
+  },
+  {
+    "role": "Support",
+    "unique_players": 4,
+    "total_appearances": 19,
+    "avg_score": 1118.42,
+    "avg_kills": 1.79,
+    "avg_deaths": 2.37,
+    "overall_kd_ratio": 0.76
+  }
+]

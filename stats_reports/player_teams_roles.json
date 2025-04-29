@@ -1,0 +1,371 @@
+[
+  {
+    "player_name": "BIKER_BUGGS",
+    "player_hash": "371a77411446a597",
+    "team_name": "KE",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Cosmokaze",
+    "player_hash": "6d33ecee65d7eb84",
+    "team_name": "TBD",
+    "games_with_team": 3,
+    "regular_games": 3,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "Cosmokaze",
+    "player_hash": "6d33ecee65d7eb84",
+    "team_name": "TBD",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "DiscoDin0",
+    "player_hash": "1948f3305535eb12",
+    "team_name": "RND",
+    "games_with_team": 13,
+    "regular_games": 13,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "FOCA101",
+    "player_hash": "82bcfc78bbc5df3e",
+    "team_name": "GMT",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "FOCA101",
+    "player_hash": "82bcfc78bbc5df3e",
+    "team_name": "GMT",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "Fabian",
+    "player_hash": "60a1909e48b079a3",
+    "team_name": "GMT",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "GMT_ERiSi",
+    "player_hash": "e06bdb72ce76268e",
+    "team_name": "GMT",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "Hail x Sagan",
+    "player_hash": "0fa1b0aecd7fdab5",
+    "team_name": "RND",
+    "games_with_team": 13,
+    "regular_games": 13,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "Hobbes_AU",
+    "player_hash": "f40d5e07ed8e15d7",
+    "team_name": "RND",
+    "games_with_team": 7,
+    "regular_games": 7,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Hod",
+    "player_hash": "4413d6acec7a880a",
+    "team_name": "GMT",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "KitstersRite",
+    "player_hash": "a57eb5716a2b39a3",
+    "team_name": "NWS",
+    "games_with_team": 3,
+    "regular_games": 3,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "KitstersRite",
+    "player_hash": "a57eb5716a2b39a3",
+    "team_name": "NWS",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "Lions",
+    "player_hash": "1335968403f6187d",
+    "team_name": "GMT",
+    "games_with_team": 5,
+    "regular_games": 5,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Neville Schlong...",
+    "player_hash": "8047cb0e637ec061",
+    "team_name": "RND",
+    "games_with_team": 1,
+    "regular_games": 0,
+    "sub_games": 1,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "NiWi-JC",
+    "player_hash": "9362bd1fb42f09ed",
+    "team_name": "NWS",
+    "games_with_team": 3,
+    "regular_games": 3,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "NiWi-ProfAutumn",
+    "player_hash": "1fd3197cb7bde957",
+    "team_name": "NWS",
+    "games_with_team": 5,
+    "regular_games": 5,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "NiWi-Pseudo_nine",
+    "player_hash": "3d4f2066f7680bf1",
+    "team_name": "NWS",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "NiWi-Pseudo_nine",
+    "player_hash": "3d4f2066f7680bf1",
+    "team_name": "NWS",
+    "games_with_team": 2,
+    "regular_games": 2,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "NiWi-Side_Stack",
+    "player_hash": "df8357d6c06c19fa",
+    "team_name": "NWS",
+    "games_with_team": 6,
+    "regular_games": 6,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "NiWi-Side_Stack",
+    "player_hash": "df8357d6c06c19fa",
+    "team_name": "NWS",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "NiWi-Ska_fLc",
+    "player_hash": "822e89c8f97f6981",
+    "team_name": "NWS",
+    "games_with_team": 7,
+    "regular_games": 7,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "NiWi-Slacks",
+    "player_hash": "41bbdfcc06765b7e",
+    "team_name": "NWS",
+    "games_with_team": 8,
+    "regular_games": 8,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Not Tom",
+    "player_hash": "4b2f678a5d30a218",
+    "team_name": "TBD",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "OSQ_Dalek",
+    "player_hash": "2a7b3f8bed45aa1b",
+    "team_name": "GMT",
+    "games_with_team": 5,
+    "regular_games": 5,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "RaineyDaze",
+    "player_hash": "82f12bffc0c3b955",
+    "team_name": "RND",
+    "games_with_team": 2,
+    "regular_games": 2,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Revenge",
+    "player_hash": "631cb8a984d071a3",
+    "team_name": "RND",
+    "games_with_team": 2,
+    "regular_games": 2,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "Revenge",
+    "player_hash": "631cb8a984d071a3",
+    "team_name": "RND",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Rita_Soul",
+    "player_hash": "3eeca467168c71c9",
+    "team_name": "KE",
+    "games_with_team": 1,
+    "regular_games": 1,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Shmeledran",
+    "player_hash": "785b3445e102e707",
+    "team_name": "GMT",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Shmeledran",
+    "player_hash": "785b3445e102e707",
+    "team_name": "KE",
+    "games_with_team": 3,
+    "regular_games": 0,
+    "sub_games": 3,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Solhawk",
+    "player_hash": "97042379d1162ce4",
+    "team_name": "KE",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "Staffycat",
+    "player_hash": "e1ab9e48044328c6",
+    "team_name": "KE",
+    "games_with_team": 3,
+    "regular_games": 3,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "Succi",
+    "player_hash": "106d1609d7645fa7",
+    "team_name": "KE",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "TheRevanite1018",
+    "player_hash": "30ba2a6a82e3aac7",
+    "team_name": "KE",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "WhatsUpDock",
+    "player_hash": "768b04d33353cbb4",
+    "team_name": "TBD",
+    "games_with_team": 2,
+    "regular_games": 2,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "WhatsUpDock",
+    "player_hash": "768b04d33353cbb4",
+    "team_name": "TBD",
+    "games_with_team": 2,
+    "regular_games": 2,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "beach-89",
+    "player_hash": "f9ca62f3b5887593",
+    "team_name": "TBD",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Flex"
+  },
+  {
+    "player_name": "iLorhin",
+    "player_hash": "1b3e0e8bffe0070e",
+    "team_name": "RND",
+    "games_with_team": 13,
+    "regular_games": 13,
+    "sub_games": 0,
+    "role": "Support"
+  },
+  {
+    "player_name": "rod409",
+    "player_hash": "9eaabe472681ae5d",
+    "team_name": "RND",
+    "games_with_team": 13,
+    "regular_games": 13,
+    "sub_games": 0,
+    "role": "Farmer"
+  },
+  {
+    "player_name": "zyphaz",
+    "player_hash": "98e7ee4f392dbd94",
+    "team_name": "TBD",
+    "games_with_team": 4,
+    "regular_games": 4,
+    "sub_games": 0,
+    "role": "Farmer"
+  }
+]

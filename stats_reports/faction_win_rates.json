@@ -1,0 +1,12 @@
+[
+  {
+    "winner": "IMPERIAL",
+    "wins": 2,
+    "win_percentage": 22.22
+  },
+  {
+    "winner": "REBEL",
+    "wins": 7,
+    "win_percentage": 77.78
+  }
+]

@@ -1,0 +1,422 @@
+[
+  {
+    "match_id": 1,
+    "match_date": "2025-04-17 19:30:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 3,
+        "player_name": "Edmond_Fonda",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      },
+      {
+        "player_id": 4,
+        "player_name": "VonVampyris",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 8,
+        "player_name": "MilesAway--",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.0,
+    "rebel_avg_elo": 1000.0
+  },
+  {
+    "match_id": 2,
+    "match_date": "2025-04-17 19:42:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 4,
+        "player_name": "VonVampyris",
+        "role": "Flex",
+        "old_rating": 984.0,
+        "new_rating": 967.1167063028519,
+        "rating_change": -16.883293697148133
+      },
+      {
+        "player_id": 8,
+        "player_name": "MilesAway--",
+        "role": "Flex",
+        "old_rating": 1016.0,
+        "new_rating": 999.1167063028519,
+        "rating_change": -16.883293697148133
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Flex",
+        "old_rating": 1016.0,
+        "new_rating": 1032.883293697148,
+        "rating_change": 16.88329369714802
+      },
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 1016.8832936971481,
+        "rating_change": 16.883293697148133
+      },
+      {
+        "player_id": 3,
+        "player_name": "Edmond_Fonda",
+        "role": "Flex",
+        "old_rating": 984.0,
+        "new_rating": 1000.8832936971481,
+        "rating_change": 16.883293697148133
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1009.6,
+    "rebel_avg_elo": 990.4
+  },
+  {
+    "match_id": 3,
+    "match_date": "2025-04-17 19:59:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 1016.8832936971481,
+        "new_rating": 1001.1373260623461,
+        "rating_change": -15.745967634802014
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Flex",
+        "old_rating": 1032.883293697148,
+        "new_rating": 1048.6292613319501,
+        "rating_change": 15.745967634802128
+      },
+      {
+        "player_id": 11,
+        "player_name": "Raven419",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 1015.7459676348021,
+        "rating_change": 15.745967634802128
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.5299762182889,
+    "rebel_avg_elo": 1006.0466825211408
+  },
+  {
+    "match_id": 4,
+    "match_date": "2025-04-17 20:18:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 11,
+        "player_name": "Raven419",
+        "role": "Flex",
+        "old_rating": 1015.7459676348021,
+        "new_rating": 999.2114203923087,
+        "rating_change": -16.53454724249343
+      },
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 1001.1373260623461,
+        "new_rating": 984.6027788198527,
+        "rating_change": -16.53454724249343
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 3,
+        "player_name": "Edmond_Fonda",
+        "role": "Flex",
+        "old_rating": 1000.8832936971481,
+        "new_rating": 1017.4178409396416,
+        "rating_change": 16.53454724249343
+      },
+      {
+        "player_id": 8,
+        "player_name": "MilesAway--",
+        "role": "Flex",
+        "old_rating": 999.1167063028519,
+        "new_rating": 1015.6512535453453,
+        "rating_change": 16.53454724249343
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1009.094263102022,
+    "rebel_avg_elo": 997.4823956374078
+  },
+  {
+    "match_id": 5,
+    "match_date": "2025-04-17 20:33:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 5,
+        "player_name": "SeriouslyAKaryn",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 983.9474138851609,
+        "rating_change": -16.052586114839073
+      },
+      {
+        "player_id": 12,
+        "player_name": "Bombad Gastald",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 983.9474138851609,
+        "rating_change": -16.052586114839073
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 984.6027788198527,
+        "new_rating": 1000.6553649346918,
+        "rating_change": 16.052586114839073
+      },
+      {
+        "player_id": 13,
+        "player_name": "GMT_ERiSi",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 1016.0525861148391,
+        "rating_change": 16.052586114839073
+      },
+      {
+        "player_id": 4,
+        "player_name": "VonVampyris",
+        "role": "Flex",
+        "old_rating": 967.1167063028519,
+        "new_rating": 983.1692924176909,
+        "rating_change": 16.052586114839073
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.9841811650124,
+    "rebel_avg_elo": 999.8422840784617
+  },
+  {
+    "match_id": 6,
+    "match_date": "2025-04-17 20:51:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 12,
+        "player_name": "Bombad Gastald",
+        "role": "Flex",
+        "old_rating": 983.9474138851609,
+        "new_rating": 968.6457963168224,
+        "rating_change": -15.301617568338543
+      },
+      {
+        "player_id": 5,
+        "player_name": "SeriouslyAKaryn",
+        "role": "Flex",
+        "old_rating": 983.9474138851609,
+        "new_rating": 968.6457963168224,
+        "rating_change": -15.301617568338543
+      },
+      {
+        "player_id": 8,
+        "player_name": "MilesAway--",
+        "role": "Flex",
+        "old_rating": 1015.6512535453453,
+        "new_rating": 1000.3496359770068,
+        "rating_change": -15.301617568338543
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 3,
+        "player_name": "Edmond_Fonda",
+        "role": "Flex",
+        "old_rating": 1017.4178409396416,
+        "new_rating": 1032.71945850798,
+        "rating_change": 15.301617568338543
+      },
+      {
+        "player_id": 4,
+        "player_name": "VonVampyris",
+        "role": "Flex",
+        "old_rating": 983.1692924176909,
+        "new_rating": 998.4709099860295,
+        "rating_change": 15.301617568338543
+      },
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Flex",
+        "old_rating": 1048.6292613319501,
+        "new_rating": 1063.9308789002887,
+        "rating_change": 15.301617568338543
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 991.9500284202163,
+    "rebel_avg_elo": 1007.1248522973949
+  },
+  {
+    "match_id": 8,
+    "match_date": "2025-04-24 20:12:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 3,
+        "player_name": "Edmond_Fonda",
+        "role": "Flex",
+        "old_rating": 1032.71945850798,
+        "new_rating": 1047.4246770530463,
+        "rating_change": 14.705218545066145
+      },
+      {
+        "player_id": 15,
+        "player_name": "TRA_Satake",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 1014.705218545066,
+        "rating_change": 14.705218545066032
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 1000.6553649346918,
+        "new_rating": 985.9501463896257,
+        "rating_change": -14.705218545066032
+      },
+      {
+        "player_id": 16,
+        "player_name": "Melatanar",
+        "role": "Flex",
+        "old_rating": 1000,
+        "new_rating": 985.294781454934,
+        "rating_change": -14.705218545066032
+      }
+    ],
+    "winner": "IMPERIAL",
+    "imperial_avg_elo": 1024.5899554435748,
+    "rebel_avg_elo": 996.4125173743026
+  },
+  {
+    "match_id": 7,
+    "match_date": "2025-04-24 20:29:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 13,
+        "player_name": "GMT_ERiSi",
+        "role": "Flex",
+        "old_rating": 1016.0525861148391,
+        "new_rating": 1032.380226062476,
+        "rating_change": 16.32763994763684
+      },
+      {
+        "player_id": 3,
+        "player_name": "Edmond_Fonda",
+        "role": "Flex",
+        "old_rating": 1047.4246770530463,
+        "new_rating": 1063.7523170006832,
+        "rating_change": 16.327639947636953
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Flex",
+        "old_rating": 1063.9308789002887,
+        "new_rating": 1047.6032389526517,
+        "rating_change": -16.327639947636953
+      },
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 985.9501463896257,
+        "new_rating": 969.6225064419888,
+        "rating_change": -16.327639947636953
+      },
+      {
+        "player_id": 16,
+        "player_name": "Melatanar",
+        "role": "Flex",
+        "old_rating": 985.294781454934,
+        "new_rating": 968.967141507297,
+        "rating_change": -16.327639947636953
+      }
+    ],
+    "winner": "IMPERIAL",
+    "imperial_avg_elo": 1006.1780259621106,
+    "rebel_avg_elo": 1013.2936317294494
+  },
+  {
+    "match_id": 9,
+    "match_date": "2025-04-24 20:49:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Flex",
+        "old_rating": 1047.6032389526517,
+        "new_rating": 1030.205115558935,
+        "rating_change": -17.398123393716787
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Flex",
+        "old_rating": 969.6225064419888,
+        "new_rating": 987.0206298357056,
+        "rating_change": 17.398123393716787
+      },
+      {
+        "player_id": 16,
+        "player_name": "Melatanar",
+        "role": "Flex",
+        "old_rating": 968.967141507297,
+        "new_rating": 986.3652649010138,
+        "rating_change": 17.398123393716787
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1024.1295030644053,
+    "rebel_avg_elo": 993.6920100275405
+  }
+]
