@@ -463,6 +463,45 @@ This will create the ranked player reports in the `stats_reports` directory:
 - Role-specific ladder files (e.g., `ranked_flex_elo_ladder.json`)
 - Role-specific performance files for the web visualization
 
+## Development and Deployment Workflow
+
+This section outlines the recommended workflow for making changes, testing, and deploying updates to the GitHub Pages site hosted on the `upstream` remote (secondary GitHub account).
+
+1.  **Make Changes**: Perform all development work on your local `dev` branch.
+2.  **Test Locally**:
+    *   Ensure all necessary report files (`stats_reports/*.json`, `elo_reports_pickup/*.json`) are generated using the appropriate commands.
+    *   Start a local HTTP server from the project root directory:
+        ```bash
+        python -m http.server 8000
+        ```
+    *   Open your browser to `http://localhost:8000/web_visualizations/` and verify that the site functions correctly and loads all data.
+    *   Stop the server with Ctrl+C when finished.
+3.  **Push to `origin/dev`**: Commit your changes and push the `dev` branch to your primary GitHub repository (`origin`):
+    ```bash
+    git add .
+    git commit -m "Your descriptive commit message"
+    git push origin dev
+    ```
+4.  **Create Pull Request**: Go to your `origin` repository on GitHub and create a Pull Request from the `dev` branch to the `main` branch.
+5.  **Review and Merge**: Review the changes in the Pull Request and merge it into the `main` branch on `origin`.
+6.  **Update Local `main`**: Switch to your local `main` branch and pull the latest changes from `origin`:
+    ```bash
+    git checkout main
+    git pull origin main
+    ```
+7.  **Deploy to GitHub Pages (`upstream`)**: Push the updated local `main` branch to the `upstream` remote (secondary GitHub account) to trigger the GitHub Pages deployment workflow:
+    ```bash
+    git push upstream main
+    ```
+
+### GitHub Pages Deployment Note
+
+The GitHub Actions workflow (`.github/workflows/static.yml`) is configured to deploy only the contents of the `web_visualizations` directory. To ensure the JavaScript code can find the necessary JSON data files (e.g., `stats_reports/elo_ladder_team.json`, `elo_reports_pickup/pickup_player_elo_ladder.json`) both locally and on the deployed site:
+
+*   **Workflow Copy Step**: The workflow includes a step that copies all `.json` files from the root `stats_reports` and `elo_reports_pickup` directories into corresponding subdirectories *within* the `web_visualizations` directory on the Actions runner *before* deployment.
+*   **JavaScript Paths**: The `fetch` paths in `web_visualizations/js/realdata_fixed.js` are set relative to the HTML files (e.g., `stats_reports/file.json`, `elo_reports_pickup/file.json`), not relative to the script file itself.
+
+This setup allows the same JavaScript code to work correctly in both the local development environment (served from the project root) and the deployed GitHub Pages environment.
 ## Notes
 
 -   The project is configured to work with PNG and JPG files
