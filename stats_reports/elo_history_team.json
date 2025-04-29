@@ -1,0 +1,342 @@
+[
+  {
+    "match_id": 1,
+    "match_date": "2024-02-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 1000,
+      "new_rating": 1016.0,
+      "rating_change": 16.0
+    },
+    "rebel": {
+      "team_id": 2,
+      "team_name": "KE",
+      "old_rating": 1000,
+      "new_rating": 984.0,
+      "rating_change": -16.0
+    },
+    "winner": "IMPERIAL"
+  },
+  {
+    "match_id": 2,
+    "match_date": "2024-02-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 2,
+      "team_name": "KE",
+      "old_rating": 984.0,
+      "new_rating": 1001.4695015289755,
+      "rating_change": 17.469501528975456
+    },
+    "rebel": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 1016.0,
+      "new_rating": 998.5304984710245,
+      "rating_change": -17.469501528975456
+    },
+    "winner": "IMPERIAL"
+  },
+  {
+    "match_id": 3,
+    "match_date": "2024-02-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 2,
+      "team_name": "KE",
+      "old_rating": 1001.4695015289755,
+      "new_rating": 985.3341586646084,
+      "rating_change": -16.13534286436709
+    },
+    "rebel": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 998.5304984710245,
+      "new_rating": 1014.6658413353916,
+      "rating_change": 16.13534286436709
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 4,
+    "match_date": "2024-02-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 1014.6658413353916,
+      "new_rating": 997.3182674333191,
+      "rating_change": -17.347573902072554
+    },
+    "rebel": {
+      "team_id": 2,
+      "team_name": "KE",
+      "old_rating": 985.3341586646084,
+      "new_rating": 1002.6817325666809,
+      "rating_change": 17.347573902072554
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 14,
+    "match_date": "2024-03-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1000,
+      "new_rating": 984.0,
+      "rating_change": -16.0
+    },
+    "rebel": {
+      "team_id": 5,
+      "team_name": "TBD",
+      "old_rating": 1000,
+      "new_rating": 1016.0,
+      "rating_change": 16.0
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 15,
+    "match_date": "2024-03-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 5,
+      "team_name": "TBD",
+      "old_rating": 1016.0,
+      "new_rating": 998.5304984710245,
+      "rating_change": -17.469501528975456
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 984.0,
+      "new_rating": 1001.4695015289755,
+      "rating_change": 17.469501528975456
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 16,
+    "match_date": "2024-03-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 5,
+      "team_name": "TBD",
+      "old_rating": 998.5304984710245,
+      "new_rating": 982.6658413353916,
+      "rating_change": -15.86465713563291
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1001.4695015289755,
+      "new_rating": 1017.3341586646084,
+      "rating_change": 15.86465713563291
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 17,
+    "match_date": "2024-03-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1017.3341586646084,
+      "new_rating": 1031.7429013908077,
+      "rating_change": 14.408742726199307
+    },
+    "rebel": {
+      "team_id": 5,
+      "team_name": "TBD",
+      "old_rating": 982.6658413353916,
+      "new_rating": 968.2570986091923,
+      "rating_change": -14.408742726199307
+    },
+    "winner": "IMPERIAL"
+  },
+  {
+    "match_id": 10,
+    "match_date": "2024-09-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1031.7429013908077,
+      "new_rating": 1046.1627559269655,
+      "rating_change": 14.4198545361578
+    },
+    "rebel": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 997.3182674333191,
+      "new_rating": 982.8984128971613,
+      "rating_change": -14.4198545361578
+    },
+    "winner": "IMPERIAL"
+  },
+  {
+    "match_id": 11,
+    "match_date": "2024-09-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 982.8984128971613,
+      "new_rating": 969.7800651836424,
+      "rating_change": -13.118347713518915
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1046.1627559269655,
+      "new_rating": 1059.2811036404844,
+      "rating_change": 13.118347713518915
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 12,
+    "match_date": "2024-09-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 969.7800651836424,
+      "new_rating": 957.8129253892976,
+      "rating_change": -11.967139794344803
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1059.2811036404844,
+      "new_rating": 1071.2482434348292,
+      "rating_change": 11.967139794344803
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 13,
+    "match_date": "2024-09-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1071.2482434348292,
+      "new_rating": 1082.2023850077207,
+      "rating_change": 10.954141572891558
+    },
+    "rebel": {
+      "team_id": 1,
+      "team_name": "NWS",
+      "old_rating": 957.8129253892976,
+      "new_rating": 946.858783816406,
+      "rating_change": -10.954141572891558
+    },
+    "winner": "IMPERIAL"
+  },
+  {
+    "match_id": 5,
+    "match_date": "2024-17-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1082.2023850077207,
+      "new_rating": 1062.485915163278,
+      "rating_change": -19.716469844442827
+    },
+    "rebel": {
+      "team_id": 4,
+      "team_name": "GMT",
+      "old_rating": 1000,
+      "new_rating": 1019.7164698444429,
+      "rating_change": 19.71646984444294
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 6,
+    "match_date": "2024-17-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 4,
+      "team_name": "GMT",
+      "old_rating": 1019.7164698444429,
+      "new_rating": 1005.6761865894862,
+      "rating_change": -14.040283254956762
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1062.485915163278,
+      "new_rating": 1076.5261984182348,
+      "rating_change": 14.040283254956876
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 7,
+    "match_date": "2024-17-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1076.5261984182348,
+      "new_rating": 1057.3079217309703,
+      "rating_change": -19.218276687264506
+    },
+    "rebel": {
+      "team_id": 4,
+      "team_name": "GMT",
+      "old_rating": 1005.6761865894862,
+      "new_rating": 1024.8944632767507,
+      "rating_change": 19.218276687264506
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 8,
+    "match_date": "2024-17-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 4,
+      "team_name": "GMT",
+      "old_rating": 1024.8944632767507,
+      "new_rating": 1010.3828425871126,
+      "rating_change": -14.511620689638107
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1057.3079217309703,
+      "new_rating": 1071.8195424206085,
+      "rating_change": 14.511620689638221
+    },
+    "winner": "REBEL"
+  },
+  {
+    "match_id": 9,
+    "match_date": "2024-17-08 12:00:00",
+    "season": "TEST",
+    "imperial": {
+      "team_id": 4,
+      "team_name": "GMT",
+      "old_rating": 1010.3828425871126,
+      "new_rating": 1029.1829824309054,
+      "rating_change": 18.800139843792863
+    },
+    "rebel": {
+      "team_id": 3,
+      "team_name": "RND",
+      "old_rating": 1071.8195424206085,
+      "new_rating": 1053.0194025768155,
+      "rating_change": -18.800139843792977
+    },
+    "winner": "IMPERIAL"
+  }
+]

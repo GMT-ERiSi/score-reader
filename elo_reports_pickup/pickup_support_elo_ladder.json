@@ -1,0 +1,50 @@
+[
+  {
+    "player_id": 2,
+    "player_name": "Trevorevenge",
+    "player_hash": "13ad125ddaff1456",
+    "role": "Support",
+    "elo_rating": 1049,
+    "matches_played": 9,
+    "matches_won": 6,
+    "matches_lost": 3,
+    "win_rate": 66.7,
+    "rank": 1
+  },
+  {
+    "player_id": 10,
+    "player_name": "Schneeflockchen",
+    "player_hash": "bb496d60ac839c3d",
+    "role": "Support",
+    "elo_rating": 1000,
+    "matches_played": 6,
+    "matches_won": 3,
+    "matches_lost": 3,
+    "win_rate": 50.0,
+    "rank": 2
+  },
+  {
+    "player_id": 5,
+    "player_name": "SeriouslyAKaryn",
+    "player_hash": "a7a8429673de8ef0",
+    "role": "Support",
+    "elo_rating": 984,
+    "matches_played": 1,
+    "matches_won": 0,
+    "matches_lost": 1,
+    "win_rate": 0.0,
+    "rank": 3
+  },
+  {
+    "player_id": 3,
+    "player_name": "Edmond_Fonda",
+    "player_hash": "11adb7bd3e6adbaf",
+    "role": "Support",
+    "elo_rating": 951,
+    "matches_played": 3,
+    "matches_won": 0,
+    "matches_lost": 3,
+    "win_rate": 0.0,
+    "rank": 4
+  }
+]

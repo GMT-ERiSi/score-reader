@@ -1,0 +1,16 @@
+[
+  {
+    "name": "NR_pickup_team",
+    "wins": 7,
+    "losses": 2,
+    "games_played": 9,
+    "win_rate": 0.7777777777777778
+  },
+  {
+    "name": "Imp_pickup_team",
+    "wins": 2,
+    "losses": 7,
+    "games_played": 9,
+    "win_rate": 0.2222222222222222
+  }
+]

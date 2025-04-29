@@ -1,0 +1,342 @@
+[
+  {
+    "match_id": 1,
+    "match_date": "2025-04-17 19:30:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 1,
+        "player_name": "Hadysun",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 984.0,
+        "rating_change": -16.0
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 7,
+        "player_name": "Humunkulus_Hunk",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      },
+      {
+        "player_id": 9,
+        "player_name": "TomateC",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 1016.0,
+        "rating_change": 16.0
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.0,
+    "rebel_avg_elo": 1000.0
+  },
+  {
+    "match_id": 2,
+    "match_date": "2025-04-17 19:42:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 9,
+        "player_name": "TomateC",
+        "role": "Farmer",
+        "old_rating": 1016.0,
+        "new_rating": 999.1167063028519,
+        "rating_change": -16.883293697148133
+      },
+      {
+        "player_id": 7,
+        "player_name": "Humunkulus_Hunk",
+        "role": "Farmer",
+        "old_rating": 1016.0,
+        "new_rating": 999.1167063028519,
+        "rating_change": -16.883293697148133
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 5,
+        "player_name": "SeriouslyAKaryn",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 1016.8832936971481,
+        "rating_change": 16.883293697148133
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1009.6,
+    "rebel_avg_elo": 990.4
+  },
+  {
+    "match_id": 3,
+    "match_date": "2025-04-17 19:59:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 5,
+        "player_name": "SeriouslyAKaryn",
+        "role": "Farmer",
+        "old_rating": 1016.8832936971481,
+        "new_rating": 1001.1373260623461,
+        "rating_change": -15.745967634802014
+      },
+      {
+        "player_id": 8,
+        "player_name": "MilesAway--",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 984.254032365198,
+        "rating_change": -15.745967634802014
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 9,
+        "player_name": "TomateC",
+        "role": "Farmer",
+        "old_rating": 999.1167063028519,
+        "new_rating": 1014.8626739376539,
+        "rating_change": 15.745967634802014
+      },
+      {
+        "player_id": 7,
+        "player_name": "Humunkulus_Hunk",
+        "role": "Farmer",
+        "old_rating": 999.1167063028519,
+        "new_rating": 1014.8626739376539,
+        "rating_change": 15.745967634802014
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.5299762182889,
+    "rebel_avg_elo": 1006.0466825211408
+  },
+  {
+    "match_id": 4,
+    "match_date": "2025-04-17 20:18:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 7,
+        "player_name": "Humunkulus_Hunk",
+        "role": "Farmer",
+        "old_rating": 1014.8626739376539,
+        "new_rating": 998.3281266951604,
+        "rating_change": -16.53454724249343
+      },
+      {
+        "player_id": 9,
+        "player_name": "TomateC",
+        "role": "Farmer",
+        "old_rating": 1014.8626739376539,
+        "new_rating": 998.3281266951604,
+        "rating_change": -16.53454724249343
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 1016.5345472424934,
+        "rating_change": 16.53454724249343
+      },
+      {
+        "player_id": 5,
+        "player_name": "SeriouslyAKaryn",
+        "role": "Farmer",
+        "old_rating": 1001.1373260623461,
+        "new_rating": 1017.6718733048396,
+        "rating_change": 16.53454724249343
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1009.094263102022,
+    "rebel_avg_elo": 997.4823956374078
+  },
+  {
+    "match_id": 5,
+    "match_date": "2025-04-17 20:33:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 8,
+        "player_name": "MilesAway--",
+        "role": "Farmer",
+        "old_rating": 984.254032365198,
+        "new_rating": 968.2014462503589,
+        "rating_change": -16.052586114839073
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Farmer",
+        "old_rating": 1016.5345472424934,
+        "new_rating": 1032.5871333573325,
+        "rating_change": 16.052586114839073
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1000.9841811650124,
+    "rebel_avg_elo": 999.8422840784617
+  },
+  {
+    "match_id": 6,
+    "match_date": "2025-04-17 20:51:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 10,
+        "player_name": "Schneeflockchen",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 984.6983824316615,
+        "rating_change": -15.301617568338543
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 14,
+        "player_name": "Fox",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 1015.3016175683385,
+        "rating_change": 15.301617568338543
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 991.9500284202163,
+    "rebel_avg_elo": 1007.1248522973949
+  },
+  {
+    "match_id": 8,
+    "match_date": "2025-04-24 20:12:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 6,
+        "player_name": "Silence",
+        "role": "Farmer",
+        "old_rating": 1032.5871333573325,
+        "new_rating": 1047.2923519023987,
+        "rating_change": 14.705218545066145
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 7,
+        "player_name": "Humunkulus_Hunk",
+        "role": "Farmer",
+        "old_rating": 998.3281266951604,
+        "new_rating": 983.6229081500944,
+        "rating_change": -14.705218545066032
+      },
+      {
+        "player_id": 17,
+        "player_name": "Hoss_Johnson",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 985.294781454934,
+        "rating_change": -14.705218545066032
+      }
+    ],
+    "winner": "IMPERIAL",
+    "imperial_avg_elo": 1024.5899554435748,
+    "rebel_avg_elo": 996.4125173743026
+  },
+  {
+    "match_id": 7,
+    "match_date": "2025-04-24 20:29:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 10,
+        "player_name": "Schneeflockchen",
+        "role": "Farmer",
+        "old_rating": 984.6983824316615,
+        "new_rating": 1001.0260223792984,
+        "rating_change": 16.327639947636953
+      },
+      {
+        "player_id": 11,
+        "player_name": "Raven419",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 1016.327639947637,
+        "rating_change": 16.327639947636953
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 15,
+        "player_name": "TRA_Satake",
+        "role": "Farmer",
+        "old_rating": 1000,
+        "new_rating": 983.672360052363,
+        "rating_change": -16.327639947636953
+      },
+      {
+        "player_id": 17,
+        "player_name": "Hoss_Johnson",
+        "role": "Farmer",
+        "old_rating": 985.294781454934,
+        "new_rating": 968.967141507297,
+        "rating_change": -16.327639947636953
+      }
+    ],
+    "winner": "IMPERIAL",
+    "imperial_avg_elo": 1006.1780259621106,
+    "rebel_avg_elo": 1013.2936317294494
+  },
+  {
+    "match_id": 9,
+    "match_date": "2025-04-24 20:49:00",
+    "season": "LSS",
+    "imperial_players": [
+      {
+        "player_id": 10,
+        "player_name": "Schneeflockchen",
+        "role": "Farmer",
+        "old_rating": 1001.0260223792984,
+        "new_rating": 983.6278989855816,
+        "rating_change": -17.398123393716787
+      },
+      {
+        "player_id": 17,
+        "player_name": "Hoss_Johnson",
+        "role": "Farmer",
+        "old_rating": 968.967141507297,
+        "new_rating": 951.5690181135802,
+        "rating_change": -17.398123393716787
+      }
+    ],
+    "rebel_players": [
+      {
+        "player_id": 11,
+        "player_name": "Raven419",
+        "role": "Farmer",
+        "old_rating": 1016.327639947637,
+        "new_rating": 1033.7257633413537,
+        "rating_change": 17.398123393716787
+      },
+      {
+        "player_id": 15,
+        "player_name": "TRA_Satake",
+        "role": "Farmer",
+        "old_rating": 983.672360052363,
+        "new_rating": 1001.0704834460798,
+        "rating_change": 17.398123393716787
+      }
+    ],
+    "winner": "REBEL",
+    "imperial_avg_elo": 1024.1295030644053,
+    "rebel_avg_elo": 993.6920100275405
+  }
+]
