@@ -1,10 +1,24 @@
-// team-role-filter.js
+            // Make sure the leaderboards container has the same max-width as our section
+            const leaderboardsContainer = document.getElementById('leaderboards-container');
+            if (leaderboardsContainer) {
+                leaderboardsContainer.style.maxWidth = '1200px';
+                leaderboardsContainer.style.margin = '2rem auto';
+                leaderboardsContainer.style.padding = '0';
+            }// team-role-filter.js
 // This script directly handles role filtering for the team page leaderboards
 
 (function() {
     // Function to run when the DOM is fully loaded
     function setupRoleFiltering() {
         console.log("Setting up direct role filtering...");
+        
+        // Make sure the leaderboards container has the same max-width as our section
+        const leaderboardsContainer = document.getElementById('leaderboards-container');
+        if (leaderboardsContainer) {
+            leaderboardsContainer.style.maxWidth = '1200px';
+            leaderboardsContainer.style.margin = '2rem auto';
+            leaderboardsContainer.style.padding = '0';
+        }
         
         // Wait for tables to be created
         function waitForTables() {
@@ -32,22 +46,31 @@
                     const rows = table.querySelectorAll('tbody tr');
                     let visibleCount = 0;
                     
-                    rows.forEach(row => {
-                        // Get the role value from the third column (index 2), which is the role column
-                        const roleCell = row.querySelector('td:nth-child(3)');
-                        const rowRole = roleCell ? roleCell.textContent.trim() : 'None';
-                        
-                        if (roleFilter === 'all' ||
-                            (roleFilter === 'none' && (rowRole === 'None' || rowRole === '')) ||
-                            rowRole.toLowerCase() === roleFilter.toLowerCase()) {
-                            // Show matching rows
+                    // When 'all' is selected, show all rows
+                    if (roleFilter === 'all') {
+                        console.log("Showing ALL rows - 'all' role filter selected");
+                        rows.forEach(row => {
                             row.style.display = '';
                             visibleCount++;
-                        } else {
-                            // Hide non-matching rows
-                            row.style.display = 'none';
-                        }
-                    });
+                        });
+                    } else {
+                        // Otherwise filter by the selected role
+                        rows.forEach(row => {
+                            // Get the role value from the third column (index 2), which is the role column
+                            const roleCell = row.querySelector('td:nth-child(3)');
+                            const rowRole = roleCell ? roleCell.textContent.trim() : 'None';
+                            
+                            if ((roleFilter === 'none' && (rowRole === 'None' || rowRole === '')) ||
+                                rowRole.toLowerCase() === roleFilter.toLowerCase()) {
+                                // Show matching rows
+                                row.style.display = '';
+                                visibleCount++;
+                            } else {
+                                // Hide non-matching rows
+                                row.style.display = 'none';
+                            }
+                        });
+                    }
                     
                     // Update ranks for visible rows
                     let rank = 1;
@@ -79,6 +102,11 @@
                         noResultsMsg.style.display = 'none';
                     }
                 });
+                
+                // Debug log the counts
+                if (roleFilter === 'all') {
+                    console.log('Showing ALL players as "All Roles" was selected');
+                }
             };
             
             // Direct function to reset all buttons to inactive state
@@ -88,6 +116,14 @@
                     btn.style.backgroundColor = '#333333';
                     btn.style.color = '#e0e0e0';
                 });
+                
+                // Make sure the All Roles button is properly styled when reset occurs
+                const allButton = document.querySelector('.role-filter-button[data-role="all"]');
+                if (allButton) {
+                    allButton.classList.add('active');
+                    allButton.style.backgroundColor = '#0066cc';
+                    allButton.style.color = 'white';
+                }
             }
             
             // Remove any existing click handlers by replacing the buttons
@@ -113,6 +149,11 @@
                             this.classList.add('active');
                             this.style.backgroundColor = '#0066cc';
                             this.style.color = 'white';
+                            
+                            // Special case for 'All Roles' button to ensure full reset
+                            if (role === 'all') {
+                                console.log('All Roles button clicked - forcing full table reset');
+                            }
                             
                             // Apply filtering
                             filterByRole(role);

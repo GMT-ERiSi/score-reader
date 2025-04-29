@@ -290,6 +290,13 @@ async function createAdditionalLeaderboards(containerSelector, playerStatsData) 
     const section = document.createElement('section');
     section.id = 'additional-leaderboards';
     section.innerHTML = '<h2>Additional Leaderboards</h2>';
+    section.style.maxWidth = '1200px';
+    section.style.margin = '2rem auto';
+    section.style.padding = '1.5rem';
+    section.style.backgroundColor = 'rgba(30, 32, 35, 0.8)';
+    section.style.borderRadius = '8px';
+    section.style.border = '1px solid #444';
+    section.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
     container.appendChild(section);
     
     try {
@@ -362,8 +369,36 @@ function filterAllLeaderboards(roleFilter) {
     // Get all tables in the leaderboard container
     const tables = leaderboardContainer.querySelectorAll('table');
     
+    // Special handling for 'all' role - show all rows
+    if (roleFilter === 'all') {
+        console.log('Showing ALL rows for all tables - All Roles selected');
+        tables.forEach(table => {
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                // Make sure to remove any previous display style
+                row.style.display = '';
+            });
+            
+            // Update rank numbers for visible rows
+            updateRankNumbersForVisible(table);
+            
+            // Hide any "no results" messages
+            const noResultsMsg = table.parentNode.querySelector('.no-results-message');
+            if (noResultsMsg) {
+                noResultsMsg.style.display = 'none';
+            }
+            
+            console.log(`Reset complete: ${rows.length} rows now visible in table ${table.id}`);
+        });
+        
+        // Special diagnostic log to verify the reset is complete
+        console.log('ALL ROLES reset complete!');
+        return;
+    }
+    
+    // For other role filters, use the existing logic
     // If we have role-specific data available, use it for filtering
-    if (window.roleSpecificData && roleFilter !== 'all' && roleFilter !== 'none') {
+    if (window.roleSpecificData && roleFilter !== 'none') {
         // Generate the data for the specified role
         const roleData = window.roleSpecificData[roleFilter] || [];
         
@@ -491,7 +526,7 @@ function filterAllLeaderboards(roleFilter) {
         }
     }
     
-    // If we reach here, we're using the normal filter approach (for 'all' or 'none' filters, or if role data isn't available)
+    // If we reach here, we're using the normal filter approach (for 'none' filter, or if role data isn't available)
     tables.forEach(table => {
         const rows = table.querySelectorAll('tbody tr');
         let visibleCount = 0;
@@ -499,8 +534,7 @@ function filterAllLeaderboards(roleFilter) {
         rows.forEach(row => {
             const rowRole = row.getAttribute('data-role');
             
-            if (roleFilter === 'all' ||
-                (roleFilter === 'none' && rowRole.toLowerCase() === 'none') ||
+            if ((roleFilter === 'none' && rowRole.toLowerCase() === 'none') ||
                 (rowRole && rowRole.toLowerCase() === roleFilter.toLowerCase())) {
                 row.style.display = '';
                 visibleCount++;

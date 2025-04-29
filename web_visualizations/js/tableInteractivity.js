@@ -322,7 +322,9 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
             return;
         }
         
-        console.log(`Role filter button clicked: ${target.dataset.role}`);
+        // Get the role
+        const selectedRole = target.dataset.role;
+        console.log(`Role filter button clicked: ${selectedRole}`);
         
         // Remove 'active' class from all buttons
         roleFilterContainer.querySelectorAll('.role-filter-button').forEach(btn => {
@@ -337,12 +339,29 @@ function addRoleFilter(tableId, roles = ['Farmer', 'Flex', 'Support'], container
         target.style.color = 'white';
         
         // Filter the table
-        filterTableByRole(table, target.dataset.role);
+        filterTableByRole(table, selectedRole);
+        
+        // Special debugging for 'all' role
+        if (selectedRole === 'all') {
+            console.log("'All Roles' button clicked - ensuring ALL rows are visible");
+            // Extra verification that all rows are visible
+            const rows = table.querySelectorAll('tbody tr');
+            let hiddenCount = 0;
+            rows.forEach(row => {
+                if (row.style.display === 'none') {
+                    hiddenCount++;
+                    row.style.display = '';
+                }
+            });
+            if (hiddenCount > 0) {
+                console.log(`Fixed ${hiddenCount} rows that were incorrectly hidden`);
+            }
+        }
         
         // Trigger a custom event for other components to listen for
         const roleFilterEvent = new CustomEvent('roleFilterChanged', {
             detail: {
-                role: target.dataset.role
+                role: selectedRole
             }
         });
         document.dispatchEvent(roleFilterEvent);
@@ -382,32 +401,42 @@ function filterTableByRole(table, roleFilter) {
     
     console.log(`Filtering by role: ${roleFilter}, using column index: ${roleColumnIndex}`);
     
-    // Apply filter
-    rows.forEach(row => {
-        const cells = row.cells;
-        if (cells.length <= roleColumnIndex) {
-            // Row doesn't have enough columns, show it
+    // Special case for 'all' role to ensure ALL rows are shown
+    if (roleFilter === 'all') {
+        console.log('ALL filter: Showing all rows regardless of role');
+        rows.forEach(row => {
             row.style.display = '';
             visibleCount++;
-            return;
-        }
+        });
         
-        const roleCell = cells[roleColumnIndex];
-        const roleText = roleCell ? roleCell.textContent.trim() : '';
+        console.log(`ALL filter result: ${visibleCount} rows now visible`);
+    } else {
+        // Apply specific role filter
+        rows.forEach(row => {
+            const cells = row.cells;
+            if (cells.length <= roleColumnIndex) {
+                // Row doesn't have enough columns, show it
+                row.style.display = '';
+                visibleCount++;
+                return;
+            }
+            
+            const roleCell = cells[roleColumnIndex];
+            const roleText = roleCell ? roleCell.textContent.trim() : '';
+            
+            console.log(`Row role text: "${roleText}", comparing to filter: "${roleFilter}"`);
+            
+            if ((roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none')) ||
+                (roleText.toLowerCase().includes(roleFilter.toLowerCase()))) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
         
-        console.log(`Row role text: "${roleText}", comparing to filter: "${roleFilter}"`);
-        
-        if (roleFilter === 'all' || 
-            (roleFilter === 'none' && (roleText === '' || roleText.toLowerCase() === 'none')) ||
-            (roleText.toLowerCase().includes(roleFilter.toLowerCase()))) {
-            row.style.display = '';
-            visibleCount++;
-        } else {
-            row.style.display = 'none';
-        }
-    });
-    
-    console.log(`Filter result: ${visibleCount} visible rows`);
+        console.log(`Filter result: ${visibleCount} visible rows`);
+    }
     
     // Show/hide "no results" message
     let noResultsMsg = table.parentNode.querySelector('.no-results-message');

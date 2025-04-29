@@ -283,8 +283,14 @@ function initializeApp(modules) {
             
             // If role is 'all', show all datasets
             if (role === 'all') {
-                chartInstance.data.datasets = [...chartInstance._originalDatasets];
+                console.log('Role filter "All Roles" selected - resetting chart to show all pilots');
+                
+                // Ensure we have a deep copy of the original datasets
+                chartInstance.data.datasets = JSON.parse(JSON.stringify(chartInstance._originalDatasets));
                 chartInstance.update();
+                
+                // Verify the reset was successful
+                console.log(`Chart reset complete: now showing ${chartInstance.data.datasets.length} datasets`);
                 
                 // Update filter status message
                 updateChartFilterMessage('Showing all pilots');
