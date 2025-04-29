@@ -9,7 +9,7 @@
 async function loadPlayerRoles() {
     try {
         // Load player role data from the main stats_reports directory
-        console.log('Attempting to load player roles from ../stats_reports/player_roles.json');
+        console.log('Attempting to load player roles from stats_reports/player_roles.json');
         const response = await fetch('stats_reports/player_roles.json');
         
         if (!response.ok) {
@@ -78,7 +78,7 @@ async function loadTeamEloHistory() {
 // Load pickup player ELO ladder data
 async function loadPickupEloLadder() {
     try {
-        console.log('Attempting to load pickup ELO ladder from: ../elo_reports_pickup/pickup_player_elo_ladder.json');
+        console.log('Attempting to load pickup ELO ladder from: elo_reports_pickup/pickup_player_elo_ladder.json');
         const response = await fetch('elo_reports_pickup/pickup_player_elo_ladder.json');
         
         if (!response.ok) {
@@ -98,7 +98,7 @@ async function loadPickupEloLadder() {
 // Load pickup player ELO history data
 async function loadPickupEloHistory() {
     try {
-        console.log('Attempting to load pickup ELO history from: ../elo_reports_pickup/pickup_player_elo_history.json');
+        console.log('Attempting to load pickup ELO history from: elo_reports_pickup/pickup_player_elo_history.json');
         const response = await fetch('elo_reports_pickup/pickup_player_elo_history.json');
         
         if (!response.ok) {
@@ -118,7 +118,7 @@ async function loadPickupEloHistory() {
 // Load flex ELO ladder data
 async function loadFlexEloLadder() {
     try {
-        console.log('Attempting to load flex ELO ladder from: ../elo_reports_pickup/pickup_flex_elo_ladder.json');
+        console.log('Attempting to load flex ELO ladder from: elo_reports_pickup/pickup_flex_elo_ladder.json');
         const response = await fetch('elo_reports_pickup/pickup_flex_elo_ladder.json');
         
         if (!response.ok) {
@@ -138,7 +138,7 @@ async function loadFlexEloLadder() {
 // Load support ELO ladder data
 async function loadSupportEloLadder() {
     try {
-        console.log('Attempting to load support ELO ladder from: ../elo_reports_pickup/pickup_support_elo_ladder.json');
+        console.log('Attempting to load support ELO ladder from: elo_reports_pickup/pickup_support_elo_ladder.json');
         const response = await fetch('elo_reports_pickup/pickup_support_elo_ladder.json');
         
         if (!response.ok) {
@@ -158,7 +158,7 @@ async function loadSupportEloLadder() {
 // Load farmer ELO ladder data
 async function loadFarmerEloLadder() {
     try {
-        console.log('Attempting to load farmer ELO ladder from: ../elo_reports_pickup/pickup_farmer_elo_ladder.json');
+        console.log('Attempting to load farmer ELO ladder from: elo_reports_pickup/pickup_farmer_elo_ladder.json');
         const response = await fetch('elo_reports_pickup/pickup_farmer_elo_ladder.json');
         
         if (!response.ok) {
