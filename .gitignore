@@ -57,13 +57,11 @@ Screenshots/**
 !squadrons_pickup.db
 
 # Ignore stats_reports
-stats_reports/**
-!stats_reports/elo_ladder_team.json
+# stats_reports/**
 !stats_reports/.gitkeep
 
 # Ignore elo_reports_pickup
-elo_reports_pickup/**
-!elo_reports_pickup/pickup_player_elo_ladder.json
+# elo_reports_pickup/**
 !elo_reports_pickup/.gitkeep
 
 # Ignore todo
