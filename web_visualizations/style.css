@@ -41,6 +41,11 @@
     height: 64px;
     margin: 0 auto 15px auto;
 }
+.landing-option .tiefighter-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 15px auto;
+}
 
 nav a:hover .nav-icon, 
 nav a.active .nav-icon {
