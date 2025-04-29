@@ -10,7 +10,7 @@ async function loadPlayerRoles() {
     try {
         // Load player role data from the main stats_reports directory
         console.log('Attempting to load player roles from ../stats_reports/player_roles.json');
-        const response = await fetch('../stats_reports/player_roles.json');
+        const response = await fetch('stats_reports/player_roles.json');
         
         if (!response.ok) {
             console.log(`Failed to load player role data: ${response.status} ${response.statusText}. Role filtering might be unavailable.`);
@@ -29,12 +29,12 @@ async function loadPlayerRoles() {
 async function loadTeamEloLadder() {
     try {
         // Try to load team ELO ladder data with team match type
-        const response = await fetch('../stats_reports/elo_ladder_team.json');
+        const response = await fetch('stats_reports/elo_ladder_team.json');
         
         if (!response.ok) {
             // Fall back to legacy filename if team-specific file isn't found
             console.log('Team ELO ladder file not found, trying legacy filename...');
-            const legacyResponse = await fetch('../stats_reports/elo_ladder.json');
+            const legacyResponse = await fetch('stats_reports/elo_ladder.json');
             
             if (!legacyResponse.ok) {
                 throw new Error(`Failed to load team ELO ladder data: ${legacyResponse.status} ${legacyResponse.statusText}`);
@@ -54,12 +54,12 @@ async function loadTeamEloLadder() {
 async function loadTeamEloHistory() {
     try {
         // Try to load team ELO history data with team match type
-        const response = await fetch('../stats_reports/elo_history_team.json');
+        const response = await fetch('stats_reports/elo_history_team.json');
         
         if (!response.ok) {
             // Fall back to legacy filename if team-specific file isn't found
             console.log('Team ELO history file not found, trying legacy filename...');
-            const legacyResponse = await fetch('../stats_reports/elo_history.json');
+            const legacyResponse = await fetch('stats_reports/elo_history.json');
             
             if (!legacyResponse.ok) {
                 throw new Error(`Failed to load team ELO history data: ${legacyResponse.status} ${legacyResponse.statusText}`);
@@ -79,7 +79,7 @@ async function loadTeamEloHistory() {
 async function loadPickupEloLadder() {
     try {
         console.log('Attempting to load pickup ELO ladder from: ../elo_reports_pickup/pickup_player_elo_ladder.json');
-        const response = await fetch('../elo_reports_pickup/pickup_player_elo_ladder.json');
+        const response = await fetch('elo_reports_pickup/pickup_player_elo_ladder.json');
         
         if (!response.ok) {
             console.error(`Failed to load pickup player ELO ladder data: ${response.status} ${response.statusText}`);
@@ -99,7 +99,7 @@ async function loadPickupEloLadder() {
 async function loadPickupEloHistory() {
     try {
         console.log('Attempting to load pickup ELO history from: ../elo_reports_pickup/pickup_player_elo_history.json');
-        const response = await fetch('../elo_reports_pickup/pickup_player_elo_history.json');
+        const response = await fetch('elo_reports_pickup/pickup_player_elo_history.json');
         
         if (!response.ok) {
             console.error(`Failed to load pickup player ELO history data: ${response.status} ${response.statusText}`);
@@ -119,7 +119,7 @@ async function loadPickupEloHistory() {
 async function loadFlexEloLadder() {
     try {
         console.log('Attempting to load flex ELO ladder from: ../elo_reports_pickup/pickup_flex_elo_ladder.json');
-        const response = await fetch('../elo_reports_pickup/pickup_flex_elo_ladder.json');
+        const response = await fetch('elo_reports_pickup/pickup_flex_elo_ladder.json');
         
         if (!response.ok) {
             console.error(`Failed to load flex ELO ladder data: ${response.status} ${response.statusText}`);
@@ -139,7 +139,7 @@ async function loadFlexEloLadder() {
 async function loadSupportEloLadder() {
     try {
         console.log('Attempting to load support ELO ladder from: ../elo_reports_pickup/pickup_support_elo_ladder.json');
-        const response = await fetch('../elo_reports_pickup/pickup_support_elo_ladder.json');
+        const response = await fetch('elo_reports_pickup/pickup_support_elo_ladder.json');
         
         if (!response.ok) {
             console.error(`Failed to load support ELO ladder data: ${response.status} ${response.statusText}`);
@@ -159,7 +159,7 @@ async function loadSupportEloLadder() {
 async function loadFarmerEloLadder() {
     try {
         console.log('Attempting to load farmer ELO ladder from: ../elo_reports_pickup/pickup_farmer_elo_ladder.json');
-        const response = await fetch('../elo_reports_pickup/pickup_farmer_elo_ladder.json');
+        const response = await fetch('elo_reports_pickup/pickup_farmer_elo_ladder.json');
         
         if (!response.ok) {
             console.error(`Failed to load farmer ELO ladder data: ${response.status} ${response.statusText}`);
@@ -194,9 +194,9 @@ async function loadPlayerStats() {
             
             // Try to load pickup-specific player performance data files
             const pickupFiles = {
-                'Flex': ['../elo_reports_pickup/player_performance_pickup_role_flex.json', '../elo_reports_pickup/player_performance_role_flex.json'],
-                'Farmer': ['../elo_reports_pickup/player_performance_pickup_role_farmer.json', '../elo_reports_pickup/player_performance_role_farmer.json'],
-                'Support': ['../elo_reports_pickup/player_performance_pickup_role_support.json', '../elo_reports_pickup/player_performance_role_support.json']
+                'Flex': ['elo_reports_pickup/player_performance_pickup_role_flex.json', 'elo_reports_pickup/player_performance_role_flex.json'],
+                'Farmer': ['elo_reports_pickup/player_performance_pickup_role_farmer.json', 'elo_reports_pickup/player_performance_role_farmer.json'],
+                'Support': ['elo_reports_pickup/player_performance_pickup_role_support.json', 'elo_reports_pickup/player_performance_role_support.json']
             };
             
             // Initialize role data containers
@@ -307,9 +307,9 @@ async function loadPlayerStats() {
             
             // Define the team-specific role performance files
             const teamRoleFiles = {
-                'Flex': ['../stats_reports/player_performance_team_role_flex.json'],
-                'Farmer': ['../stats_reports/player_performance_team_role_farmer.json'],
-                'Support': ['../stats_reports/player_performance_team_role_support.json']
+                'Flex': ['stats_reports/player_performance_team_role_flex.json'],
+                'Farmer': ['stats_reports/player_performance_team_role_farmer.json'],
+                'Support': ['stats_reports/player_performance_team_role_support.json']
             };
             
             // Initialize role data containers
