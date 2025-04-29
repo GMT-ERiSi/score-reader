@@ -365,12 +365,6 @@ function initializeApp(modules) {
                     addRoleFilter('aiKillsTable', Array.from(uniqueRoles));
                     console.log(`Added role filter with ${uniqueRoles.size} roles: ${Array.from(uniqueRoles).join(', ')}`);
 
-                    // Connect role filter button clicks to filter all leaderboards
-                    document.addEventListener('roleFilterChanged', (e) => {
-                        const selectedRole = e.detail.role;
-                        console.log(`Filtering leaderboards and chart for role: ${selectedRole}`);
-                        filterAllLeaderboards(selectedRole);
-                    });
                 } else {
                     console.log("No roles found, not adding role filter");
                     
@@ -379,26 +373,6 @@ function initializeApp(modules) {
                     addRoleFilter('aiKillsTable', ['Farmer', 'Flex', 'Support']);
                 }
                 
-                // Add separate listener to filter leaderboards when role buttons are clicked
-                const roleFilterContainer = document.getElementById('roleFilterContainer');
-                if (roleFilterContainer) {
-                    // Use a flag to prevent adding the listener multiple times if this function is called again
-                    if (!roleFilterContainer.dataset.leaderboardListenerAdded) {
-                        roleFilterContainer.addEventListener('click', (e) => {
-                            const target = e.target;
-                            // Ensure it's a role button click
-                            if (target.classList.contains('role-filter-button') && target.dataset.role) {
-                                const selectedRole = target.dataset.role;
-                                console.log(`Filtering leaderboards for role: ${selectedRole}`);
-                                
-                                // Filter the leaderboards
-                                filterAllLeaderboards(selectedRole);
-                            }
-                        });
-                        roleFilterContainer.dataset.leaderboardListenerAdded = 'true'; // Mark listener as added
-                        console.log("Added separate event listener for role filtering.");
-                    }
-                }
             }
             
             console.log("All team visualizations rendered successfully");
